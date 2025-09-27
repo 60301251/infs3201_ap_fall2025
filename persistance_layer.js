@@ -50,3 +50,14 @@ async function findAlbum(albumId){
     }
     return null
 }
+
+//Find album using album name
+async function findAlbumbyName(albumName){
+    let albums=await loadAlbum()
+    for(let i=0;i<albums.length;i++){
+        if(albums[i].name.toLowerCase()===albumName.toLowerCase()){
+            return albums[i]
+        }
+    }
+    return null     
+} 
