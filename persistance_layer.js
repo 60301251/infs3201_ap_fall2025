@@ -61,3 +61,13 @@ async function findAlbumbyName(albumName){
     }
     return null     
 } 
+
+module.exports={
+    loadPhoto,
+    loadAlbum,
+    savePhoto,
+    saveAlbum,
+    findPhoto,
+    findAlbum,
+    findAlbumbyName,
+}
