@@ -39,4 +39,14 @@ async function findPhoto(photoId){
     return null
 }
 
+//Find an album using albumID
+async function findAlbum(albumId){
+    let albums = await loadAlbum()
 
+    for(let i=0;i<albums.length;i++){
+        if(albums[i].id==albumId){
+            return albums[i]
+        }
+    }
+    return null
+}
