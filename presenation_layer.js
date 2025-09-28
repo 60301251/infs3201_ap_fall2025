@@ -67,9 +67,22 @@ async function displayAlbumPhotos(albumname) {
             console.log(`${photo.filename},${photo.resolution},${tagsString}`)
         }
 
+    }  
+}
+
+//To add tags to a photo
+async function tagPhoto(photoId){
+    let newTag=prompt("Enter new Tag: ")
+    const result= await addTag(photoId,newTag)
+
+    if(result===null){
+        console.log("Photo not found")
     }
-
-
-    
+    else if(result==="duplicate"){
+        console.log(`Tag ${newTag} already exists for this photo.`)
+    }
+    else{
+        console.log("Updated!")
+    }
 }
 
