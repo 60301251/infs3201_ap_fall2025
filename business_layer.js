@@ -28,9 +28,9 @@ async function getPhoto(photoId, userId){
         return null
     }
     if(photo.owner!==userId){
-        return "unauthorized"
-        return photo
+        return "unauthorized" 
     }
+    return photo
 
 } 
 
@@ -40,7 +40,7 @@ async function getAlbum(albumId){
 }
 
 //To update details of photo using photoId
-async function updatePhoto(photoId,newtitle,newdes){
+async function updatePhoto(photoId,newtitle,newdes,userId){
     let photos= await loadPhoto()
     let photo=null
 
@@ -52,6 +52,10 @@ async function updatePhoto(photoId,newtitle,newdes){
     }
     if(!photo){
         return null
+    }
+    if(photo.owner!==userId){
+        return "unauthorized"
+        
     }
     if(newtitle && newtitle.trim()!== ""){
         photo.title=newtitle
