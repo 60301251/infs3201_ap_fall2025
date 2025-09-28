@@ -9,6 +9,7 @@ const prompt=require('prompt-sync')()
 
 
 const{
+    login,
     getPhoto,
     getAlbum,
     updatePhoto,

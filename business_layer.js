@@ -6,6 +6,8 @@
 */
 
 const{
+    loadUsers,
+    findUser,
     loadPhoto,
     loadAlbum,
     savePhoto,
