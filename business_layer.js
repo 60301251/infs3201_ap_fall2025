@@ -15,10 +15,24 @@ const{
     findAlbumbyName,
 } = require('./persistance_layer')
 
-//Get photo details by ID
-async function getPhoto(photoId){
-    return await findPhoto(photoId)
+//Validate login users
+async function login(username,password){
+    return await findUser(username,password) 
 }
+
+
+//To getPhoto using userId
+async function getPhoto(photoId, userId){
+    const photo=await findPhoto(photoId)
+    if(!photo){
+        return null
+    }
+    if(photo.owner!==userId){
+        return "unauthorized"
+        return photo
+    }
+
+} 
 
 //Get Album details by ID
 async function getAlbum(albumId){
@@ -76,7 +90,7 @@ async function getByAlbum(albumName){
 }
 
 //To add tags to a photo
-async function addTag(photoId,newTag) {
+async function addTag(photoId,newTag,userId) {
     let photos= await loadPhoto()
     let photo=null
 
@@ -99,25 +113,16 @@ async function addTag(photoId,newTag) {
     if(duplicate){
         return "duplicate"
     }
-    
+    if(photo.owner!==userId){
+        return "unauthorized"
+    }
     photo.tags.push(newTag)
     await savePhoto(photos)
     return photo
     
 }
 
-//To getPhoto using userId
-async function getPhoto(photoId, userId){
-    const photo=await findPhoto(photoId)
-    if(!photo){
-        return null
-    }
-    if(photo.owner!==userId){
-        return "unauthorized"
-        return photo
-    }
-
-} 
+ 
     
 
 module.exports={
