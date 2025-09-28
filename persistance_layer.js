@@ -5,12 +5,10 @@
 * Assignment 2
 */
 
-const { isUtf8 } = require('buffer')
-const { readFile } = require('fs')
 const fs=require('fs/promises')
 
 async function loadPhoto(){
-    let data=await fs.readFile("photos.json","Utf8")
+    let data=await fs.readFile("photos.json","utf8")
     return JSON.parse(data)
 }
 

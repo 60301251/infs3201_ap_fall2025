@@ -61,7 +61,7 @@ async function getByAlbum(albumName){
 
     for(let i=0;i<photos.length;i++){
         let present=false
-        for(let i=0;i<photos[i].albums.length;i++){
+        for(let j=0;j<photos[i].albums.length;j++){
             if(photos[i].albums[j]===album.id){
                 present = true
                 break
@@ -99,7 +99,7 @@ async function addTag(photoId,newTag) {
     if(duplicate){
         return "duplicate"
     }
-    photos.tags.push(newTag)
+    photo.tags.push(newTag)
     await savePhoto(photos)
     return photo
     
