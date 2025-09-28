@@ -15,7 +15,7 @@ const{
     updatePhoto,
     getByAlbum,
     addTag
-}=("./business_layer")
+}=require("./business_layer")
 
 let currentUser=null
 
@@ -26,9 +26,10 @@ async function dologin(){
         let password=prompt("Please enter your password: ")
         let user=await login(username,password)
 
-        if(!user){
+        if(user){
             currentUser=user
             console.log("Welcome!!!")
+            break
         }
         else{
             console.log("Invalid credentials,please try again.")
@@ -47,7 +48,7 @@ async function displayPhoto(PhotoId){
     else{
         console.log(`Filename: ${photo.filename}`)
         console.log(`Title: ${photo.title}`)
-        console.log('Date: ${new Date(photo.date).toDateString()}')
+        console.log(`Date: ${new Date(photo.date).toDateString()}`)
         console.log(`Albums: ${photo.albums}`)
         console.log(`Tags: ${photo.tags}`)
 
@@ -56,6 +57,16 @@ async function displayPhoto(PhotoId){
 
 // To update details of photo using photoId
 async function updatePhotoDetails(photoId){
+       let photo = await getPhoto(photoId, currentUser.id)
+
+    if (photo === null) {
+        console.log("Error: Photo not found!")
+        return
+    }
+    if (photo === "unauthorized") {
+        console.log("You cannot update this photo.")
+        return
+    }
      console.log("Press enter to reuse existing value. ")
      let newtitle = prompt(`Enter value for title [${photo.title}]: `)
      let newdes= prompt(`Enter value for description [${photo.description}]: `)
@@ -91,8 +102,7 @@ async function displayAlbumPhotos(albumname) {
 }
 
 //To add tags to a photo
-async function tagPhoto(photoId){
-    let newTag=prompt("Enter new Tag: ")
+async function tagPhoto(photoId,newTag){
     const result= await addTag(photoId,newTag,currentUser.id)
 
     if(result===null){
