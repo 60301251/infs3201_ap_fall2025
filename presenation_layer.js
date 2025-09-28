@@ -6,7 +6,7 @@
 */
 
 const prompt=require('prompt-sync')()
-const fs= require('fs/promises')
+
 
 const{
     getPhoto,
@@ -15,4 +15,22 @@ const{
     getByAlbum,
     addTag
 }=("./business_layer")
+
+//Disply photo details by ID
+async function displayPhoto(PhotoId){
+    const photo= await getPhoto(PhotoId)
+
+    if(!photo){
+        console.log("Error: Photo not found!")
+        return
+    }
+    else{
+        console.log(`Filename: ${photo.filename}`)
+        console.log(`Title: ${photo.title}`)
+        console.log('Date: ${new Date(photo.date).toDateString()}')
+        console.log(`Albums: ${photo.albums}`)
+        console.log(`Tags: ${photo.tags}`)
+
+    }
+}
 
