@@ -50,5 +50,26 @@ async function updatePhotoDetails(photoId){
 
      }
 
-     
+//To create a CSV file about the album details
+async function displayAlbumPhotos(albumname) {
+    const result= await getByAlbum(albumname)
+
+    if(!result){
+        console.log("Album not found")
+        return
+    }
+    else{
+        console.log("Album: ",result.album.name)
+        console.log("filename,resolution,tags")
+
+        for (let photo of result.photos){
+            let tagsString=photo.tags.join(":")
+            console.log(`${photo.filename},${photo.resolution},${tagsString}`)
+        }
+
+    }
+
+
+    
+}
 
