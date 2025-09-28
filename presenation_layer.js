@@ -17,9 +17,28 @@ const{
     addTag
 }=("./business_layer")
 
+let currentUser=null
+
+//To login user
+async function dologin(){
+    while(true){
+        let username=prompt("Please enter your username: ")
+        let password=prompt("Please enter your password: ")
+        let user=await login(username,password)
+
+        if(!user){
+            currentUser=user
+            console.log("Welcome!!!")
+        }
+        else{
+            console.log("Invalid credentials,please try again.")
+        }
+    }
+}
+
 //Disply photo details by ID
 async function displayPhoto(PhotoId){
-    const photo= await getPhoto(PhotoId)
+    const photo= await getPhoto(PhotoId,currentUser.id)
 
     if(!photo){
         console.log("Error: Photo not found!")
@@ -41,7 +60,7 @@ async function updatePhotoDetails(photoId){
      let newtitle = prompt(`Enter value for title [${photo.title}]: `)
      let newdes= prompt(`Enter value for description [${photo.description}]: `)
 
-     const updated = await updatePhoto(photoId,newtitle,newdes)
+     const updated = await updatePhoto(photoId,newtitle,newdes,currentUser.id)
         if(!updated){
             console.log("Error: Photo not found! ")
         }
@@ -74,7 +93,7 @@ async function displayAlbumPhotos(albumname) {
 //To add tags to a photo
 async function tagPhoto(photoId){
     let newTag=prompt("Enter new Tag: ")
-    const result= await addTag(photoId,newTag)
+    const result= await addTag(photoId,newTag,currentUser.id)
 
     if(result===null){
         console.log("Photo not found")
