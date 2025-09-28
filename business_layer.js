@@ -74,3 +74,41 @@ async function getByAlbum(albumName){
     return {album, photos: albumPhotos}
 
 }
+
+//To add tags to a photo
+async function addTag(photoId,newTag) {
+    let photos= await loadPhoto()
+    let photo=null
+
+    for(let i=0;i<photos.length;i++){
+        if(photos[i].id===photoId){
+            photo=photos[i]
+            break
+        }
+    }
+    if(!photo){
+        return null
+    }
+    let duplicate = false
+    for (let i = 0; i < photo.tags.length; i++) {
+        if (photo.tags[i] === newTag) {
+            duplicate = true
+            break
+        }
+    }
+    if(duplicate){
+        return "duplicate"
+    }
+    photos.tags.push(newTag)
+    await savePhoto(photos)
+    return photo
+    
+}
+
+module.exports={
+    getPhoto,
+    getAlbum,
+    updatePhoto,
+    getByAlbum,
+    addTag
+}
