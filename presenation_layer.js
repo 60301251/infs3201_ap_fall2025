@@ -34,3 +34,21 @@ async function displayPhoto(PhotoId){
     }
 }
 
+// To update details of photo using photoId
+async function updatePhotoDetails(photoId){
+     console.log("Press enter to reuse existing value. ")
+     let newtitle = prompt(`Enter value for title [${photo.title}]: `)
+     let newdes= prompt(`Enter value for description [${photo.description}]: `)
+
+     const updated = await updatePhoto(photoId,newtitle,newdes)
+        if(!updated){
+            console.log("Error: Photo not found! ")
+        }
+        else{
+            console.log("Photo updated!")
+        }
+
+     }
+
+     
+
