@@ -99,11 +99,26 @@ async function addTag(photoId,newTag) {
     if(duplicate){
         return "duplicate"
     }
+    
     photo.tags.push(newTag)
     await savePhoto(photos)
     return photo
     
 }
+
+//To getPhoto using userId
+async function getPhoto(photoId, userId){
+    const photo=await findPhoto(photoId)
+    if(!photo){
+        return null
+    }
+    if(photo.owner!==userId){
+        return "unauthorized"
+        return photo
+    }
+
+} 
+    
 
 module.exports={
     getPhoto,
