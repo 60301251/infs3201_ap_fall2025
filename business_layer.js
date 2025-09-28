@@ -130,6 +130,7 @@ async function addTag(photoId,newTag,userId) {
     
 
 module.exports={
+    login,
     getPhoto,
     getAlbum,
     updatePhoto,
