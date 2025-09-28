@@ -86,3 +86,43 @@ async function tagPhoto(photoId){
     }
 }
 
+//Main function
+async function application(){
+    while (true) {
+        console.log('Options:')
+        console.log('1. Find Photo')
+        console.log('2. Update Photo details')
+        console.log('3. Album Photo List')
+        console.log('4. Tag Photo')
+        console.log('5. Exit')
+        
+        let selection = Number(prompt("Your selection > "))  
+
+        if (selection == 1) {
+            let photoId=Number(prompt("Photo ID? "))
+            await displayPhoto(photoId)
+       }
+         else if (selection == 2){
+             let photoId = Number(prompt("Photo ID? "))
+            await updatePhotoDetails(photoId)
+        }
+         else if (selection == 3) {
+            let  albumname = prompt("What is the name of the album? ").toLowerCase()
+            await displayAlbumPhotos(albumname)
+        }
+         else if (selection == 4) {
+            let photoId=Number(prompt("What is the photo ID to tag? "))
+            let newTag = prompt("What tag to add? ")
+            await tagPhoto(photoId,newTag)
+        }
+         else if (selection == 5) {
+            break 
+         }
+        else {
+            console.log(' ERROR!!! Pick a number between 1 and 5')
+         }
+     }
+
+}
+application()
+
