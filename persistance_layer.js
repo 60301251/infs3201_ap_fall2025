@@ -60,6 +60,12 @@ async function findAlbumbyName(albumName){
     return null     
 } 
 
+//To load users
+async function loadUsers(){
+    let data=await fs.readFile("users.json","utf8")
+    return JSON.parse(data)
+}
+
 module.exports={
     loadPhoto,
     loadAlbum,
