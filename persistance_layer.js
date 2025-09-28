@@ -66,6 +66,18 @@ async function loadUsers(){
     return JSON.parse(data)
 }
 
+//To find users
+async function findUser(username,password){
+    let users =await loadUsers()
+
+    for(let i=0;i<users.length;i++){
+        if(users[i].username===username && users[i].password===password){
+            return users[i]
+        }
+    }
+    return null
+}
+
 module.exports={
     loadPhoto,
     loadAlbum,
@@ -74,4 +86,6 @@ module.exports={
     findPhoto,
     findAlbum,
     findAlbumbyName,
+    loadUsers,
+    findUser
 }
