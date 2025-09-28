@@ -49,3 +49,28 @@ async function updatePhoto(photoId,newtitle,newdes){
     return photo
 }
 
+//To create a CSV file about the album details
+async function getByAlbum(albumName){
+    let album= await findAlbumbyName(albumName)
+    let photos = await loadPhoto()
+    let albumPhotos=[]
+
+    if(!album){
+        return null
+    }
+
+    for(let i=0;i<photos.length;i++){
+        let present=false
+        for(let i=0;i<photos[i].albums.length;i++){
+            if(photos[i].albums[j]===album.id){
+                present = true
+                break
+            }
+        }
+        if(present){
+            albumPhotos.push(photos[i])
+        }
+    }
+    return {album, photos: albumPhotos}
+
+}
