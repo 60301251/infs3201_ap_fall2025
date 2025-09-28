@@ -16,7 +16,12 @@ const{
 } = require('./persistance_layer')
 
 //Get photo details by ID
-async fuction getPhoto(photoID){
-    return await findPhoto(photoID)
+async function getPhoto(photoId){
+    return await findPhoto(photoId)
+}
+
+//Get Album details by ID
+async function getAlbum(albumId){
+    return await findAlbum(albumId)
 }
 
