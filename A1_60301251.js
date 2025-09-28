@@ -29,7 +29,7 @@ async function loadAlbum() {
     
 }
 /**
- * To save photos nback to the file
+ * To save photos back to the file
  * @param {Array} photoList - List of photos
  * @returns {Promise<void>}
 */

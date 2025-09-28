@@ -25,3 +25,27 @@ async function getAlbum(albumId){
     return await findAlbum(albumId)
 }
 
+//To update details of photo using photoId
+async function updatePhoto(photoId,newtitle,newdes){
+    let photos= await loadPhoto()
+    let photo=null
+
+    for(let i=0;i<photos.length;i++){
+        if(photos[i].id===photoId){
+            photo=photos[i]
+            break
+        }
+    }
+    if(!photo){
+        return null
+    }
+    if(newtitle && newtitle.trim()!== ""){
+        photo.title=newtitle
+    }
+    if(newdes && newdes.trim()!== ""){
+        photo.description=newdes
+    }
+    await savePhoto(photos)
+    return photo
+}
+
