@@ -8,3 +8,11 @@
 const prompt=require('prompt-sync')()
 const fs= require('fs/promises')
 
+const{
+    getPhoto,
+    getAlbum,
+    updatePhoto,
+    getByAlbum,
+    addTag
+}=("./business_layer")
+
