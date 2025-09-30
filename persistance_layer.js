@@ -32,7 +32,7 @@ async function savePhoto(photoList){
  * @returns {Promise<Object[]>} Array of album objects.
 */
 async function loadAlbum(){
-    let data=await fs.readFile("albums.json","Utf8")
+    let data=await fs.readFile("albums.json","utf8")
     return JSON.parse(data)
 }
 /**
