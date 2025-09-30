@@ -33,7 +33,7 @@ async function findPhoto(photoId){
     let albums = await loadAlbum()
 
     for(let i=0;i<photos.length;i++){
-        if(photos[i].id==photoId){
+        if(Number(photos[i].id)==Number(photoId)){
             return photos[i]
         }
     }

@@ -41,6 +41,11 @@ async function dologin(){
 async function displayPhoto(PhotoId){
     const photo= await getPhoto(PhotoId,currentUser.id)
 
+    if(photo === "unauthorized"){
+        console.log("You cannot access this photo.")
+        return
+    }
+
     if(!photo){
         console.log("Error: Photo not found!")
         return
@@ -111,6 +116,9 @@ async function tagPhoto(photoId,newTag){
     else if(result==="duplicate"){
         console.log(`Tag ${newTag} already exists for this photo.`)
     }
+    else if(result === "unauthorized") {
+        console.log("You cannot tag this photo.")
+    }
     else{
         console.log("Updated!")
     }
@@ -118,6 +126,12 @@ async function tagPhoto(photoId,newTag){
 
 //Main function
 async function application(){
+    await dologin()
+    if (!currentUser) {
+        console.log("Error: You must login first!")
+        return
+    }
+    let exitProgram = false;
     while (true) {
         console.log('Options:')
         console.log('1. Find Photo')
