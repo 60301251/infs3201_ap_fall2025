@@ -7,27 +7,50 @@
 
 const fs=require('fs/promises')
 
-//To load photos from the file
+/**
+ * To load photos from the file
+ * @async
+ * @returns {Promise<Object[]>} Array of photo objects.
+*/
 async function loadPhoto(){
     let data=await fs.readFile("photos.json","utf8")
     return JSON.parse(data)
 }
 
-//To save photos back to the file
+/**
+ * To save photos back to the file
+ * @async
+ * @param {Object[]} photoList - Array of photo objects to save.
+ * @returns {Promise<void>}
+*/
 async function savePhoto(photoList){
     await fs.writeFile("photos.json", JSON.stringify(photoList,null,2))
 }
-//To load albums from the file
+/**
+ * To load albums from the file
+ * @async
+ * @returns {Promise<Object[]>} Array of album objects.
+*/
 async function loadAlbum(){
     let data=await fs.readFile("albums.json","Utf8")
     return JSON.parse(data)
 }
-//To save albums back to the file
+/**
+ * To save albums back to the file
+ * @async
+ * @param {Object[]} albumList - Array of album objects to save.
+ * @returns {Promise<void>}
+*/
 async function saveAlbum(albumList){
     await fs.writeFile("albums.json", JSON.stringify(albumList,null,2))
 }
 
-//Find a photo using photoID
+/**
+ * Find a photo using photoID
+ * @async
+ * @param {number} photoId - ID of the photo.
+ * @returns {Promise<Object|null>} Photo object if found, otherwise null.
+*/
 async function findPhoto(photoId){
     let photos = await loadPhoto()
     let albums = await loadAlbum()
@@ -40,7 +63,12 @@ async function findPhoto(photoId){
     return null
 }
 
-//Find an album using albumID
+/**
+ * Find an album using albumID
+ * @async
+ * @param {number} albumId - ID of the album.
+ * @returns {Promise<Object|null>} Album object if found, otherwise null.
+*/
 async function findAlbum(albumId){
     let albums = await loadAlbum()
 
@@ -52,7 +80,13 @@ async function findAlbum(albumId){
     return null
 }
 
-//Find album using album name
+/**
+ * Find album using album name
+ * @async
+ * @param {string} albumName - Name of the album.
+ * @returns {Promise<Object|null>} Album object if found, otherwise null.
+
+*/
 async function findAlbumbyName(albumName){
     let albums=await loadAlbum()
     for(let i=0;i<albums.length;i++){
@@ -63,13 +97,23 @@ async function findAlbumbyName(albumName){
     return null     
 } 
 
-//To load users
+/**
+ * To load users
+ * @async
+ * @returns {Promise<Object[]>} Array of user objects
+*/
 async function loadUsers(){
     let data=await fs.readFile("users.json","utf8")
     return JSON.parse(data)
 }
 
-//To find users
+/**
+ * To find users
+ * @async
+ * @param {string} username - Username of the user.
+ * @param {string} password - Password of the user.
+ * @returns {Promise<Object|null>} User object if found, otherwise null.
+*/
 async function findUser(username,password){
     let users =await loadUsers()
 

@@ -19,7 +19,11 @@ const{
 
 let currentUser=null
 
-//To login user
+/**
+ * To login user
+ * @async
+ * @returns {Promise<void>}
+ * */
 async function dologin(){
     while(true){
         let username=prompt("Please enter your username: ")
@@ -36,8 +40,13 @@ async function dologin(){
         }
     }
 }
+/** 
+ * Disply photo details by ID
+ * @async
+ * @param {number} PhotoId - The ID of the photo to display.
+ * @returns {Promise<void>}
+*/
 
-//Disply photo details by ID
 async function displayPhoto(PhotoId){
     const photo= await getPhoto(PhotoId,currentUser.id)
 
@@ -60,7 +69,12 @@ async function displayPhoto(PhotoId){
     }
 }
 
-// To update details of photo using photoId
+/**
+ * To update details of photo using photoId
+ * @async
+ * @param {number} photoId - The ID of the photo to update.
+ * @returns {Promise<void>}
+*/
 async function updatePhotoDetails(photoId){
        let photo = await getPhoto(photoId, currentUser.id)
 
@@ -86,7 +100,12 @@ async function updatePhotoDetails(photoId){
 
      }
 
-//To create a CSV file about the album details
+/**
+ * To create a CSV file about the album details
+ * @async
+ * @param {string} albumname - Name of the album to display.
+ * @returns {Promise<void>}
+*/
 async function displayAlbumPhotos(albumname) {
     const result= await getByAlbum(albumname)
 
@@ -106,7 +125,13 @@ async function displayAlbumPhotos(albumname) {
     }  
 }
 
-//To add tags to a photo
+/**
+ * To add tags to a photo
+ * @async
+ * @param {number} photoId - The ID of the photo to tag.
+ * @param {string} newTag - The tag to add.
+ * @returns {Promise<void>}
+*/
 async function tagPhoto(photoId,newTag){
     const result= await addTag(photoId,newTag,currentUser.id)
 
@@ -124,7 +149,11 @@ async function tagPhoto(photoId,newTag){
     }
 }
 
-//Main function
+/**
+ * Main function
+ * @async
+ * @returns {Promise<void>}
+*/
 async function application(){
     await dologin()
     if (!currentUser) {

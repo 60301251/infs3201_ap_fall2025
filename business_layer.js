@@ -17,13 +17,25 @@ const{
     findAlbumbyName,
 } = require('./persistance_layer')
 
-//Validate login users
+/**
+ * Validate login users
+ *  @async
+ * @param {string} username - The username to validate.
+ * @param {string} password - The password to validate.
+ * @returns {Promise<Object|null>} The user object if login succeeds, otherwise null.
+*/
 async function login(username,password){
     return await findUser(username,password) 
 }
 
 
-//To getPhoto using userId
+/**
+ * To getPhoto using userId
+ *  @async
+ * @param {number} photoId - The ID of the photo.
+ * @param {number} userId - The ID of the user requesting the photo.
+ * @returns {Promise<Object|string|null>} Photo object if allowed, "unauthorized" if access denied, or null if not found.
+*/
 async function getPhoto(photoId, userId){
     const photo=await findPhoto(photoId)
     if(!photo){
@@ -40,12 +52,25 @@ async function getPhoto(photoId, userId){
 
 } 
 
-//Get Album details by ID
+/**
+ * Get Album details by ID
+ * @async
+ * @param {number} albumId - The ID of the album.
+ * @returns {Promise<Object|null>} Album object if found, otherwise null.
+*/
 async function getAlbum(albumId){
     return await findAlbum(albumId)
 }
 
-//To update details of photo using photoId
+/**
+ * To update details of photo using photoId
+ * @async
+ * @param {number} photoId - ID of the photo to update.
+ * @param {string} newtitle - New title (optional).
+ * @param {string} newdes - New description (optional).
+ * @param {number} userId - ID of the user making the update.
+ * @returns {Promise<Object|string|null>} Updated photo object, "unauthorized" if access denied, or null if not found.
+*/
 async function updatePhoto(photoId,newtitle,newdes,userId){
     let photos= await loadPhoto()
     let photo=null
@@ -73,7 +98,12 @@ async function updatePhoto(photoId,newtitle,newdes,userId){
     return photo
 }
 
-//To create a CSV file about the album details
+/**
+ * To create a CSV file about the album details
+ * @async
+ * @param {string} albumName - Name of the album.
+ * @returns {Promise<{album: Object, photos: Object[]} | null>} Object containing album and its photos, or null if album not found.
+*/
 async function getByAlbum(albumName){
     let album= await findAlbumbyName(albumName)
     let photos = await loadPhoto()
@@ -99,7 +129,14 @@ async function getByAlbum(albumName){
 
 }
 
-//To add tags to a photo
+/**
+ * To add tags to a photo
+ * @async
+ * @param {number} photoId - ID of the photo.
+ * @param {string} newTag - Tag to add.
+ * @param {number} userId - ID of the user adding the tag.
+ * @returns {Promise<Object|string|null>} Updated photo object, "duplicate" if tag exists, "unauthorized" if not owned, or null if not found.
+*/
 async function addTag(photoId,newTag,userId) {
     let photos= await loadPhoto()
     let photo=null
