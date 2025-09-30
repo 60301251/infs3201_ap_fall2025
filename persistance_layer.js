@@ -7,19 +7,22 @@
 
 const fs=require('fs/promises')
 
+//To load photos from the file
 async function loadPhoto(){
     let data=await fs.readFile("photos.json","utf8")
     return JSON.parse(data)
 }
 
+//To save photos back to the file
 async function savePhoto(photoList){
     await fs.writeFile("photos.json", JSON.stringify(photoList,null,2))
 }
+//To load albums from the file
 async function loadAlbum(){
     let data=await fs.readFile("albums.json","Utf8")
     return JSON.parse(data)
 }
-
+//To save albums back to the file
 async function saveAlbum(albumList){
     await fs.writeFile("albums.json", JSON.stringify(albumList,null,2))
 }
