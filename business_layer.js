@@ -44,13 +44,12 @@ async function getPhoto(photoId, userId){
     if(photo.owner!==userId){
         return "unauthorized" 
     }
-    if(photo === "unauthorized"){
-    console.log("You cannot access this photo.")
-    return
-}
     return photo
 
-} 
+}
+   
+
+
 
 /**
  * Get Album details by ID
