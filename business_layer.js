@@ -2,12 +2,10 @@
 * Name:Eva Paul
 * Student ID:60301251
 * INFS3201-5/6- Web Tech 2 
-* Assignment 2
+* Assignment 3
 */
 
 const{
-    loadUsers,
-    findUser,
     loadPhoto,
     loadAlbum,
     savePhoto,
@@ -18,31 +16,15 @@ const{
 } = require('./persistance_layer')
 
 /**
- * Validate login users
- *  @async
- * @param {string} username - The username to validate.
- * @param {string} password - The password to validate.
- * @returns {Promise<Object|null>} The user object if login succeeds, otherwise null.
-*/
-async function login(username,password){
-    return await findUser(username,password) 
-}
-
-
-/**
  * To getPhoto using userId
  *  @async
  * @param {number} photoId - The ID of the photo.
- * @param {number} userId - The ID of the user requesting the photo.
  * @returns {Promise<Object|string|null>} Photo object if allowed, "unauthorized" if access denied, or null if not found.
 */
-async function getPhoto(photoId, userId){
+async function getPhoto(photoId){
     const photo=await findPhoto(photoId)
     if(!photo){
         return null
-    }
-    if(photo.owner!==userId){
-        return "unauthorized" 
     }
     return photo
 
@@ -64,10 +46,9 @@ async function getAlbum(albumId){
  * @param {number} photoId - ID of the photo to update.
  * @param {string} newtitle - New title (optional).
  * @param {string} newdes - New description (optional).
- * @param {number} userId - ID of the user making the update.
  * @returns {Promise<Object|string|null>} Updated photo object, "unauthorized" if access denied, or null if not found.
 */
-async function updatePhoto(photoId,newtitle,newdes,userId){
+async function updatePhoto(photoId,newtitle,newdes){
     let photos= await loadPhoto()
     let photo=null
 
@@ -79,10 +60,6 @@ async function updatePhoto(photoId,newtitle,newdes,userId){
     }
     if(!photo){
         return null
-    }
-    if(photo.owner!==userId){
-        return "unauthorized"
-        
     }
     if(newtitle && newtitle.trim()!== ""){
         photo.title=newtitle
@@ -130,10 +107,9 @@ async function getByAlbum(albumName){
  * @async
  * @param {number} photoId - ID of the photo.
  * @param {string} newTag - Tag to add.
- * @param {number} userId - ID of the user adding the tag.
  * @returns {Promise<Object|string|null>} Updated photo object, "duplicate" if tag exists, "unauthorized" if not owned, or null if not found.
 */
-async function addTag(photoId,newTag,userId) {
+async function addTag(photoId,newTag) {
     let photos= await loadPhoto()
     let photo=null
 
@@ -156,9 +132,6 @@ async function addTag(photoId,newTag,userId) {
     if(duplicate){
         return "duplicate"
     }
-    if(photo.owner!==userId){
-        return "unauthorized"
-    }
     photo.tags.push(newTag)
     await savePhoto(photos)
     return photo
@@ -166,7 +139,6 @@ async function addTag(photoId,newTag,userId) {
 }
 
 module.exports={
-    login,
     getPhoto,
     getAlbum,
     updatePhoto,

@@ -2,14 +2,13 @@
 * Name:Eva Paul
 * Student ID:60301251
 * INFS3201-5/6- Web Tech 2 
-* Assignment 2
+* Assignment 3
 */
 
 const prompt=require('prompt-sync')()
 
 
 const{
-    login,
     getPhoto,
     getAlbum,
     updatePhoto,
@@ -17,29 +16,6 @@ const{
     addTag
 }=require("./business_layer")
 
-let currentUser=null
-
-/**
- * To login user
- * @async
- * @returns {Promise<void>}
- * */
-async function dologin(){
-    while(true){
-        let username=prompt("Please enter your username: ")
-        let password=prompt("Please enter your password: ")
-        let user=await login(username,password)
-
-        if(user){
-            currentUser=user
-            console.log("Welcome!!!")
-            break
-        }
-        else{
-            console.log("Invalid credentials,please try again.")
-        }
-    }
-}
 /** 
  * Disply photo details by ID
  * @async
@@ -48,7 +24,7 @@ async function dologin(){
 */
 
 async function displayPhoto(PhotoId){
-    const photo= await getPhoto(PhotoId,currentUser.id)
+    const photo= await getPhoto(PhotoId)
 
     if(photo === "unauthorized"){
         console.log("You cannot access this photo.")
@@ -76,14 +52,10 @@ async function displayPhoto(PhotoId){
  * @returns {Promise<void>}
 */
 async function updatePhotoDetails(photoId){
-       let photo = await getPhoto(photoId, currentUser.id)
+       let photo = await getPhoto(photoId)
 
     if (photo === null) {
         console.log("Error: Photo not found!")
-        return
-    }
-    if (photo === "unauthorized") {
-        console.log("You cannot update this photo.")
         return
     }
      console.log("Press enter to reuse existing value. ")
@@ -133,16 +105,13 @@ async function displayAlbumPhotos(albumname) {
  * @returns {Promise<void>}
 */
 async function tagPhoto(photoId,newTag){
-    const result= await addTag(photoId,newTag,currentUser.id)
+    const result= await addTag(photoId,newTag)
 
     if(result===null){
         console.log("Photo not found")
     }
     else if(result==="duplicate"){
         console.log(`Tag ${newTag} already exists for this photo.`)
-    }
-    else if(result === "unauthorized") {
-        console.log("You cannot tag this photo.")
     }
     else{
         console.log("Updated!")
@@ -155,12 +124,7 @@ async function tagPhoto(photoId,newTag){
  * @returns {Promise<void>}
 */
 async function application(){
-    await dologin()
-    if (!currentUser) {
-        console.log("Error: You must login first!")
-        return
-    }
-    let exitProgram = false;
+
     while (true) {
         console.log('Options:')
         console.log('1. Find Photo')

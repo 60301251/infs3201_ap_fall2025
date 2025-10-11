@@ -2,7 +2,7 @@
 * Name:Eva Paul
 * Student ID:60301251
 * INFS3201-5/6- Web Tech 2 
-* Assignment 2
+* Assignment 3
 */
 
 const fs=require('fs/promises')
@@ -97,34 +97,6 @@ async function findAlbumbyName(albumName){
     return null     
 } 
 
-/**
- * To load users
- * @async
- * @returns {Promise<Object[]>} Array of user objects
-*/
-async function loadUsers(){
-    let data=await fs.readFile("users.json","utf8")
-    return JSON.parse(data)
-}
-
-/**
- * To find users
- * @async
- * @param {string} username - Username of the user.
- * @param {string} password - Password of the user.
- * @returns {Promise<Object|null>} User object if found, otherwise null.
-*/
-async function findUser(username,password){
-    let users =await loadUsers()
-
-    for(let i=0;i<users.length;i++){
-        if(users[i].username===username && users[i].password===password){
-            return users[i]
-        }
-    }
-    return null
-}
-
 module.exports={
     loadPhoto,
     loadAlbum,
@@ -133,6 +105,4 @@ module.exports={
     findPhoto,
     findAlbum,
     findAlbumbyName,
-    loadUsers,
-    findUser
 }
