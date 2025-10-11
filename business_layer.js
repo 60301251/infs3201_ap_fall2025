@@ -47,9 +47,6 @@ async function getPhoto(photoId, userId){
     return photo
 
 }
-   
-
-
 
 /**
  * Get Album details by ID
@@ -167,9 +164,6 @@ async function addTag(photoId,newTag,userId) {
     return photo
     
 }
-
- 
-    
 
 module.exports={
     login,
