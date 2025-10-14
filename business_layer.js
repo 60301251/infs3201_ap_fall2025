@@ -8,8 +8,6 @@
 const{
     loadPhoto,
     loadAlbum,
-    savePhoto,
-    saveAlbum,
     findPhoto,
     findAlbum,
     findAlbumbyName,
@@ -19,15 +17,10 @@ const{
  * To getPhoto using userId
  *  @async
  * @param {number} photoId - The ID of the photo.
- * @returns {Promise<Object|string|null>} Photo object if allowed, "unauthorized" if access denied, or null if not found.
+ * @returns {Promise<Object|null>} Photo object if allowed, or null if not found.
 */
 async function getPhoto(photoId){
-    const photo=await findPhoto(photoId)
-    if(!photo){
-        return null
-    }
-    return photo
-
+    return await findPhoto(photoId)
 }
 
 /**
