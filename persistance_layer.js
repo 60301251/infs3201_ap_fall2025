@@ -28,6 +28,15 @@ async function loadPhoto(){
     return resultData
 }
 
+async function savePhoto(photo) {
+    await connectDatabase()
+    const db=client.db('infs(3201_fall2025')
+    let photocollection=db.collection('photos')
+    let result= await photocollection.insertOne(photo)
+    return result.insertedId
+    
+}
+
 
 /**
  * To load albums from the file
@@ -85,7 +94,7 @@ async function findAlbumbyName(albumName){
     await connectDatabase()
     let db=client.db('infs3201_fall2025')
     let albums=db.collection('albums')
-    let result= await albums.find({name: albumName.toLowerCase})
+    let result= await albums.find({name: albumName.toLowerCase()})
     let data = await result.toArray()
     return data[0] || null
    
