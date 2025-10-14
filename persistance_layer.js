@@ -82,20 +82,18 @@ async function findAlbum(albumId){
 
 */
 async function findAlbumbyName(albumName){
-    let albums=await loadAlbum()
-    for(let i=0;i<albums.length;i++){
-        if(albums[i].name.toLowerCase()===albumName.toLowerCase()){
-            return albums[i]
-        }
-    }
-    return null     
+    await connectDatabase()
+    let db=client.db('infs3201_fall2025')
+    let albums=db.collection('albums')
+    let result= await albums.find({name: albumName.toLowerCase})
+    let data = await result.toArray()
+    return data[0] || null
+   
 } 
 
 module.exports={
     loadPhoto,
     loadAlbum,
-    savePhoto,
-    saveAlbum,
     findPhoto,
     findAlbum,
     findAlbumbyName,
