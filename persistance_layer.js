@@ -5,7 +5,16 @@
 * Assignment 3
 */
 
-const fs=require('fs/promises')
+const{ MongoClient}=require('mongodb')
+const mongodb= require('mongodb')
+
+async function connectDatabase(){
+    if(!client){
+        client=new MongoClient('mongodb+srv://60301251:12class34@cluster0.j7qvb.mongodb.net/')
+        await client.connect()
+    }
+}
+
 
 /**
  * To load photos from the file
