@@ -28,6 +28,10 @@ async function loadPhoto(){
     return resultData
 }
 
+/**
+ * Save a new photo
+ * @param {Object} photo - Photo object to save
+ */
 async function savePhoto(photo) {
     await connectDatabase()
     const db=client.db('infs(3201_fall2025')
@@ -49,6 +53,21 @@ async function loadAlbum(){
     let albums= await albums.find()
     let resultData= await result.toArray()
     return resultData
+}
+
+/**
+ * To save updated photo list to MongoDB
+ * @async
+ * @param {Object[]} photoList - Array of photo objects to save
+ * @returns {Promise<void>}
+ */
+async function savePhoto(photoList) {
+    await connectDatabase()
+    const db=client.db('infs(3201_fall2025')
+    let photocollection=db.collection('photos')
+    await photocollection.deleteMany({})
+    await photocollection.insertMany(photoList)
+    
 }
 
 /**
