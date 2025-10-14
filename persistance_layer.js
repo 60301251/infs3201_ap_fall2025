@@ -29,15 +29,17 @@ async function loadPhoto(){
 }
 
 /**
- * Save a new photo
- * @param {Object} photo - Photo object to save
+ * To save updated photo list to MongoDB
+ * @async
+ * @param {Object[]} photoList - Array of photo objects to save
+ * @returns {Promise<void>}
  */
-async function savePhoto(photo) {
+async function savePhoto(photoList) {
     await connectDatabase()
-    const db=client.db('infs(3201_fall2025')
+    let db=client.db('infs(3201_fall2025')
     let photocollection=db.collection('photos')
-    let result= await photocollection.insertOne(photo)
-    return result.insertedId
+    await photocollection.deleteMany({})
+    await photocollection.insertMany(photoList)
     
 }
 
@@ -56,18 +58,17 @@ async function loadAlbum(){
 }
 
 /**
- * To save updated photo list to MongoDB
+ * To save albums back to MongoDB
  * @async
- * @param {Object[]} photoList - Array of photo objects to save
+ * @param {Object[]} albumList - Array of album objects
  * @returns {Promise<void>}
  */
-async function savePhoto(photoList) {
+async function saveAlbum(albumList) {
     await connectDatabase()
-    const db=client.db('infs(3201_fall2025')
-    let photocollection=db.collection('photos')
-    await photocollection.deleteMany({})
-    await photocollection.insertMany(photoList)
-    
+    let db=client.db('infs3201_fall2025')
+    let albumcollection=db.collection('albums')
+    await albumcollection.deleteMany({})
+    await albumcollection.insertMany(albumList)
 }
 
 /**
