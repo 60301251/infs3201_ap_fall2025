@@ -15,15 +15,17 @@ async function connectDatabase(){
     }
 }
 
-
 /**
  * To load photos from the file
  * @async
  * @returns {Promise<Object[]>} Array of photo objects.
 */
 async function loadPhoto(){
-    let data=await fs.readFile("photos.json","utf8")
-    return JSON.parse(data)
+    await connectDatabase()
+    let database=client.db('infs3201_fall2025')
+    let photos= await photos.find()
+    let resultData= await result.toArray()
+    return resultData
 }
 
 /**
