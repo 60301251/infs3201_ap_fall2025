@@ -26,11 +26,6 @@ const{
 async function displayPhoto(PhotoId){
     const photo= await getPhoto(PhotoId)
 
-    if(photo === "unauthorized"){
-        console.log("You cannot access this photo.")
-        return
-    }
-
     if(!photo){
         console.log("Error: Photo not found!")
         return
@@ -39,8 +34,8 @@ async function displayPhoto(PhotoId){
         console.log(`Filename: ${photo.filename}`)
         console.log(`Title: ${photo.title}`)
         console.log(`Date: ${new Date(photo.date).toDateString()}`)
-        console.log(`Albums: ${photo.albums}`)
-        console.log(`Tags: ${photo.tags}`)
+        console.log(`Albums: ${photo.albums.join(",")}`)
+        console.log(`Tags: ${photo.tags.join(",")}`)
 
     }
 }
@@ -62,7 +57,7 @@ async function updatePhotoDetails(photoId){
      let newtitle = prompt(`Enter value for title [${photo.title}]: `)
      let newdes= prompt(`Enter value for description [${photo.description}]: `)
 
-     const updated = await updatePhoto(photoId,newtitle,newdes,currentUser.id)
+     const updated = await updatePhoto(photoId,newtitle,newdes)
         if(!updated){
             console.log("Error: Photo not found! ")
         }

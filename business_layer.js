@@ -50,7 +50,7 @@ async function getAlbum(albumId){
  * @param {number} photoId - ID of the photo to update.
  * @param {string} newtitle - New title (optional).
  * @param {string} newdes - New description (optional).
- * @returns {Promise<Object|string|null>} Updated photo object, "unauthorized" if access denied, or null if not found.
+ * @returns {Promise<Object|null>} Updated photo object, or null if not found.
 */
 async function updatePhoto(photoId,newtitle,newdes){
     let photos= await loadPhoto()
@@ -82,7 +82,7 @@ async function updatePhoto(photoId,newtitle,newdes){
  * @returns {Promise<{album: Object, photos: Object[]} | null>} Object containing album and its photos, or null if album not found.
 */
 async function getByAlbum(albumName){
-    let album= await findAlbumbyName(albumName)
+    const album= await findAlbumbyName(albumName)
     let photos = await loadPhoto()
     let albumPhotos=[]
 
@@ -111,7 +111,7 @@ async function getByAlbum(albumName){
  * @async
  * @param {number} photoId - ID of the photo.
  * @param {string} newTag - Tag to add.
- * @returns {Promise<Object|string|null>} Updated photo object, "duplicate" if tag exists, "unauthorized" if not owned, or null if not found.
+ * @returns {Promise<Object|null>} Updated photo object, "duplicate" if tag exists, or null if not found.
 */
 async function addTag(photoId,newTag) {
     let photos= await loadPhoto()
