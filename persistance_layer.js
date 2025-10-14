@@ -22,8 +22,8 @@ async function connectDatabase(){
 */
 async function loadPhoto(){
     await connectDatabase()
-    let database=client.db('infs3201_fall2025')
-    let photos= await photos.find()
+    let db=client.db('infs3201_fall2025')
+    let photos= await Photos.find()
     let resultData= await result.toArray()
     return resultData
 }
@@ -35,8 +35,11 @@ async function loadPhoto(){
  * @returns {Promise<Object[]>} Array of album objects.
 */
 async function loadAlbum(){
-    let data=await fs.readFile("albums.json","utf8")
-    return JSON.parse(data)
+    await connectDatabase()
+    let db=client.db('infs3201_fall2025')
+    let albums= await Albums.find()
+    let resultData= await result.toArray()
+    return resultData
 }
 /**
  * To save albums back to the file
