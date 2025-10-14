@@ -28,15 +28,7 @@ async function loadPhoto(){
     return resultData
 }
 
-/**
- * To save photos back to the file
- * @async
- * @param {Object[]} photoList - Array of photo objects to save.
- * @returns {Promise<void>}
-*/
-async function savePhoto(photoList){
-    await fs.writeFile("photos.json", JSON.stringify(photoList,null,2))
-}
+
 /**
  * To load albums from the file
  * @async
