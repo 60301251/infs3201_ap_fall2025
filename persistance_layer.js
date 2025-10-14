@@ -23,7 +23,7 @@ async function connectDatabase(){
 async function loadPhoto(){
     await connectDatabase()
     let db=client.db('infs3201_fall2025')
-    let photos= await Photos.find()
+    let photos= await photos.find()
     let resultData= await result.toArray()
     return resultData
 }
@@ -37,7 +37,7 @@ async function loadPhoto(){
 async function loadAlbum(){
     await connectDatabase()
     let db=client.db('infs3201_fall2025')
-    let albums= await Albums.find()
+    let albums= await albums.find()
     let resultData= await result.toArray()
     return resultData
 }
@@ -51,7 +51,7 @@ async function loadAlbum(){
 async function findPhoto(photoId){
     await connectDatabase()
     let db= client.db('infs3201_fall2025')
-    let photos=db.collection('Photos')
+    let photos=db.collection('photos')
     let oid = new mongodb.ObjectID(photoId)
     let result = await photos.find({_id:oid })
     let resultData= await result.toArray()
@@ -65,14 +65,13 @@ async function findPhoto(photoId){
  * @returns {Promise<Object|null>} Album object if found, otherwise null.
 */
 async function findAlbum(albumId){
-    let albums = await loadAlbum()
-
-    for(let i=0;i<albums.length;i++){
-        if(albums[i].id==albumId){
-            return albums[i]
-        }
-    }
-    return null
+    await connectDatabase()
+    let db= client.db('infs3201_fall2025')
+    let albums= db.collection('albums')
+    let oid= new mongodb.ObjectID(albumId)
+    let result= await albums.find({_id:oid})
+    let resultData= await result.toArray()
+    return resultData[0] || null
 }
 
 /**
