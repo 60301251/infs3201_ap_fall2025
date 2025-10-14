@@ -41,15 +41,6 @@ async function loadAlbum(){
     let resultData= await result.toArray()
     return resultData
 }
-/**
- * To save albums back to the file
- * @async
- * @param {Object[]} albumList - Array of album objects to save.
- * @returns {Promise<void>}
-*/
-async function saveAlbum(albumList){
-    await fs.writeFile("albums.json", JSON.stringify(albumList,null,2))
-}
 
 /**
  * Find a photo using photoID
