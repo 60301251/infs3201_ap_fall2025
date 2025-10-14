@@ -49,15 +49,13 @@ async function loadAlbum(){
  * @returns {Promise<Object|null>} Photo object if found, otherwise null.
 */
 async function findPhoto(photoId){
-    let photos = await loadPhoto()
-    let albums = await loadAlbum()
-
-    for(let i=0;i<photos.length;i++){
-        if(Number(photos[i].id)==Number(photoId)){
-            return photos[i]
-        }
-    }
-    return null
+    await connectDatabase()
+    let db= client.db('infs3201_fall2025')
+    let photos=db.collection('Photos')
+    let oid = new mongodb.ObjectID(photoId)
+    let result = await photos.find({_id:oid })
+    let resultData= await result.toArray()
+    return resultData[0] || null
 }
 
 /**
