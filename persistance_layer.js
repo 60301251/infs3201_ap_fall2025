@@ -123,6 +123,8 @@ async function findAlbumbyName(albumName){
 module.exports={
     loadPhoto,
     loadAlbum,
+    saveAlbum,
+    savePhoto,
     findPhoto,
     findAlbum,
     findAlbumbyName,

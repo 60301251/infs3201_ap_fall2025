@@ -8,6 +8,8 @@
 const{
     loadPhoto,
     loadAlbum,
+    savePhoto,
+    saveAlbum,
     findPhoto,
     findAlbum,
     findAlbumbyName,
@@ -20,7 +22,12 @@ const{
  * @returns {Promise<Object|null>} Photo object if allowed, or null if not found.
 */
 async function getPhoto(photoId){
-    return await findPhoto(photoId)
+    const photo=await findPhoto(photoId)
+    if(!photo){
+        return null
+    }
+    return photo
+
 }
 
 /**
@@ -30,7 +37,11 @@ async function getPhoto(photoId){
  * @returns {Promise<Object|null>} Album object if found, otherwise null.
 */
 async function getAlbum(albumId){
-    return await findAlbum(albumId)
+    const album = await findAlbum(albumId)
+    if(!album){
+        return null
+    }
+    return album
 }
 
 /**
@@ -39,10 +50,18 @@ async function getAlbum(albumId){
  * @param {number} photoId - ID of the photo to update.
  * @param {string} newtitle - New title (optional).
  * @param {string} newdes - New description (optional).
- * @returns {Promise<Object|string|null>} Updated photo object, or null if not found.
+ * @returns {Promise<Object|string|null>} Updated photo object, "unauthorized" if access denied, or null if not found.
 */
 async function updatePhoto(photoId,newtitle,newdes){
-    const photo= await findPhoto(photoId)
+    let photos= await loadPhoto()
+    let photo=null
+
+    for(let i=0;i<photos.length;i++){
+        if(photos[i].id===photoId){
+            photo=photos[i]
+            break
+        }
+    }
     if(!photo){
         return null
     }
@@ -52,6 +71,7 @@ async function updatePhoto(photoId,newtitle,newdes){
     if(newdes && newdes.trim()!== ""){
         photo.description=newdes
     }
+    await savePhoto(photos)
     return photo
 }
 
