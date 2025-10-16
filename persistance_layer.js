@@ -5,8 +5,10 @@
 * Assignment 3
 */
 
-const{ MongoClient}=require('mongodb')
+const{ MongoClient,ObjectId}=require('mongodb')
 const mongodb= require('mongodb')
+
+let client=null
 
 async function connectDatabase(){
     if(!client){
@@ -23,7 +25,8 @@ async function connectDatabase(){
 async function loadPhoto(){
     await connectDatabase()
     let db=client.db('infs3201_fall2025')
-    let photos= await photos.find()
+    let photocollection=db.collection('photos')
+    let result= await photocollection.find()
     let resultData= await result.toArray()
     return resultData
 }
@@ -36,13 +39,19 @@ async function loadPhoto(){
  */
 async function savePhoto(photoList) {
     await connectDatabase()
-    let db=client.db('infs(3201_fall2025')
-    let photocollection=db.collection('photos')
-    await photocollection.deleteMany({})
-    await photocollection.insertMany(photoList)
-    
-}
+    const db = client.db('infs3201_fall2025')
+    const photos = db.collection('photos')
 
+    for (let photo of photoList) {
+        if (photo.photoId) {
+            await photos.updateOne(
+                { photoId: photo.photoId },
+                { $set: photo },
+                { upsert: true }
+            )
+        }
+    }
+}
 
 /**
  * To load albums from the file
@@ -52,7 +61,8 @@ async function savePhoto(photoList) {
 async function loadAlbum(){
     await connectDatabase()
     let db=client.db('infs3201_fall2025')
-    let albums= await albums.find()
+    let albumcollection=db.collection('albums')
+    let result= await albumcollection.find()
     let resultData= await result.toArray()
     return resultData
 }
@@ -68,7 +78,9 @@ async function saveAlbum(albumList) {
     let db=client.db('infs3201_fall2025')
     let albumcollection=db.collection('albums')
     await albumcollection.deleteMany({})
-    await albumcollection.insertMany(albumList)
+      if(albumList.length>0){
+         await albumcollection.insertMany(albumList)
+    }
 }
 
 /**
@@ -78,13 +90,10 @@ async function saveAlbum(albumList) {
  * @returns {Promise<Object|null>} Photo object if found, otherwise null.
 */
 async function findPhoto(photoId){
-    await connectDatabase()
-    let db= client.db('infs3201_fall2025')
-    let photos=db.collection('photos')
-    let oid = new mongodb.ObjectID(photoId)
-    let result = await photos.find({_id:oid })
-    let resultData= await result.toArray()
-    return resultData[0] || null
+ await connectDatabase()
+    const db = client.db('infs3201_fall2025')
+    const photos = db.collection('photos')
+    return await photos.findOne({ photoId: photoId }) || null
 }
 
 /**
@@ -95,12 +104,9 @@ async function findPhoto(photoId){
 */
 async function findAlbum(albumId){
     await connectDatabase()
-    let db= client.db('infs3201_fall2025')
-    let albums= db.collection('albums')
-    let oid= new mongodb.ObjectID(albumId)
-    let result= await albums.find({_id:oid})
-    let resultData= await result.toArray()
-    return resultData[0] || null
+    const db = client.db('infs3201_fall2025')
+    const albums = db.collection('albums')
+    return await albums.findOne({ albumId: albumId }) || null
 }
 
 /**
@@ -114,11 +120,26 @@ async function findAlbumbyName(albumName){
     await connectDatabase()
     let db=client.db('infs3201_fall2025')
     let albums=db.collection('albums')
-    let result= await albums.find({name: albumName.toLowerCase()})
+    let result= await albums.find({name: albumName})
     let data = await result.toArray()
     return data[0] || null
    
 } 
+
+/**
+ * Update a photo document by its ID
+ * @async
+ * @param {string} photoId - The _id of the photo.
+ * @param {Object} update - Fields to update (e.g. { title, description }).
+ * @returns {Promise<Object|null>} Updated photo object if found, otherwise null.
+ */
+async function updatePhoto(photoId, update) {
+    await connectDatabase()
+    const db = client.db('infs3201_fall2025')
+    const photos = db.collection('photos')
+    await photos.updateOne({ photoId: photoId }, { $set: update })
+    return await photos.findOne({ photoId: photoId }) || null
+}
 
 module.exports={
     loadPhoto,
@@ -128,4 +149,5 @@ module.exports={
     findPhoto,
     findAlbum,
     findAlbumbyName,
+    updatePhoto
 }

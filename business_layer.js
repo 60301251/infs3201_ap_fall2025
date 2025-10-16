@@ -13,6 +13,7 @@ const{
     findPhoto,
     findAlbum,
     findAlbumbyName,
+    updatePhoto : updatePhotoDB
 } = require('./persistance_layer')
 
 /**
@@ -53,26 +54,23 @@ async function getAlbum(albumId){
  * @returns {Promise<Object|null>} Updated photo object, or null if not found.
 */
 async function updatePhoto(photoId,newtitle,newdes){
-    let photos= await loadPhoto()
-    let photo=null
+    const update={}
 
-    for(let i=0;i<photos.length;i++){
-        if(photos[i].id===photoId){
-            photo=photos[i]
-            break
-        }
-    }
-    if(!photo){
-        return null
-    }
     if(newtitle && newtitle.trim()!== ""){
-        photo.title=newtitle
+        update.title=newtitle.trim()
     }
     if(newdes && newdes.trim()!== ""){
-        photo.description=newdes
+        update.description=newdes.trim()
     }
-    await savePhoto(photos)
-    return photo
+    if(Object.keys(update).length === 0){
+        return null
+    }
+    const updatedPhoto= await updatePhotoDB(photoId,update)
+
+    if(!updatedPhoto){
+        return null
+    }
+    return updatedPhoto
 }
 
 /**
@@ -93,7 +91,7 @@ async function getByAlbum(albumName){
     for(let i=0;i<photos.length;i++){
         let present=false
         for(let j=0;j<photos[i].albums.length;j++){
-            if(photos[i].albums[j]===album.id){
+            if(photos[i].albums[j]===album._id.toString()){
                 present = true
                 break
             }
@@ -114,30 +112,15 @@ async function getByAlbum(albumName){
  * @returns {Promise<Object|null>} Updated photo object, "duplicate" if tag exists, or null if not found.
 */
 async function addTag(photoId,newTag) {
-    let photos= await loadPhoto()
-    let photo=null
-
-    for(let i=0;i<photos.length;i++){
-        if(photos[i].id===photoId){
-            photo=photos[i]
-            break
-        }
-    }
-    if(!photo){
+    let photo = await findPhoto(photoId)
+    if (!photo){
         return null
-    }
-    let duplicate = false
-    for (let i = 0; i < photo.tags.length; i++) {
-        if (photo.tags[i] === newTag) {
-            duplicate = true
-            break
-        }
-    }
-    if(duplicate){
-        return "duplicate"
-    }
+    } 
+    if (photo.tags.includes(newTag)){
+        return 'duplicate'
+    } 
     photo.tags.push(newTag)
-    await savePhoto(photos)
+    await savePhoto([photo])
     return photo
     
 }
