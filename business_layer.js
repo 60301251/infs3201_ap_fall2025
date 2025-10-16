@@ -112,7 +112,7 @@ async function getByAlbum(albumName){
  * @returns {Promise<Object|null>} Updated photo object, "duplicate" if tag exists, or null if not found.
 */
 async function addTag(photoId,newTag) {
-    let photo = await findPhoto(photoId)
+    let photo = await findPhoto(Number(photoId))
     if (!photo){
         return null
     } 

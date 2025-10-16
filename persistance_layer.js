@@ -137,8 +137,8 @@ async function updatePhoto(photoId, update) {
     await connectDatabase()
     const db = client.db('INFS3201_fall2025')
     const photos = db.collection('photos')
-    await photos.updateOne({ photoId: photoId }, { $set: update })
-    return await photos.findOne({ photoId: photoId }) || null
+    await photos.updateOne({ photoId: Number(photoId )}, { $set: update })
+    return await photos.findOne({ photoId: Number(photoId )}) || null
 }
 
 module.exports={
