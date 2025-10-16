@@ -23,7 +23,7 @@ const{
  * @returns {Promise<Object|null>} Photo object if allowed, or null if not found.
 */
 async function getPhoto(photoId){
-    const photo=await findPhoto(photoId)
+    const photo=await findPhoto(Number(photoId))
 
 }
 
@@ -34,7 +34,7 @@ async function getPhoto(photoId){
  * @returns {Promise<Object|null>} Album object if found, otherwise null.
 */
 async function getAlbum(albumId){
-    const album = await findAlbum(albumId)
+    const album = await findAlbum(Number(albumId))
 }
 
 /**
