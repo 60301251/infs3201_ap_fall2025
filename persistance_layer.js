@@ -93,7 +93,7 @@ async function findPhoto(photoId){
  await connectDatabase()
     const db = client.db('INFS3201_fall2025')
     const photos = db.collection('photos')
-    return await photos.findOne({ photoId: photoId }) || null
+    return await photos.findOne({ photoId: Number(photoId) }) || null
 }
 
 /**
@@ -106,7 +106,7 @@ async function findAlbum(albumId){
     await connectDatabase()
     const db = client.db('INFS3201_fall2025')
     const albums = db.collection('albums')
-    return await albums.findOne({ albumId: albumId }) || null
+    return await albums.findOne({ albumId: Number(albumId )}) || null
 }
 
 /**
