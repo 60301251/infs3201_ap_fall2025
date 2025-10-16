@@ -45,7 +45,7 @@ async function savePhoto(photoList) {
     for (let photo of photoList) {
         if (photo.id) {
             await photos.updateOne(
-                { id: photo.idd },
+                { id: photo.id },
                 { $set: photo },
                 { upsert: true }
             )
