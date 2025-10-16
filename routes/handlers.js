@@ -57,9 +57,30 @@ router.post('/photo/:id/edit', async (req, res) => {
     const { title, description } = req.body
     const updated = await updatePhoto(Number(req.params.id), title, description)
     if (!updated){
-        return res.send("Failed to update photo")
+         return res.render('error', { 
+        message: "Failed to update photo", 
+        layout: undefined})
     } 
 
+    res.redirect(`/photo/${req.params.id}`)
+})
+
+router.post('/photo/:id/tag', async (req, res) => {
+    const { tag } = req.body
+    const result = await addTag(Number(req.params.id), tag)
+
+    if (result === 'duplicate') {
+        return res.render('error', { 
+            message: "Tag already exists.", 
+            layout: undefined 
+        })
+    }
+    if (!result) {
+        return res.render('error', { 
+            message: "Photo not found.", 
+            layout: undefined 
+        })
+    }
     res.redirect(`/photo/${req.params.id}`)
 })
 
