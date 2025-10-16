@@ -29,3 +29,27 @@ router.get('/album/:id', async(req,res)=>{
     const result=await getByAlbum(album.name)
     res.render('album',{album, photos:result.photos,photoCount:result.photos.length,layout:undefined})
 })
+
+router.get('/photo/:id', async(req,res)=>{
+    const photo = await getPhoto(Number(req.params.id))
+    if (!photo) return res.send("Photo not found")
+
+    res.render('photo', { photo, layout: undefined })
+})
+
+router.get('/photo/:id/edit', async (req, res) => {
+    const photo = await getPhoto(Number(req.params.id))
+    if (!photo) return res.send("Photo not found")
+
+    res.render('edit', { photo, layout: undefined })
+})
+
+router.post('/photo/:id/edit', async (req, res) => {
+    const { title, description } = req.body
+    const updated = await updatePhoto(Number(req.params.id), title, description)
+    if (!updated) return res.send("Failed to update photo")
+
+    res.redirect(`/photo/${req.params.id}`)
+})
+
+module.exports=router
