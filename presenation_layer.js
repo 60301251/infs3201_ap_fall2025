@@ -34,8 +34,8 @@ async function displayPhoto(PhotoId){
         console.log(`Filename: ${photo.filename}`)
         console.log(`Title: ${photo.title}`)
         console.log(`Date: ${new Date(photo.date).toDateString()}`)
-        console.log(`Albums: ${photo.albums.join(",")}`)
-        console.log(`Tags: ${photo.tags.join(",")}`)
+        console.log(`Albums: ${(photo.albums || []).join(",")}`)
+        console.log(`Tags: ${(photo.tags || []).join(",")}`)
 
     }
 }
@@ -139,8 +139,8 @@ async function application(){
             await updatePhotoDetails(photoId)
         }
          else if (selection == 3) {
-            let  albumname = prompt("What is the name of the album? ").toLowerCase()
-            await displayAlbumPhotos(albumname)
+            let  albumName = prompt("What is the name of the album? ")
+            await displayAlbumPhotos(albumName)
         }
          else if (selection == 4) {
             let photoId=prompt("What is the photo ID to tag? ")
