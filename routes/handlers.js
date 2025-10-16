@@ -47,7 +47,9 @@ router.get('/photo/:id/edit', async (req, res) => {
 router.post('/photo/:id/edit', async (req, res) => {
     const { title, description } = req.body
     const updated = await updatePhoto(Number(req.params.id), title, description)
-    if (!updated) return res.send("Failed to update photo")
+    if (!updated){
+        return res.send("Failed to update photo")
+    } 
 
     res.redirect(`/photo/${req.params.id}`)
 })
