@@ -120,7 +120,7 @@ async function findAlbumbyName(albumName){
     await connectDatabase()
     let db=client.db('infs3201_fall2025')
     let albums=db.collection('albums')
-    let result= await albums.find({name: albumName})
+    let result= await albums.find({name: { $regex: `^${albumName}$`, $options: "i" } })
     let data = await result.toArray()
     return data[0] || null
    

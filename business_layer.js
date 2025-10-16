@@ -90,7 +90,7 @@ async function getByAlbum(albumName){
 
     for(let i=0;i<photos.length;i++){
         let present=false
-        for(let j=0;j<photos[i].albums.length;j++){
+        for(let j=0;j<(photos[i].albums ||[]).length;j++){
             if(photos[i].albums[j]===album.albumId){
                 present = true
                 break

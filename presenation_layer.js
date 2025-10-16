@@ -131,11 +131,11 @@ async function application(){
         let selection = Number(prompt("Your selection > "))  
 
         if (selection == 1) {
-            let photoId=prompt("Photo ID? ")
+            let photoId=Number(prompt("Photo ID? "))
             await displayPhoto(photoId)
        }
          else if (selection == 2){
-             let photoId =prompt("Photo ID? ")
+             let photoId =Number(prompt("Photo ID? "))
             await updatePhotoDetails(photoId)
         }
          else if (selection == 3) {
@@ -143,7 +143,7 @@ async function application(){
             await displayAlbumPhotos(albumName)
         }
          else if (selection == 4) {
-            let photoId=prompt("What is the photo ID to tag? ")
+            let photoId=Number(prompt("What is the photo ID to tag? "))
             let newTag = prompt("What tag to add? ")
             await tagPhoto(photoId,newTag)
         }
