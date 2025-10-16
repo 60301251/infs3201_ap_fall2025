@@ -116,6 +116,7 @@ async function addTag(photoId,newTag) {
     if (!photo){
         return null
     } 
+    photo.tags = photo.tags || []
     if (photo.tags.includes(newTag)){
         return 'duplicate'
     } 

@@ -5,7 +5,7 @@
 * Assignment 3
 */
 
-const{ MongoClient,ObjectId}=require('mongodb')
+const{ MongoClient}=require('mongodb')
 const mongodb= require('mongodb')
 
 let client=null
@@ -15,6 +15,7 @@ async function connectDatabase(){
         client=new MongoClient('mongodb+srv://60301251:12class34@cluster0.j7qvb.mongodb.net/')
         await client.connect()
     }
+    return client.db('infs3201_fall2025')
 }
 
 /**
@@ -129,7 +130,7 @@ async function findAlbumbyName(albumName){
 /**
  * Update a photo document by its ID
  * @async
- * @param {string} photoId - The _id of the photo.
+ * @param {string} photoId - The Id of the photo.
  * @param {Object} update - Fields to update (e.g. { title, description }).
  * @returns {Promise<Object|null>} Updated photo object if found, otherwise null.
  */
