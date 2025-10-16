@@ -3,10 +3,10 @@
 <img src="/photos/{{photo.filename}}" style="max-width:300px;">
 <p>Albums: {{#each photo.albums}}{{this}} {{/each}}</p>
 <p>Tags: {{#each photo.tags}}{{this}} {{/each}}</p>
-<a href="/photo/{{photo.id}}/edit">Edit</a> | <a href="/">Back</a>
-
 <h3>Add a New Tag</h3>
 <form action="/photo/{{photo.id}}/tag" method="POST">
     <input type="text" name="tag" placeholder="Enter new tag" required>
     <button type="submit">Add Tag</button>
 </form>
+<a href="/photo/{{photo.id}}/edit">Edit</a> | <a href="/">Back</a>
+
