@@ -43,9 +43,9 @@ async function savePhoto(photoList) {
     const photos = db.collection('photos')
 
     for (let photo of photoList) {
-        if (photo.photoId) {
+        if (photo.id) {
             await photos.updateOne(
-                { photoId: photo.photoId },
+                { id: photo.idd },
                 { $set: photo },
                 { upsert: true }
             )
@@ -89,11 +89,11 @@ async function saveAlbum(albumList) {
  * @param {number} photoId - ID of the photo.
  * @returns {Promise<Object|null>} Photo object if found, otherwise null.
 */
-async function findPhoto(photoId){
+async function findPhoto(id){
  await connectDatabase()
     const db = client.db('INFS3201_fall2025')
     const photos = db.collection('photos')
-    return await photos.findOne({ photoId: Number(photoId) }) || null
+    return await photos.findOne({ id: Number(id) }) || null
 }
 
 /**
@@ -102,11 +102,11 @@ async function findPhoto(photoId){
  * @param {number} albumId - ID of the album.
  * @returns {Promise<Object|null>} Album object if found, otherwise null.
 */
-async function findAlbum(albumId){
+async function findAlbum(id){
     await connectDatabase()
     const db = client.db('INFS3201_fall2025')
     const albums = db.collection('albums')
-    return await albums.findOne({ albumId: Number(albumId )}) || null
+    return await albums.findOne({ id: Number(id )}) || null
 }
 
 /**
@@ -133,12 +133,12 @@ async function findAlbumbyName(albumName){
  * @param {Object} update - Fields to update (e.g. { title, description }).
  * @returns {Promise<Object|null>} Updated photo object if found, otherwise null.
  */
-async function updatePhoto(photoId, update) {
+async function updatePhoto(id, update) {
     await connectDatabase()
     const db = client.db('INFS3201_fall2025')
     const photos = db.collection('photos')
-    await photos.updateOne({ photoId: Number(photoId )}, { $set: update })
-    return await photos.findOne({ photoId: Number(photoId )}) || null
+    await photos.updateOne({ id: Number(id )}, { $set: update })
+    return await photos.findOne({ id: Number(id )}) || null
 }
 
 module.exports={
