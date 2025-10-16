@@ -65,7 +65,7 @@ async function updatePhoto(photoId,newtitle,newdes){
     if(Object.keys(update).length === 0){
         return null
     }
-    const updatedPhoto= await updatePhotoDB(photoId,update)
+    const updatedPhoto= await updatePhotoDB(Number(photoId),update)
 
     if(!updatedPhoto){
         return null
