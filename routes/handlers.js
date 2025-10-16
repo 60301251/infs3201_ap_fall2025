@@ -27,7 +27,16 @@ router.get('/album/:id', async(req,res)=>{
     }
 
     const result=await getByAlbum(album.name)
-    res.render('album',{album, photos:result.photos,photoCount:result.photos.length,layout:undefined})
+    const photoCount = result.photos.length
+    const photoLabel = photoCount === 1 ? 'photo' : 'photos'
+
+    res.render('album', {
+        album,
+        photos: result.photos,
+        photoCount,
+        photoLabel,
+        layout: undefined
+})
 })
 
 router.get('/photo/:id', async(req,res)=>{
