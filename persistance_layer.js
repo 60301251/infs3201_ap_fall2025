@@ -15,7 +15,7 @@ async function connectDatabase(){
         client=new MongoClient('mongodb+srv://60301251:12class34@cluster0.j7qvb.mongodb.net/')
         await client.connect()
     }
-    return client.db('infs3201_fall2025')
+    return client.db('INFS3201_fall2025')
 }
 
 /**
@@ -25,7 +25,7 @@ async function connectDatabase(){
 */
 async function loadPhoto(){
     await connectDatabase()
-    let db=client.db('infs3201_fall2025')
+    let db=client.db('INFS3201_fall2025')
     let photocollection=db.collection('photos')
     let result= await photocollection.find()
     let resultData= await result.toArray()
@@ -40,7 +40,7 @@ async function loadPhoto(){
  */
 async function savePhoto(photoList) {
     await connectDatabase()
-    const db = client.db('infs3201_fall2025')
+    const db = client.db('INFS3201_fall2025')
     const photos = db.collection('photos')
 
     for (let photo of photoList) {
@@ -61,7 +61,7 @@ async function savePhoto(photoList) {
 */
 async function loadAlbum(){
     await connectDatabase()
-    let db=client.db('infs3201_fall2025')
+    let db=client.db('INFS3201_fall2025')
     let albumcollection=db.collection('albums')
     let result= await albumcollection.find()
     let resultData= await result.toArray()
@@ -76,7 +76,7 @@ async function loadAlbum(){
  */
 async function saveAlbum(albumList) {
     await connectDatabase()
-    let db=client.db('infs3201_fall2025')
+    let db=client.db('INFS3201_fall2025')
     let albumcollection=db.collection('albums')
     await albumcollection.deleteMany({})
       if(albumList.length>0){
@@ -92,7 +92,7 @@ async function saveAlbum(albumList) {
 */
 async function findPhoto(photoId){
  await connectDatabase()
-    const db = client.db('infs3201_fall2025')
+    const db = client.db('INFS3201_fall2025')
     const photos = db.collection('photos')
     return await photos.findOne({ photoId: photoId }) || null
 }
@@ -105,7 +105,7 @@ async function findPhoto(photoId){
 */
 async function findAlbum(albumId){
     await connectDatabase()
-    const db = client.db('infs3201_fall2025')
+    const db = client.db('INFS3201_fall2025')
     const albums = db.collection('albums')
     return await albums.findOne({ albumId: albumId }) || null
 }
@@ -119,7 +119,7 @@ async function findAlbum(albumId){
 */
 async function findAlbumbyName(albumName){
     await connectDatabase()
-    let db=client.db('infs3201_fall2025')
+    let db=client.db('INFS3201_fall2025')
     let albums=db.collection('albums')
     let result= await albums.find({name: { $regex: `^${albumName}$`, $options: "i" } })
     let data = await result.toArray()
@@ -136,7 +136,7 @@ async function findAlbumbyName(albumName){
  */
 async function updatePhoto(photoId, update) {
     await connectDatabase()
-    const db = client.db('infs3201_fall2025')
+    const db = client.db('INFS3201_fall2025')
     const photos = db.collection('photos')
     await photos.updateOne({ photoId: photoId }, { $set: update })
     return await photos.findOne({ photoId: photoId }) || null
