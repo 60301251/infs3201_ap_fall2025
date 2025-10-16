@@ -24,10 +24,6 @@ const{
 */
 async function getPhoto(photoId){
     const photo=await findPhoto(photoId)
-    if(!photo){
-        return null
-    }
-    return photo
 
 }
 
@@ -39,10 +35,6 @@ async function getPhoto(photoId){
 */
 async function getAlbum(albumId){
     const album = await findAlbum(albumId)
-    if(!album){
-        return null
-    }
-    return album
 }
 
 /**

@@ -15,7 +15,6 @@ async function connectDatabase(){
         client=new MongoClient('mongodb+srv://60301251:12class34@cluster0.j7qvb.mongodb.net/')
         await client.connect()
     }
-    return client.db('INFS3201_fall2025')
 }
 
 /**
