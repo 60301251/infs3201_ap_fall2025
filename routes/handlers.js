@@ -19,3 +19,13 @@ router.get('/', async(req,res)=>{
     const albums=await require('../persistance_layer').loadAlbum()
     res.render('index' , {albums, layout: undefined})
 })
+
+router.get('/album/:id', async(req,res)=>{
+    const album= await getAlbum(Number(req.params.id))
+    if(!album){
+        return res.send("Album not found")
+    }
+
+    const result=await getByAlbum(album.name)
+    res.render('album',{album, photos:result.photos,photoCount:result.photos.length,layout:undefined})
+})
