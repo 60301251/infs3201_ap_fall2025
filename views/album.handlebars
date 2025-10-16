@@ -1,0 +1,8 @@
+<h1>Album: {{album.name}}</h1>
+<p>Total photos: {{photoCount}}</p>
+<ul>
+    {{#each photos}}
+        <li><a href="/photo/{{id}}">{{title}}</a></li>
+    {{/each}}
+</ul>
+<a href="/">Back to Albums</a>
