@@ -25,4 +25,4 @@ app.set('views',path.join(__dirname,'templates'))
 
 app.use('/',routes)
 
-app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`))
+app.listen(PORT, () => console.log(`Server running at http://localhost:3000`))
