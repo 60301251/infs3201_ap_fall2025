@@ -25,4 +25,9 @@ app.set('views',path.join(__dirname,'templates'))
 
 app.use('/',routes)
 
+/**
+ * Starts the server on defined PORT
+ * @function
+ * @returns {void} Logs message when server starts
+ */
 app.listen(PORT, () => console.log(`Server running at http://localhost:3000`))
