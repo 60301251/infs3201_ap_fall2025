@@ -19,7 +19,7 @@ app.use(bodyParser.urlencoded({extended: true}))
 app.use('/photos', express.static(path.join(__dirname,'photos')))
 app.use('/public', express.static(path.join(__dirname,'public')))
 
-app.engine('handlebars',handlebars.engine({layoutDir: undefined}))
+app.engine('handlebars',handlebars.engine({layoutsDir: undefined}))
 app.set('view engine','handlebars')
 app.set('views',path.join(__dirname,'templates'))
 
