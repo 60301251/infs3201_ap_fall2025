@@ -53,8 +53,14 @@ async function registerUser(name, email,password) {
             return 'exists'
         }
     }
+    const {salt, hash}= hashPassword(password)
+    const newUser = {id: users.length+1, name, email, salt, password:hash}
+    await saveDoc('users', newUser)
+    return newUser
     
 }
+
+
 
 /**
  * To load photos from the file
