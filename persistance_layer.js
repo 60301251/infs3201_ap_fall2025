@@ -1,8 +1,11 @@
 /**
-* Name:Eva Paul
-* Student ID:60301251
+* Group 001
+* Name and Student ID:Eva Paul_60301251
+*                      Mufeeda Kalam_60303289
+*                     Aysha Sultana_60099830
+* 
 * INFS3201-5/6- Web Tech 2 
-* Assignment 3
+* Project Phase 1
 */
 
 const{ MongoClient}=require('mongodb')
@@ -15,6 +18,17 @@ async function connectDatabase(){
         client=new MongoClient('mongodb+srv://60301251:12class34@cluster0.j7qvb.mongodb.net/')
         await client.connect()
     }
+}
+
+function hashPassword(password){
+    const salt = crypto.randomBytes(16).toString('hex')
+    const hash= crypto.pbkdf2Sync(password,salt,1000,64,'sha512').toString('hex')
+    return {salt, hash}
+}
+
+function verifyPassword(password, salt,storedHash){
+    const hash= crypto.pbkdf2Sync(password,salt,1000,64,'sha512').toString('hex')
+    return hash == storedHash
 }
 
 /**
