@@ -16,7 +16,7 @@ const bodyParser=require('body-parser')
 const routes= require('./routes/handlers')
 
 const app=express()
-const PORT=3000
+const PORT=8000
 
 app.use(bodyParser.urlencoded({extended: true}))
 app.use('/photos', express.static(path.join(__dirname,'photos')))
@@ -33,7 +33,4 @@ app.use('/',routes)
  * @function
  * @returns {void} Logs message when server starts
  */
-app.listen(PORT, () => console.log(`Server running at http://localhost:3000`))
-
-
-// does it work?
+app.listen(PORT, () => console.log(`Server running at http://localhost:8000`))

@@ -160,6 +160,9 @@ router.get('/signup', (req,res)=>{
 
 router.post('/signup', async(req,res)=>{
     const{name, email, password}= req.body
+    if (!name || !email || !password) {
+        return res.render('error', { message: "All fields are required", layout: undefined })
+    }
     const result= await signup(name, email.password)
 
     if(result==='exists'){
@@ -179,7 +182,7 @@ router.post('/login',async (req,res)=>{
         return res.render('error', {message: "Invalid email or password", layout:undefined})
 
     }
-    res.send(`Welcome,${user.name}!'<a href='/'>Go to albums</a>`)
+    res.send(`Welcome,${user.name}!<a href='/'>Go to albums</a>`)
 })
 /**
  * @exports router
