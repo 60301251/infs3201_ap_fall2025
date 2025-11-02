@@ -166,7 +166,12 @@ async function findPhoto(id){
  await connectDatabase()
     const db = client.db('INFS3201_fall2025')
     const photos = db.collection('photos')
-    return await photos.findOne({ id: Number(id) }) || null
+    const photo = await photos.findOne({ id: Number(id) }) || null
+
+    if (photo && !photo.visibility){
+            photo.visibility = 'public'
+    }
+    return photo
 }
 
 /**
