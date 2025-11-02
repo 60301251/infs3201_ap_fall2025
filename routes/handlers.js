@@ -96,7 +96,12 @@ router.get('/photo/:id/edit', async (req, res) => {
     const photo = await getPhoto(Number(req.params.id))
     if (!photo) return res.send("Photo not found")
 
-    res.render('edit', { photo, layout: undefined })
+    let visibilityOptions = [
+        {value: "public", selected: photo.visibility === "public" ? "selected" : ""},
+        {value: "private", selected: photo.visibility === "private" ? "selected" : ""}
+    ]
+
+    res.render('edit', { photo, visibilityOptions, layout: undefined })
 })
 
 /**
