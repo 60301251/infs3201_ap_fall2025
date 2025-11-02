@@ -60,6 +60,18 @@ async function registerUser(name, email,password) {
     
 }
 
+async function loginUser(email,password) {
+    const users= await loadAll('users')
+    for(let i=0; i<users.length;i++){
+        const u= users[i]
+        if(u.email===email && verifyPassword(password,u.salt,u.password)){
+            return u
+        }
+    }
+    return null
+    
+}
+
 
 
 /**
