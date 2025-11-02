@@ -211,6 +211,58 @@ async function updatePhoto(id, update) {
     return await photos.findOne({ id: Number(id )}) || null
 }
 
+
+/* COMMENTS */
+/**
+ * Add a new comment to a photo.
+ * @param {number|string} photoId
+ * @param {number|string} userId
+ * @param {string} username
+ * @param {string} text
+ * @returns {Promise<Object>} Inserted comment document
+ */
+async function addComment(photoId, userId, username, text) {
+    await connectDatabase()
+    const db = client.db('INFS3201_fall2025')
+    const comments = db.collection('comments')
+
+    // compute next incremental numeric id
+    let nextId = 1
+    const ids = await comments.find({}, { projection: { id: 1 } }).toArray()
+    for (let i = 0; i < ids.length; i++) {
+        if (ids[i] && typeof ids[i].id !== 'undefined' && ids[i].id >= nextId) {
+            nextId = ids[i].id + 1
+        }
+    }
+
+    const doc = {
+        id: nextId,
+        photoId: Number(photoId),
+        userId: userId,
+        username: username || "",
+        text: text || "",
+        createdAt: new Date()
+    }
+
+    await comments.insertOne(doc)
+    return doc
+}
+
+/**
+ * Get all comments for a photo, oldest first.
+ * @param {number|string} photoId
+ * @returns {Promise<Array>}
+ */
+async function getCommentsByPhoto(photoId) {
+    await connectDatabase()
+    const db = client.db('INFS3201_fall2025')
+    const comments = db.collection('comments')
+
+    const cursor = comments.find({ photoId: Number(photoId) }).sort({ createdAt: 1 })
+    const result = await cursor.toArray()
+    return result
+}
+
 module.exports={
     registerUser,
     loginUser,
