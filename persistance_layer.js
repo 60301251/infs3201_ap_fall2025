@@ -140,6 +140,16 @@ async function saveAlbum(albumList) {
     }
 }
 
+async function findUserByEmail(email) {
+    const users= await loadAll('users')
+    for(let i=0; i<users.length;i++){
+        if(users[i].email===email){
+            return users[i]
+        }
+    }
+    return null
+    
+}
 /**
  * Find a photo using photoID
  * @async
