@@ -115,7 +115,7 @@ router.get('/photo/:id/edit', async (req, res) => {
  */
 router.post('/photo/:id/edit', async (req, res) => {
     const { title, description } = req.body
-    const updated = await updatePhoto(Number(req.params.id), title, description)
+    const updated = await updatePhoto(Number(req.params.id), title, description,visibility)
     if (!updated){
          return res.render('error', { 
         message: "Failed to update photo", 
