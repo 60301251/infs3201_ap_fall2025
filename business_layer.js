@@ -26,6 +26,11 @@ async function signup(name, email, password) {
     
 }
 
+async function login(email, password) {
+    return await loginUser(email, password)
+    
+}
+
 /**
  * To getPhoto using userId
  *  @async
