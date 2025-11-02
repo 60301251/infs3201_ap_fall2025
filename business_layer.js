@@ -68,7 +68,7 @@ async function getAlbum(albumId){
  * @param {string} newdes - New description (optional).
  * @returns {Promise<Object|null>} Updated photo object, or null if not found.
 */
-async function updatePhoto(photoId,newtitle,newdes){
+async function updatePhoto(photoId,newtitle,newdes, newVisibility){
     const update={}
 
     if(newtitle && newtitle.trim()!== ""){

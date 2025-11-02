@@ -114,10 +114,10 @@ router.get('/photo/:id/edit', async (req, res) => {
  * @returns {Promise<void>} Redirects to photo page if successful, otherwise renders an error page.
  */
 router.post('/photo/:id/edit', async (req, res) => {
-    const { title, description } = req.body
+    const { title, description,visibility } = req.body
     const updated = await updatePhoto(Number(req.params.id), title, description,visibility)
     if (!updated){
-         return res.render('error', { 
+        return res.render('error', { 
         message: "Failed to update photo", 
         layout: undefined})
     } 
