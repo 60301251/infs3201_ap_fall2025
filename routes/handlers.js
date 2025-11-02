@@ -153,6 +153,16 @@ router.get('/signup', (req,res)=>{
     res.render('signup',{layout: undefined})
 })
 
+router.post('/signup', async(req,res)=>{
+    const{name, email, password}= req.body
+    const result= await signup(name, email.password)
+
+    if(result==='exists'){
+        return res.render('error', {message:"email already registered", layout:undefined})
+    }
+    res.send("Signup Successful!<a href='/login'>Login</a>")
+})
+
 /**
  * @exports router
  * @description Exports the Express router handling all photo and album routes.
