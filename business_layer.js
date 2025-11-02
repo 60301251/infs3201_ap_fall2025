@@ -77,6 +77,11 @@ async function updatePhoto(photoId,newtitle,newdes){
     if(newdes && newdes.trim()!== ""){
         update.description=newdes.trim()
     }
+
+    if(newVisibility && (newVisibility === "public" || newVisibility === "private")){
+        update.visibility = newVisibility
+    }
+
     if(Object.keys(update).length === 0){
         return null
     }
