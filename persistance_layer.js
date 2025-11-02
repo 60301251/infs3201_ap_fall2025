@@ -31,6 +31,15 @@ function verifyPassword(password, salt,storedHash){
     return hash == storedHash
 }
 
+async function loadAll(collectionName) {
+    await connectDatabase()
+    const db= client.db('INFS3201_fall2025')
+    const collection= db.collection(collectionName)
+    const docs= await collection.find({}).toArray()
+    return docs
+    
+}
+
 /**
  * To load photos from the file
  * @async
