@@ -40,6 +40,13 @@ async function loadAll(collectionName) {
     
 }
 
+async function saveDoc(collectionName, doc) {
+    await connectDatabase()
+    const db= client.db('INFS3201_fall2025')
+    const collection= db.collection(collectionName)
+    await collection.insertOne(doc)
+}
+
 /**
  * To load photos from the file
  * @async
