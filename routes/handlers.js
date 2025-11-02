@@ -11,6 +11,8 @@
 const express= require('express')
 const router=express.Router()
 const{
+    signup,
+    login,
     getPhoto,
     getAlbum,
     updatePhoto,
@@ -147,6 +149,33 @@ router.post('/photo/:id/tag', async (req, res) => {
     res.redirect(`/photo/${req.params.id}`)
 })
 
+router.get('/signup', (req,res)=>{
+    res.render('signup',{layout: undefined})
+})
+
+router.post('/signup', async(req,res)=>{
+    const{name, email, password}= req.body
+    const result= await signup(name, email.password)
+
+    if(result==='exists'){
+        return res.render('error', {message:"email already registered", layout:undefined})
+    }
+    res.send("Signup Successful!<a href='/login'>Login</a>")
+})
+router.get('/login', (req,res)=>{
+    res.render('login',{layout: undefined})
+})
+
+router.post('/login',async (req,res)=>{
+    const{email,password}= req.body
+    const user= await login(email,password)
+
+    if(!user){
+        return res.render('error', {message: "Invalid email or password", layout:undefined})
+
+    }
+    res.send(`Welcome,${user.name}!'<a href='/'>Go to albums</a>`)
+})
 /**
  * @exports router
  * @description Exports the Express router handling all photo and album routes.

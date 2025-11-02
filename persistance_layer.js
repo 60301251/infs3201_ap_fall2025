@@ -31,6 +31,49 @@ function verifyPassword(password, salt,storedHash){
     return hash == storedHash
 }
 
+async function loadAll(collectionName) {
+    await connectDatabase()
+    const db= client.db('INFS3201_fall2025')
+    const collection= db.collection(collectionName)
+    const docs= await collection.find({}).toArray()
+    return docs
+    
+}
+
+async function saveDoc(collectionName, doc) {
+    await connectDatabase()
+    const db= client.db('INFS3201_fall2025')
+    const collection= db.collection(collectionName)
+    await collection.insertOne(doc)
+}
+async function registerUser(name, email,password) {
+    const users= await loadAll('users')
+    for(let i=0 ;i<users.length; i++){
+        if(users[i].email==email){
+            return 'exists'
+        }
+    }
+    const {salt, hash}= hashPassword(password)
+    const newUser = {id: users.length+1, name, email, salt, password:hash}
+    await saveDoc('users', newUser)
+    return newUser
+    
+}
+
+async function loginUser(email,password) {
+    const users= await loadAll('users')
+    for(let i=0; i<users.length;i++){
+        const u= users[i]
+        if(u.email===email && verifyPassword(password,u.salt,u.password)){
+            return u
+        }
+    }
+    return null
+    
+}
+
+
+
 /**
  * To load photos from the file
  * @async
@@ -103,6 +146,16 @@ async function saveAlbum(albumList) {
     }
 }
 
+async function findUserByEmail(email) {
+    const users= await loadAll('users')
+    for(let i=0; i<users.length;i++){
+        if(users[i].email===email){
+            return users[i]
+        }
+    }
+    return null
+    
+}
 /**
  * Find a photo using photoID
  * @async
@@ -162,10 +215,13 @@ async function updatePhoto(id, update) {
 }
 
 module.exports={
+    registerUser,
+    loginUser,
     loadPhoto,
     loadAlbum,
     saveAlbum,
     savePhoto,
+    findUserByEmail,
     findPhoto,
     findAlbum,
     findAlbumbyName,
