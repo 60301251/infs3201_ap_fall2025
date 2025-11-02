@@ -162,7 +162,9 @@ router.post('/signup', async(req,res)=>{
     }
     res.send("Signup Successful!<a href='/login'>Login</a>")
 })
-
+router.get('/login', (req,res)=>{
+    res.render('login',{layout: undefined})
+})
 /**
  * @exports router
  * @description Exports the Express router handling all photo and album routes.
