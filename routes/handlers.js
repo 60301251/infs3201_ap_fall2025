@@ -168,7 +168,7 @@ router.post('/signup', async(req,res)=>{
     if(result==='exists'){
         return res.render('error', {message:"email already registered", layout:undefined})
     }
-    res.send("Signup Successful!<a href='/login'>Login</a>")
+    res.redirect('/login')
 })
 router.get('/login', (req,res)=>{
     res.render('login',{layout: undefined})
