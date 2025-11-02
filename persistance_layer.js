@@ -50,18 +50,14 @@ async function saveDoc(collectionName, doc) {
     const collection= db.collection(collectionName)
     await collection.insertOne(doc)
 }
-async function registerUser(name, email,password) {
-    const users= await loadAll('users')
-    for(let i=0 ;i<users.length; i++){
-        if(users[i].email==email){
-            return 'exists'
-        }
+async function registerUser(name, email, password) {
+    const users = await loadAll('users');
+    for (let u of users) {
+        if (u.email === email) return 'exists';
     }
-    const {salt, hash}= hashPassword(password)
-    const newUser = {id: users.length+1, name, email, salt, password:hash}
-    await saveDoc('users', newUser)
-    return newUser
-    
+    const newUser = { id: users.length + 1, name, email, password };
+    await saveDoc('users', newUser);
+    return newUser;
 }
 
 async function loginUser(email, password) {
