@@ -56,7 +56,13 @@ async function savePhoto(photoList) {
     const db = client.db('INFS3201_fall2025')
     const photos = db.collection('photos')
 
-    for (let photo of photoList) {
+    for (let i=0;i<photoList[i];i++) {
+        const photo = photoList[i]
+
+        if (photo && !photo.visibility){
+            photo.visibility = 'public'
+        }
+
         if (photo.id) {
             await photos.updateOne(
                 { id: photo.id },
@@ -66,7 +72,7 @@ async function savePhoto(photoList) {
         }
     }
 }
-
+    
 /**
  * To load albums from the file
  * @async
