@@ -209,10 +209,13 @@ async function updatePhoto(id, update) {
 }
 
 module.exports={
+    registerUser,
+    loginUser,
     loadPhoto,
     loadAlbum,
     saveAlbum,
     savePhoto,
+    findUserByEmail,
     findPhoto,
     findAlbum,
     findAlbumbyName,
