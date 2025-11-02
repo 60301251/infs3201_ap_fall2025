@@ -37,14 +37,23 @@ async function saveDoc(collectionName, doc) {
     await collection.insertOne(doc)
 }
 async function registerUser(name, email, password) {
-    const users = await loadAll('users');
-    for (let u of users) {
-        if (u.email === email) return 'exists';
+    const users = await loadAll('users')
+    for (let user of users) {
+        if (user.email === email) {
+            return 'exists'
+        }
     }
-    const newUser = { id: users.length + 1, name, email, password };
-    await saveDoc('users', newUser);
-    return newUser;
+    const newUser = {
+        id: users.length + 1,
+        name,
+        email,
+        password 
+    }
+
+    await saveDoc('users', newUser)
+    return newUser
 }
+
 
 async function loginUser(email, password) {
     const users = await loadAll('users');
