@@ -9,6 +9,8 @@
 */
 
 const{
+    registerUser,
+    loginUser,
     loadPhoto,
     loadAlbum,
     savePhoto,
@@ -18,6 +20,11 @@ const{
     findAlbumbyName,
     updatePhoto : updatePhotoDB
 } = require('./persistance_layer')
+
+async function signup(name, email, password) {
+    return await registerUser(name, email, password)
+    
+}
 
 /**
  * To getPhoto using userId
