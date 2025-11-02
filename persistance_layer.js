@@ -46,6 +46,15 @@ async function saveDoc(collectionName, doc) {
     const collection= db.collection(collectionName)
     await collection.insertOne(doc)
 }
+async function registerUser(name, email,password) {
+    const users= await loadAll('users')
+    for(let i=0 ;i<users.length; i++){
+        if(users[i].email==email){
+            return 'exists'
+        }
+    }
+    
+}
 
 /**
  * To load photos from the file
