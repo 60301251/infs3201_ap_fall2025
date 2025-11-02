@@ -16,7 +16,7 @@ const bodyParser=require('body-parser')
 const routes= require('./routes/handlers')
 
 const app=express()
-const PORT=3000
+const PORT=8000
 
 app.use(bodyParser.urlencoded({extended: true}))
 app.use('/photos', express.static(path.join(__dirname,'photos')))
