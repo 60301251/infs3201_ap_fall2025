@@ -163,12 +163,12 @@ router.post('/signup', async(req,res)=>{
     if (!name || !email || !password) {
         return res.render('error', { message: "All fields are required", layout: undefined })
     }
-    const result= await signup(name, email.password)
+    const result= await signup(name, email,password)
 
     if(result==='exists'){
         return res.render('error', {message:"email already registered", layout:undefined})
     }
-    res.send("Signup Successful!<a href='/login'>Login</a>")
+    res.redirect('/login')
 })
 router.get('/login', (req,res)=>{
     res.render('login',{layout: undefined})
@@ -176,6 +176,9 @@ router.get('/login', (req,res)=>{
 
 router.post('/login',async (req,res)=>{
     const{email,password}= req.body
+     if (!email || !password) {
+        return res.render('error', { message: "All fields are required", layout: undefined })
+    }
     const user= await login(email,password)
 
     if(!user){
