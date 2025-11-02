@@ -11,6 +11,8 @@
 const express= require('express')
 const router=express.Router()
 const{
+    signup,
+    login,
     getPhoto,
     getAlbum,
     updatePhoto,
@@ -145,6 +147,10 @@ router.post('/photo/:id/tag', async (req, res) => {
         })
     }
     res.redirect(`/photo/${req.params.id}`)
+})
+
+router.get('/signup', (req,res)=>{
+    res.render('signup',{layout: undefined})
 })
 
 /**
