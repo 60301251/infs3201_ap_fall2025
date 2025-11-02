@@ -274,5 +274,7 @@ module.exports={
     findPhoto,
     findAlbum,
     findAlbumbyName,
-    updatePhoto
+    updatePhoto,
+    addcomment,
+    getCommentsByPhoto
 }
