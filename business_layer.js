@@ -1,8 +1,11 @@
 /**
-* Name:Eva Paul
-* Student ID:60301251
+* Group 001
+* Name and Student ID:Eva Paul_60301251
+*                      Mufeeda Kalam_60303289
+*                     Aysha Sultana_60099830
+* 
 * INFS3201-5/6- Web Tech 2 
-* Assignment 3
+* Project Phase 1
 */
 
 const{
