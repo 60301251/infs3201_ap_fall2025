@@ -57,7 +57,8 @@ async function registerUser(name, email, password) {
     const users = await loadAll('users');
     for (let u of users) {
         if (u.email === email) {
-            return 'exists'};
+            return 'exists'
+        };
     }
     const {salt, hash}= hashPassword(password)
     const newUser = { id: users.length + 1, name, email, password: hash, salt: salt};
