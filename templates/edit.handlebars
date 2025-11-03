@@ -6,7 +6,7 @@
 
     <label>Visibility:
         <select name="visibility">
-            {{each visibility Options}}
+            {{#each visibility Options}}
                 <option value= "{{value}}" {{selected}}>{{value}}</option>
             {{/each}}
         </select>

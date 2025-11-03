@@ -114,7 +114,7 @@ async function savePhoto(photoList) {
     const db = client.db('INFS3201_fall2025')
     const photos = db.collection('photos')
 
-    for (let i=0;i<photoList[i];i++) {
+    for (let i=0;i<photoList.length;i++) {
         const photo = photoList[i]
 
         if (photo && !photo.visibility){
