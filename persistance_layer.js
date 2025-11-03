@@ -249,8 +249,6 @@ async function addComment(photoId, userId, username, text) {
     await connectDatabase()
     const db = client.db('INFS3201_fall2025')
     const comments = db.collection('comments')
-
-    // compute next incremental numeric id
     let nextId = 1
     const ids = await comments.find({}, { projection: { id: 1 } }).toArray()
     for (let i = 0; i < ids.length; i++) {
@@ -299,6 +297,6 @@ module.exports={
     findAlbum,
     findAlbumbyName,
     updatePhoto,
-    addcomment,
+    addComment,
     getCommentsByPhoto
 }
