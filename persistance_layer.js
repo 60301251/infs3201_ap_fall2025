@@ -80,7 +80,6 @@ async function loginUser(email, password) {
 }
 
 
-
 /**
  * To load photos from the file
  * @async
