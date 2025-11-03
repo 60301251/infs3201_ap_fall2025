@@ -26,11 +26,14 @@ function hashPassword(password){
         throw new Error("Password must be non-empty string")
     }
     const salt = crypto.randomBytes(16).toString('hex')
-    const hash= crypto.pbkdf2Sync(password,salt,1000,64,'sha512').toString('hex')
+    const hash= crypto.pbkdf2Sync(password, salt, 1000, 64,'sha512').toString('hex')
     return {salt, hash}
 }
 
 function verifyPassword(password, salt,storedHash){
+    if(!salt || !storedHash){
+        return false
+    }
     const hash= crypto.pbkdf2Sync(password,salt,1000,64,'sha512').toString('hex')
     return hash == storedHash
 }
@@ -83,10 +86,6 @@ async function loginUser(email, password) {
     }
     return null;
 }
-
-
-
-
 
 /**
  * To load photos from the file
