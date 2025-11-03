@@ -66,30 +66,19 @@ async function registerUser(name, email, password) {
 }
 
 async function loginUser(email, password) {
-    await connectDatabase()
-    const db = client.db('INFS3201_fall2025')
-    const users = db.collection('users')
+    const users = await loadAll('users');
 
-    const user = await users.findOne({ email })
-    if (!user) {
-        return null
-    }
-    if (user.salt && verifyPassword(password, user.salt, user.password)) {
-        return user
-    }
-    if (!user.salt && user.password === password) {
-        const { salt, hash } = hashPassword(password)
-        await users.updateOne(
-            { _id: user._id },
-            { $set: { password: hash, salt: salt } }
-        )
-        user.password = hash
-        user.salt = salt
-        return user
+    for (let u of users) {
+        if (u.email === email && u.salt) {
+            if (verifyPassword(password, u.salt, u.password)) {
+                return u;
+            }
+        }
     }
 
-    return null
+    return null;
 }
+
 
 
 /**
