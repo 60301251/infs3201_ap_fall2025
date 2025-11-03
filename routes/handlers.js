@@ -165,22 +165,31 @@ router.post('/photo/:id/tag', async (req, res) => {
  * @async
  */
 router.post('/photo/:id/comment', async (req, res) => {
-    const { username, comment } = req.body
+  if (!req.session || !req.session.user) {
+    return res.render('error', { 
+      message: "Please log in to comment.", 
+      layout: undefined 
+    })
+  }
 
-    // If you later add sessions, replace this with req.session.user
-    const user = {
-        id: 0,
-        name: username && username.trim() !== "" ? username.trim() : "Anonymous"
-    }
+  const photo = await getPhoto(Number(req.params.id))
+  // Allow commenting only if the photo is public or owned by the user
+  if (photo.visibility === "private" && photo.ownerId !== req.session.user.id) {
+    return res.render('error', { 
+      message: "You can only comment on your own private photos.", 
+      layout: undefined 
+    })
+  }
 
-    const result = await addPhotoComment(Number(req.params.id), user, comment)
-    if (!result) {
-        return res.render('error', { 
-            message: "Failed to add comment (make sure text is not empty).", 
-            layout: undefined 
-        })
-    }
-    res.redirect(`/photo/${req.params.id}`)
+  const result = await addPhotoComment(Number(req.params.id), req.session.user, req.body.comment)
+  if (!result) {
+    return res.render('error', { 
+      message: "Failed to add comment (make sure text is not empty).", 
+      layout: undefined 
+    })
+  }
+
+  res.redirect(`/photo/${req.params.id}`)
 })
 
 /**
@@ -250,6 +259,7 @@ router.post('/login',async (req,res)=>{
         return res.render('error', {message: "Invalid email or password", layout:undefined})
 
     }
+    req.session.user = user
     res.send(`Welcome,${user.name}!<a href='/'>Go to albums</a>`)
 })
 /**
