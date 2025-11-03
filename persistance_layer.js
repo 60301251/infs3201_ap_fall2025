@@ -58,34 +58,37 @@ async function registerUser(name, email, password) {
     for (let u of users) {
         if (u.email === email) return 'exists';
     }
-    const newUser = { id: users.length + 1, name, email, password };
+    const newUser = { id: users.length + 1, name, email, password, salt};
     await saveDoc('users', newUser);
     return newUser;
 }
 
 async function loginUser(email, password) {
-    const users = await loadAll('users');
+    await connectDatabase()
+    const db = client.db('INFS3201_fall2025')
+    const users = db.collection('users')
 
-    for (let i = 0; i < users.length; i++) {
-        const u = users[i];
-        if (!u.salt) {
-            const { salt, hash } = hashPassword(u.password);
-            const db = client.db('INFS3201_fall2025');
-            const usersCollection = db.collection('users');
-            await usersCollection.updateOne(
-                { _id: u._id },
-                { $set: { salt: salt, password: hash } }
-            );
-            u.salt = salt;
-            u.password = hash;
-        }
-
-        if (u.email === email && verifyPassword(password, u.salt, u.password)) {
-            return u;
-        }
+    const user = await users.findOne({ email })
+    if (!user) {
+        return null
     }
-    return null;
+    if (user.salt && verifyPassword(password, user.salt, user.password)) {
+        return user
+    }
+    if (!user.salt && user.password === password) {
+        const { salt, hash } = hashPassword(password)
+        await users.updateOne(
+            { _id: user._id },
+            { $set: { password: hash, salt: salt } }
+        )
+        user.password = hash
+        user.salt = salt
+        return user
+    }
+
+    return null
 }
+
 
 /**
  * To load photos from the file
