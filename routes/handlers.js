@@ -17,7 +17,9 @@ const{
     getAlbum,
     updatePhoto,
     getByAlbum,
-    addTag
+    addTag,
+    addPhotoComment,
+    listPhotoComments
 }= require('../business_layer')
 
 /**
@@ -78,8 +80,9 @@ router.get('/album/:id', async(req,res)=>{
 router.get('/photo/:id', async(req,res)=>{
     const photo = await getPhoto(Number(req.params.id))
     if (!photo) return res.send("Photo not found")
-
-    res.render('photo', { photo, layout: undefined })
+    
+    const comments = await listPhotoComments(Number(req.params.id))
+    res.render('photo', { photo, comments, layout: undefined })
 })
 
 /**
@@ -148,6 +151,32 @@ router.post('/photo/:id/tag', async (req, res) => {
     if (!result) {
         return res.render('error', { 
             message: "Photo not found.", 
+            layout: undefined 
+        })
+    }
+    res.redirect(`/photo/${req.params.id}`)
+})
+
+/* COMMENTS */
+
+/**
+ * @route POST /photo/:id/comment
+ * @description Adds a new comment to a photo, then redirects back to the photo page.
+ * @async
+ */
+router.post('/photo/:id/comment', async (req, res) => {
+    const { username, comment } = req.body
+
+    // If you later add sessions, replace this with req.session.user
+    const user = {
+        id: 0,
+        name: username && username.trim() !== "" ? username.trim() : "Anonymous"
+    }
+
+    const result = await addPhotoComment(Number(req.params.id), user, comment)
+    if (!result) {
+        return res.render('error', { 
+            message: "Failed to add comment (make sure text is not empty).", 
             layout: undefined 
         })
     }
