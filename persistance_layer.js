@@ -21,19 +21,44 @@ async function connectDatabase(){
     }
 }
 
+/**
+ * Hash a plaintext password with a randomly generated salt using PBKDF2.
+ * @param {string} password - The plaintext password to hash.
+ * @returns {Object} An object containing:
+ *   @property {string} salt - The randomly generated salt used for hashing.
+ *   @property {string} hash - The resulting password hash in hexadecimal format.
+ * @throws {Error} If the password is not a non-empty string.
+ */
 function hashPassword(password){
     if(!password || typeof password!=='string'){
         throw new Error("Password must be non-empty string")
     }
     const salt = crypto.randomBytes(16).toString('hex')
-    const hash= crypto.pbkdf2Sync(password,salt,1000,64,'sha512').toString('hex')
+    const hash= crypto.pbkdf2Sync(password, salt, 1000, 64,'sha512').toString('hex')
     return {salt, hash}
 }
 
+/**
+ * Verify a plaintext password against a stored hash and salt using PBKDF2.
+ * @param {string} password - The plaintext password to verify.
+ * @param {string} salt - The salt used to generate the stored hash.
+ * @param {string} storedHash - The stored password hash to compare against.
+ * @returns {boolean} True if the password matches the stored hash, false otherwise.
+ */
 function verifyPassword(password, salt,storedHash){
+    if(!salt || !storedHash){
+        return false
+    }
     const hash= crypto.pbkdf2Sync(password,salt,1000,64,'sha512').toString('hex')
     return hash == storedHash
 }
+
+/**
+ * Load all documents from a given MongoDB collection.
+ * @async
+ * @param {string} collectionName - The name of the collection.
+ * @returns {Promise<Object[]>} Array of documents from the collection.
+ */
 
 async function loadAll(collectionName) {
     await connectDatabase()
@@ -44,50 +69,68 @@ async function loadAll(collectionName) {
     
 }
 
+/**
+ * Save a document to a given MongoDB collection.
+ * @async
+ * @param {string} collectionName - The name of the collection.
+ * @param {Object} doc - The document to save.
+ * @returns {Promise<void>}
+ */
 async function saveDoc(collectionName, doc) {
     await connectDatabase()
     const db= client.db('INFS3201_fall2025')
     const collection= db.collection(collectionName)
     await collection.insertOne(doc)
 }
-async function registerUser(name, email,password) {
-    const users= await loadAll('users')
-    for(let i=0 ;i<users.length; i++){
-        if(users[i].email==email){
+
+/**
+ * Register a new user with hashed password and salt.
+ * @async
+ * @param {string} name - Name of the user.
+ * @param {string} email - Email of the user.
+ * @param {string} password - Plaintext password to hash.
+ * @returns {Promise<Object|string>} The new user object or 'exists' if email already exists.
+ */
+async function registerUser(name, email, password) {
+    const users = await loadAll('users')
+    for (let u of users) {
+        if (u.email === email) {
             return 'exists'
         }
     }
     const {salt, hash}= hashPassword(password)
-    const newUser = {id: users.length+1, name, email, salt, password:hash}
+    const newUser = { id: users.length + 1, name, email, password: hash, salt: salt}
     await saveDoc('users', newUser)
     return newUser
-    
 }
 
+/**
+ * Log in a user using email and password.
+ * If user has no salt (old data), login with plain password.
+ * @async
+ * @param {string} email - User email.
+ * @param {string} password - Plaintext password.
+ * @returns {Promise<Object|null>} User object if login is successful, otherwise null.
+ */
 async function loginUser(email, password) {
-    const users = await loadAll('users');
-    for (let i = 0; i < users.length; i++) {
-        const u = users[i];
-        if (!u.salt) {
-            const { salt, hash } = hashPassword(u.password);
-            const db = client.db('INFS3201_fall2025');
-            const usersCollection = db.collection('users');
-            await usersCollection.updateOne(
-                { _id: u._id },
-                { $set: { salt: salt, password: hash } }
-            );
-            u.salt = salt;
-            u.password = hash;
-        }
-        if (u.email === email && verifyPassword(password, u.salt, u.password)) {
-            return u;
+    const users = await loadAll('users')
+
+    for (let u of users) {
+        if (u.email === email) {
+            if (!u.salt) {
+                if (u.password === password) {
+                    return u
+                }
+            } else {
+                if (verifyPassword(password, u.salt, u.password)) {
+                    return u
+                }
+            }
         }
     }
-    return null;
+
+    return null
 }
-
-
-
 
 /**
  * To load photos from the file
@@ -161,6 +204,12 @@ async function saveAlbum(albumList) {
     }
 }
 
+/**
+ * Find a user by their email address.
+ * @async
+ * @param {string} email - Email of the user.
+ * @returns {Promise<Object|null>} User object if found, otherwise null.
+ */
 async function findUserByEmail(email) {
     const users= await loadAll('users')
     for(let i=0; i<users.length;i++){
@@ -234,6 +283,56 @@ async function updatePhoto(id, update) {
     return await photos.findOne({ id: Number(id )}) || null
 }
 
+
+/* COMMENTS */
+/**
+ * Add a new comment to a photo.
+ * @param {number|string} photoId
+ * @param {number|string} userId
+ * @param {string} username
+ * @param {string} text
+ * @returns {Promise<Object>} Inserted comment document
+ */
+async function addComment(photoId, userId, username, text) {
+    await connectDatabase()
+    const db = client.db('INFS3201_fall2025')
+    const comments = db.collection('comments')
+    let nextId = 1
+    const ids = await comments.find({}, { projection: { id: 1 } }).toArray()
+    for (let i = 0; i < ids.length; i++) {
+        if (ids[i] && typeof ids[i].id !== 'undefined' && ids[i].id >= nextId) {
+            nextId = ids[i].id + 1
+        }
+    }
+
+    const doc = {
+        id: nextId,
+        photoId: Number(photoId),
+        userId: userId,
+        username: username || "",
+        text: text || "",
+        createdAt: new Date()
+    }
+
+    await comments.insertOne(doc)
+    return doc
+}
+
+/**
+ * Get all comments for a photo, oldest first.
+ * @param {number|string} photoId
+ * @returns {Promise<Array>}
+ */
+async function getCommentsByPhoto(photoId) {
+    await connectDatabase()
+    const db = client.db('INFS3201_fall2025')
+    const comments = db.collection('comments')
+
+    const cursor = comments.find({ photoId: Number(photoId) }).sort({ createdAt: 1 })
+    const result = await cursor.toArray()
+    return result
+}
+
 module.exports={
     registerUser,
     loginUser,
@@ -245,5 +344,7 @@ module.exports={
     findPhoto,
     findAlbum,
     findAlbumbyName,
-    updatePhoto
+    updatePhoto,
+    addComment,
+    getCommentsByPhoto
 }
