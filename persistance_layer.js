@@ -70,14 +70,21 @@ async function loginUser(email, password) {
     const users = await loadAll('users');
 
     for (let u of users) {
-        if (u.email === email && u.salt) {
-            if (verifyPassword(password, u.salt, u.password)) {
-                return u;
+        if (u.email === email) {
+            if (!u.salt) {
+                if (u.password === password) {
+                    return u; 
+                }
+            } else {
+                const hashedInput = crypto.pbkdf2Sync(password, u.salt, 1000, 64, 'sha512').toString('hex');
+                if (hashedInput === u.password) {
+                    return u;
+                }
             }
         }
     }
 
-    return null;
+    return null; // no match found
 }
 
 
