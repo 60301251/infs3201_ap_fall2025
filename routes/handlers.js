@@ -154,10 +154,27 @@ router.post('/photo/:id/tag', async (req, res) => {
     res.redirect(`/photo/${req.params.id}`)
 })
 
+/**
+ * @route GET /signup
+ * @description Renders the signup page where a new user can register.
+ * @function
+ * @param {express.Request} req - Express request object.
+ * @param {express.Response} res - Express response object.
+ * @returns {void} Renders the 'signup' template.
+ */
 router.get('/signup', (req,res)=>{
     res.render('signup',{layout: undefined})
 })
 
+/**
+ * @route POST /signup
+ * @description Handles new user registration. Validates fields and prevents duplicate email registration.
+ * @async
+ * @function
+ * @param {express.Request} req - Express request object containing name, email, and password in body.
+ * @param {express.Response} res - Express response object.
+ * @returns {Promise<void>} Redirects to login page if successful or renders an error page on failure.
+ */
 router.post('/signup', async(req,res)=>{
     const{name, email, password}= req.body
     if (!name || !email || !password) {
@@ -170,10 +187,29 @@ router.post('/signup', async(req,res)=>{
     }
     res.redirect('/login')
 })
+
+/**
+ * @route GET /login
+ * @description Renders the login page where existing users can authenticate.
+ * @function
+ * @param {express.Request} req - Express request object.
+ * @param {express.Response} res - Express response object.
+ * @returns {void} Renders the 'login' template.
+ */
 router.get('/login', (req,res)=>{
     res.render('login',{layout: undefined})
 })
 
+
+/**
+ * @route POST /login
+ * @description Handles user login. Validates email and password, and displays welcome message or error.
+ * @async
+ * @function
+ * @param {express.Request} req - Express request object containing email and password in body.
+ * @param {express.Response} res - Express response object.
+ * @returns {Promise<void>} Sends a welcome message with link to albums or renders an error page on failure.
+ */
 router.post('/login',async (req,res)=>{
     const{email,password}= req.body
      if (!email || !password) {
