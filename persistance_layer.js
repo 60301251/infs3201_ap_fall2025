@@ -122,8 +122,7 @@ async function loginUser(email, password) {
                     return u
                 }
             } else {
-                const hashedInput = crypto.pbkdf2Sync(password, u.salt, 1000, 64, 'sha512').toString('hex')
-                if (hashedInput === u.password) {
+                if (verifyPassword(password, u.salt, u.password)) {
                     return u
                 }
             }
