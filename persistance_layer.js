@@ -21,6 +21,20 @@ async function connectDatabase(){
     }
 }
 
+function hashPassword(password){
+    if(!password || typeof password!=='string'){
+        throw new Error("Password must be non-empty string")
+    }
+    const salt = crypto.randomBytes(16).toString('hex')
+    const hash= crypto.pbkdf2Sync(password,salt,1000,64,'sha512').toString('hex')
+    return {salt, hash}
+}
+
+function verifyPassword(password, salt,storedHash){
+    const hash= crypto.pbkdf2Sync(password,salt,1000,64,'sha512').toString('hex')
+    return hash == storedHash
+}
+
 async function loadAll(collectionName) {
     await connectDatabase()
     const db= client.db('INFS3201_fall2025')
@@ -37,33 +51,41 @@ async function saveDoc(collectionName, doc) {
     await collection.insertOne(doc)
 }
 async function registerUser(name, email, password) {
-    const users = await loadAll('users')
-    for (let user of users) {
-        if (user.email === email) {
-            return 'exists'
-        }
+    const users = await loadAll('users');
+    for (let u of users) {
+        if (u.email === email) return 'exists';
     }
-    const newUser = {
-        id: users.length + 1,
-        name,
-        email,
-        password 
-    }
-
-    await saveDoc('users', newUser)
-    return newUser
+    const newUser = { id: users.length + 1, name, email, password };
+    await saveDoc('users', newUser);
+    return newUser;
 }
-
 
 async function loginUser(email, password) {
     const users = await loadAll('users');
-    for (let u of users) {
-        if (u.email === email && u.password === password) {
+
+    for (let i = 0; i < users.length; i++) {
+        const u = users[i];
+        if (!u.salt) {
+            const { salt, hash } = hashPassword(u.password);
+            const db = client.db('INFS3201_fall2025');
+            const usersCollection = db.collection('users');
+            await usersCollection.updateOne(
+                { _id: u._id },
+                { $set: { salt: salt, password: hash } }
+            );
+            u.salt = salt;
+            u.password = hash;
+        }
+
+        if (u.email === email && verifyPassword(password, u.salt, u.password)) {
             return u;
         }
     }
     return null;
 }
+
+
+
 
 
 /**
