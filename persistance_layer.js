@@ -132,7 +132,6 @@ async function loginUser(email, password) {
     return null
 }
 
-
 /**
  * To load photos from the file
  * @async
