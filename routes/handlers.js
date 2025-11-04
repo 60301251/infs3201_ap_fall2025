@@ -81,6 +81,15 @@ router.get('/album/:id', async(req,res)=>{
 router.get('/photo/:id', async(req,res)=>{
     const photo = await getPhoto(Number(req.params.id))
     if (!photo) return res.send("Photo not found")
+
+     const currentUser = req.session.user
+
+    if (photo.visibility === "private" && (!currentUser || photo.ownerId !== currentUser.id)) {
+        return res.render('error', { 
+            message: "This photo is private and cannot be viewed.", 
+            layout: undefined 
+        })
+    }
     
     const comments = await listPhotoComments(Number(req.params.id))
     res.render('photo', { photo, comments, layout: undefined })
