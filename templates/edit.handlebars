@@ -4,16 +4,14 @@
     <label>Title: <input type="text" name="title" value="{{photo.title}}"></label><br>
     <label>Description: <input type="text" name="description" value="{{photo.description}}"></label><br>
 
-    <label>Visibility:
-        <select name="visibility">
-            {{#each visibilityOptions}}
-                <label>
-                    <input type="checkbox" name="visibility" value="{{this.value}}" {{this.selected}}>
-                    {{this.value}}
-                </label><br>
-            {{/each}}
-        </select>
-    </label><br>
+    <label>Visibility:</label><br>
+    {{#each visibilityOptions}}
+        <label>
+            <input type="checkbox" name="visibility" value="{{this.value}}" {{this.selected}}>
+            {{this.value}}
+        </label><br>
+    {{/each}}
+    
     
     <button type="submit">Submit</button>
 </form>
