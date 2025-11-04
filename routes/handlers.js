@@ -53,6 +53,7 @@ router.get('/album/:id', async(req,res)=>{
         return res.send("Album not found")
     }
 
+    const currentUserEmail = req.session?.user?.email || null
     const result=await getByAlbum(album.name)
     const photoCount = result.photos.length
     const photoLabel = photoCount === 1 ? 'photo' : 'photos'
@@ -98,6 +99,13 @@ router.get('/photo/:id', async(req,res)=>{
 router.get('/photo/:id/edit', async (req, res) => {
     const photo = await getPhoto(Number(req.params.id))
     if (!photo) return res.send("Photo not found")
+
+    if (!req.session.user || photo.ownerId !== req.session.user.id) {
+        return res.render('error', { 
+            message: "You can only edit your own photos.", 
+            layout: undefined 
+        })
+    }
 
     let visibilityOptions = [
         {value: "public", selected: photo.visibility === "public" ? "selected" : ""},
