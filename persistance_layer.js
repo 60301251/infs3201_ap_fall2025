@@ -275,12 +275,17 @@ async function findAlbumbyName(albumName){
  * @param {Object} update - Fields to update (e.g. { title, description }).
  * @returns {Promise<Object|null>} Updated photo object if found, otherwise null.
  */
-async function updatePhoto(id, update) {
-    await connectDatabase()
-    const db = client.db('INFS3201_fall2025')
-    const photos = db.collection('photos')
-    await photos.updateOne({ id: Number(id )}, { $set: update })
-    return await photos.findOne({ id: Number(id )}) || null
+async function updatePhoto(photoId, newTitle, newDes, newVisibility) {
+    const update = {};
+
+    if (newTitle && newTitle.trim() !== "") update.title = newTitle.trim();
+    if (newDes && newDes.trim() !== "") update.description = newDes.trim();
+    if (newVisibility && (newVisibility === "public" || newVisibility === "private")) update.visibility = newVisibility;
+
+    if (Object.keys(update).length === 0) return null;
+
+    const updatedPhoto = await updatePhotoDB(Number(photoId), update);
+    return updatedPhoto || null;
 }
 
 
@@ -366,5 +371,6 @@ module.exports={
     findAlbumbyName,
     updatePhoto,
     addComment,
-    getCommentsByPhoto
+    getCommentsByPhoto,
+    getByAlbum
 }
