@@ -18,7 +18,9 @@ const{
     findPhoto,
     findAlbum,
     findAlbumbyName,
-    updatePhoto : updatePhotoDB
+    updatePhoto : updatePhotoDB,
+    addComment,
+    getCommentsByPhoto
 } = require('./persistance_layer')
 
 async function signup(name, email, password) {
@@ -146,6 +148,37 @@ async function addTag(photoId,newTag) {
     
 }
 
+/* COMMENTS */
+
+/**
+ * Create a new comment for a photo.
+ * @param {number|string} photoId
+ * @param {Object} user - logged-in user object
+ * @param {string} text - comment text
+ * @returns {Promise<Object|null>} Inserted comment or null on validation failure
+ */
+async function addPhotoComment(photoId, user, text) {
+    if (!user) {
+        return null
+    }
+    if (!text || text.trim() === "") {
+        return null
+    }
+    const cleaned = text.trim()
+    const result = await addComment(Number(photoId), user.id, user.name, cleaned)
+    return result
+}
+
+/**
+ * List all comments for a photo.
+ * @param {number|string} photoId
+ * @returns {Promise<Array>}
+ */
+async function listPhotoComments(photoId) {
+    const items = await getCommentsByPhoto(Number(photoId))
+    return items
+}
+
 module.exports={
     signup,
     login,
@@ -153,5 +186,7 @@ module.exports={
     getAlbum,
     updatePhoto,
     getByAlbum,
-    addTag
+    addTag,
+    addPhotoComment,
+    listPhotoComments
 }

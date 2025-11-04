@@ -17,7 +17,9 @@ const{
     getAlbum,
     updatePhoto,
     getByAlbum,
-    addTag
+    addTag,
+    addPhotoComment,
+    listPhotoComments
 }= require('../business_layer')
 
 /**
@@ -78,8 +80,9 @@ router.get('/album/:id', async(req,res)=>{
 router.get('/photo/:id', async(req,res)=>{
     const photo = await getPhoto(Number(req.params.id))
     if (!photo) return res.send("Photo not found")
-
-    res.render('photo', { photo, layout: undefined })
+    
+    const comments = await listPhotoComments(Number(req.params.id))
+    res.render('photo', { photo, comments, layout: undefined })
 })
 
 /**
@@ -154,6 +157,41 @@ router.post('/photo/:id/tag', async (req, res) => {
     res.redirect(`/photo/${req.params.id}`)
 })
 
+/* COMMENTS */
+
+/**
+ * @route POST /photo/:id/comment
+ * @description Adds a new comment to a photo, then redirects back to the photo page.
+ * @async
+ */
+router.post('/photo/:id/comment', async (req, res) => {
+  if (!req.session || !req.session.user) {
+    return res.render('error', { 
+      message: "Please log in to comment.", 
+      layout: undefined 
+    })
+  }
+
+  const photo = await getPhoto(Number(req.params.id))
+  // Allow commenting only if the photo is public or owned by the user
+  if (photo.visibility === "private" && photo.ownerId !== req.session.user.id) {
+    return res.render('error', { 
+      message: "You can only comment on your own private photos.", 
+      layout: undefined 
+    })
+  }
+
+  const result = await addPhotoComment(Number(req.params.id), req.session.user, req.body.comment)
+  if (!result) {
+    return res.render('error', { 
+      message: "Failed to add comment (make sure text is not empty).", 
+      layout: undefined 
+    })
+  }
+
+  res.redirect(`/photo/${req.params.id}`)
+})
+
 /**
  * @route GET /signup
  * @description Renders the signup page where a new user can register.
@@ -221,6 +259,7 @@ router.post('/login',async (req,res)=>{
         return res.render('error', {message: "Invalid email or password", layout:undefined})
 
     }
+    req.session.user = user
     res.send(`Welcome,${user.name}!<a href='/'>Go to albums</a>`)
 })
 /**
