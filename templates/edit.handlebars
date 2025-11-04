@@ -7,7 +7,10 @@
     <label>Visibility:
         <select name="visibility">
             {{#each visibilityOptions}}
-                <option value="{{this.value}}" {{this.selected}}>{{this.value}}</option>
+                <label>
+                    <input type="checkbox" name="visibility" value="{{this.value}}" {{this.selected}}>
+                    {{this.value}}
+                </label><br>
             {{/each}}
         </select>
     </label><br>
