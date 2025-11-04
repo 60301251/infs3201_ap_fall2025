@@ -134,7 +134,17 @@ router.get('/photo/:id/edit', async (req, res) => {
  * @returns {Promise<void>} Redirects to photo page if successful, otherwise renders an error page.
  */
 router.post('/photo/:id/edit', async (req, res) => {
-    const { title, description,visibility } = req.body
+    const { title, description,visibility,ownerId } = req.body
+    const photo = await getPhoto(Number(req.params.id));
+
+    if (!photo) {
+        return res.render('error', { message: "Photo not found", layout: undefined });
+    }
+
+    if (photo.ownerId != ownerId) {
+        return res.render('error', { message: "You are not allowed to edit this photo", layout: undefined });
+    }
+
     const updated = await updatePhoto(Number(req.params.id), title, description,visibility)
     if (!updated){
         return res.render('error', { 
