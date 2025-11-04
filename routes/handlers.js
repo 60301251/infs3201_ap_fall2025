@@ -126,12 +126,12 @@ router.get('/photo/:id/edit', async (req, res) => {
 
 /**
  * @route POST /photo/:id/edit
- * @description Handles updating a photo’s title and description.
+ * @description Handles updating a photo’s title, description, and visibility.
  * @async
  * @function
  * @param {express.Request} req - Express request object containing updated fields in the body.
  * @param {express.Response} res - Express response object.
- * @returns {Promise<void>} Redirects to photo page if successful, otherwise renders an error page.
+ * @returns {Promise<void>} Redirects to the photo page if successful, otherwise renders an error page.
  */
 router.post('/photo/:id/edit', async (req, res) => {
     const { title, description,visibility,ownerId } = req.body
@@ -188,8 +188,12 @@ router.post('/photo/:id/tag', async (req, res) => {
 
 /**
  * @route POST /photo/:id/comment
- * @description Adds a new comment to a photo, then redirects back to the photo page.
+ * @description Adds a new comment to a photo, ensuring the user is logged in and authorized.
  * @async
+ * @function
+ * @param {express.Request} req - Express request object containing comment text in body and user session info.
+ * @param {express.Response} res - Express response object.
+ * @returns {Promise<void>} Redirects to photo page after adding the comment, or shows an error if unauthorized or invalid.
  */
 router.post('/photo/:id/comment', async (req, res) => {
   if (!req.session || !req.session.user) {
