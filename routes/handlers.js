@@ -289,8 +289,10 @@ router.post('/login',async (req,res)=>{
         return res.render('error', {message: "Invalid email or password", layout:undefined})
 
     }
-    const sessionId= await business.create
-    res.send(`Welcome,${user.name}!<a href='/'>Go to albums</a>`)
+    const sessionId= await business_layer.createSession(user.id)
+
+    res.cookie('sessionId', sessionId, { httpOnly: true, maxAge: 24*60*60*1000 })
+    res.send(`Welcome, ${user.name} !<a href='/'>Go to albums</a>`)
 })
 /**
  * @exports router

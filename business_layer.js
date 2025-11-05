@@ -204,4 +204,5 @@ module.exports={
     loginUser,
     logout,
     getUserBySession,
+    createSession
 }
