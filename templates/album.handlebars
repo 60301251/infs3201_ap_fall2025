@@ -1,8 +1,11 @@
-<h1>Album: {{album.name}}</h1>
-<p>Total {{photoCount}} {{photoLabel}}</p>
+<h1>Photo Albums</h1>
+
 <ul>
-    {{#each photos}}
-        <li><a href="/photo/{{id}}">{{title}}</a></li>
+    {{#each albums}}
+        <li><a href="/album/{{id}}">{{name}}</a></li>
     {{/each}}
 </ul>
-<a href="/">Back to Albums</a>
+
+<p>
+    Logged in as: {{user.name}} | <a href="/logout">Logout</a>
+</p>
