@@ -42,6 +42,10 @@ async function login(email, password) {
     
 }
 
+async function logout(sessionId) {
+    await deleteSession(sessionId)
+    
+}
 
 /**
  * To getPhoto using userId
