@@ -25,13 +25,6 @@ const app=express()
  * @property {boolean} resave - Prevents saving unchanged sessions.
  * @property {boolean} saveUninitialized - Avoids saving empty sessions.
  */
-const session = require('express-session')
-app.use(session({
-  secret: 'replace-this-with-a-long-random-secret',
-  resave: false,
-  saveUninitialized: false
-}))
-
 const PORT=8000
 
 app.use(bodyParser.urlencoded({extended: true}))
