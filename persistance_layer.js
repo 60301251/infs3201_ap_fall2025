@@ -361,6 +361,45 @@ async function getByAlbum(albumName, currentUserEmail) {
 }
 
 
+
+async function createSession(userId) {
+    await connectDatabase();
+    const db = client.db('INFS3201_fall2025');
+    const sessions = db.collection('sessions');
+
+
+    const sessionId = crypto.randomBytes(16).toString('hex');
+    const sessionDoc = {
+        sessionId,
+        userId,
+        createdAt: new Date()
+    };
+
+    await sessions.insertOne(sessionDoc);
+    return sessionId;
+}
+
+async function getUserBySession(sessionId) {
+    await connectDatabase();
+    const db = client.db('INFS3201_fall2025');
+    const sessions = db.collection('sessions');
+    const users = db.collection('users');
+
+    const session = await sessions.findOne({ sessionId });
+    if (!session) return null;
+
+    const user = await users.findOne({ id: session.userId });
+    return user || null;
+}
+
+async function deleteSession(sessionId) {
+    await connectDatabase();
+    const db = client.db('INFS3201_fall2025');
+    const sessions = db.collection('sessions');
+    await sessions.deleteOne({ sessionId });
+}
+
+
 module.exports={
     registerUser,
     loginUser,
@@ -375,5 +414,8 @@ module.exports={
     updatePhoto,
     addComment,
     getCommentsByPhoto,
-    getByAlbum
+    getByAlbum,
+    createSession,
+    getUserBySession,
+    deleteSession
 }

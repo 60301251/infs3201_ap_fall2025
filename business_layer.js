@@ -21,7 +21,10 @@ const{
     updatePhoto : updatePhotoDB,
     addComment,
     getCommentsByPhoto,
-    getByAlbum
+    getByAlbum,
+    createSession,
+    getUserBySession,
+    deleteSession
 } = require('./persistance_layer')
 
 async function signup(name, email, password) {
@@ -30,7 +33,15 @@ async function signup(name, email, password) {
 }
 
 async function login(email, password) {
-    return await loginUser(email, password)
+    const user = await loginUser(email, password);
+    if (!user) return null;
+
+    const sessionId = await createSession(user.id);
+    return { user, sessionId };
+}
+
+async function logout(sessionId) {
+    await deleteSession(sessionId)
     
 }
 
@@ -189,5 +200,9 @@ module.exports={
     getByAlbum,
     addTag,
     addPhotoComment,
-    listPhotoComments
+    listPhotoComments,
+    loginUser,
+    logout,
+    getUserBySession,
+    createSession
 }
