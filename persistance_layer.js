@@ -411,5 +411,8 @@ module.exports={
     updatePhoto,
     addComment,
     getCommentsByPhoto,
-    getByAlbum
+    getByAlbum,
+    createSession,
+    getUserBySession,
+    deleteSession
 }

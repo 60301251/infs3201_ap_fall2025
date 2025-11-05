@@ -204,7 +204,6 @@ router.post('/photo/:id/comment', async (req, res) => {
   }
 
   const photo = await getPhoto(Number(req.params.id))
-  // Allow commenting only if the photo is public or owned by the user
   if (photo.visibility === "private" && photo.ownerId !== req.session.user.id) {
     return res.render('error', { 
       message: "You can only comment on your own private photos.", 
@@ -290,7 +289,7 @@ router.post('/login',async (req,res)=>{
         return res.render('error', {message: "Invalid email or password", layout:undefined})
 
     }
-    req.session.user = user
+    const sessionId= await business.create
     res.send(`Welcome,${user.name}!<a href='/'>Go to albums</a>`)
 })
 /**

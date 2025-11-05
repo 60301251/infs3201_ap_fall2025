@@ -31,6 +31,10 @@ async function signup(name, email, password) {
 
 async function login(email, password) {
     return await loginUser(email, password)
+    if(!user){
+        return null
+    }
+    const sessionId= await 
     
 }
 
