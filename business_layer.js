@@ -20,7 +20,8 @@ const{
     findAlbumbyName,
     updatePhoto : updatePhotoDB,
     addComment,
-    getCommentsByPhoto
+    getCommentsByPhoto,
+    getByAlbum
 } = require('./persistance_layer')
 
 async function signup(name, email, password) {
