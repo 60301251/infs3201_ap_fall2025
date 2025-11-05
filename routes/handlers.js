@@ -103,7 +103,7 @@ router.get('/photo/:id/edit', async (req, res) => {
     if (!photo) {
         return res.send("Photo not found")}
 
-    if (!req.session.user || photo.ownerId !== req.user.id) {
+    if (!req.user || photo.ownerId !== req.user.id) {
         return res.render('error', { 
             message: "You can only edit your own photos.", 
             layout: undefined 
