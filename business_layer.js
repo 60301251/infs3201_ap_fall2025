@@ -33,13 +33,11 @@ async function signup(name, email, password) {
 }
 
 async function login(email, password) {
-    return await loginUser(email, password)
-    if(!user){
-        return null
-    }
-    const sessionId= await createSession(user.id)
-    return{ user, sessionId}
-    
+    const user = await loginUser(email, password);
+    if (!user) return null;
+
+    const sessionId = await createSession(user.id);
+    return { user, sessionId };
 }
 
 async function logout(sessionId) {
@@ -202,5 +200,8 @@ module.exports={
     getByAlbum,
     addTag,
     addPhotoComment,
-    listPhotoComments
+    listPhotoComments,
+    loginUser,
+    logout,
+    getUserBySession,
 }
