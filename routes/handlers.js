@@ -272,6 +272,9 @@ router.post('/signup', async(req,res)=>{
  * @returns {void} Renders the 'login' template.
  */
 router.get('/login', (req,res)=>{
+    if(req.user){
+        return res.redirect('/')
+    }
     res.render('login',{layout: undefined})
 })
 
