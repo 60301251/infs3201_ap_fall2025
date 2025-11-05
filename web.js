@@ -18,6 +18,7 @@ const cookieParser= require('./cookie-parser')
 const business=require('./business_layer')
 
 const app=express()
+const PORT=8000
 
 /**
  * Initializes Express session middleware.
@@ -27,13 +28,14 @@ const app=express()
  * @property {boolean} resave - Prevents saving unchanged sessions.
  * @property {boolean} saveUninitialized - Avoids saving empty sessions.
  */
-const PORT=8000
-
 app.use(bodyParser.urlencoded({extended: true}))
 app.use('/photos', express.static(path.join(__dirname,'photos')))
 app.use('/public', express.static(path.join(__dirname,'public')))
 
-
+/**
+ * Create Handlebars instance with custom helpers
+ * @type {import('express-handlebars').CreateOptions}
+ */
 const hbs = handlebars.create({
   helpers: {
     eq: function (a, b) {
@@ -43,10 +45,28 @@ const hbs = handlebars.create({
   layoutsDir: undefined
 });
 
+/**
+ * Set Handlebars as the view engine
+ */
 app.engine('handlebars',handlebars.engine({layoutsDir: undefined}))
 app.set('view engine','handlebars')
 app.set('views',path.join(__dirname,'templates'))
 
+/**
+ * Middleware to attach the logged-in user to the request object based on a session ID cookie.
+ * 
+ * Checks if `req.cookies.sessionId` exists, and if so, fetches the corresponding user
+ * from the business layer. The user object is then attached to `req.user`.
+ * 
+ * If no session ID is present or the user is not found, `req.user` is set to `null`.
+ * 
+ * @async
+ * @function
+ * @param {express.Request} req - The Express request object. May include cookies.
+ * @param {express.Response} res - The Express response object.
+ * @param {express.NextFunction} next - The next middleware function in the chain.
+ * @returns {Promise<void>} Calls `next()` after attaching `req.user`.
+ */
 app.use(async (req, res, next) => {
     const sessionId = req.cookies && req.cookies.sessionId;
 
@@ -61,6 +81,10 @@ app.use(async (req, res, next) => {
     next();
 });
 
+/**
+ * Route handler setup
+ * @param {express.Router} routes - Imported route handlers
+ */
 app.use('/',routes)
 
 /**
