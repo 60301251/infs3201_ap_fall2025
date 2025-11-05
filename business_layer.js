@@ -21,7 +21,10 @@ const{
     updatePhoto : updatePhotoDB,
     addComment,
     getCommentsByPhoto,
-    getByAlbum
+    getByAlbum,
+    createSession,
+    getUserBySession,
+    deleteSession
 } = require('./persistance_layer')
 
 async function signup(name, email, password) {
@@ -34,9 +37,11 @@ async function login(email, password) {
     if(!user){
         return null
     }
-    const sessionId= await 
+    const sessionId= await createSession(user.id)
+    return{ user, sessionId}
     
 }
+
 
 /**
  * To getPhoto using userId
