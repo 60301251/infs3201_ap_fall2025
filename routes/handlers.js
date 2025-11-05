@@ -184,7 +184,6 @@ router.post('/photo/:id/tag', async (req, res) => {
     res.redirect(`/photo/${req.params.id}`)
 })
 
-/* COMMENTS */
 
 /**
  * @route POST /photo/:id/comment
@@ -266,6 +265,14 @@ router.post('/signup', async(req,res)=>{
  */
 router.get('/login', (req,res)=>{
     res.render('login',{layout: undefined})
+})
+router.get('/', async (req, res) => {
+    if (!req.user) {
+        return res.redirect('/login'); // redirect if not logged in
+    }
+
+    const albums = await require('../persistance_layer').loadAlbum();
+    res.render('albums', { albums, user: req.user, layout: undefined });
 })
 
 
