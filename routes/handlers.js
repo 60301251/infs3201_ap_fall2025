@@ -19,7 +19,11 @@ const{
     getByAlbum,
     addTag,
     addPhotoComment,
-    listPhotoComments
+    listPhotoComments,
+    loginUser,
+    logout,
+    getUserBySession,
+    createSession
 }= require('../business_layer')
 
 /**
@@ -32,9 +36,13 @@ const{
  * @returns {Promise<void>} Renders the 'index' template with album data.
  */
 
-router.get('/', async(req,res)=>{
-    const albums=await require('../persistance_layer').loadAlbum()
-    res.render('index' , {albums, layout: undefined})
+router.get('/', async (req, res) => {
+    if (!req.user) {
+        return res.redirect('/login'); // redirect if not logged in
+    }
+
+    const albums = await require('../persistance_layer').loadAlbum();
+    res.render('albums', { albums, user: req.user, layout: undefined });
 })
 
 
@@ -266,14 +274,7 @@ router.post('/signup', async(req,res)=>{
 router.get('/login', (req,res)=>{
     res.render('login',{layout: undefined})
 })
-router.get('/', async (req, res) => {
-    if (!req.user) {
-        return res.redirect('/login'); // redirect if not logged in
-    }
 
-    const albums = await require('../persistance_layer').loadAlbum();
-    res.render('albums', { albums, user: req.user, layout: undefined });
-})
 
 
 /**
