@@ -288,7 +288,7 @@ router.post('/login',async (req,res)=>{
     const sessionId= await business.createSession(user.id)
 
     res.cookie('sessionId', sessionId, { httpOnly: true, maxAge: 24*60*60*1000 })
-    res.send(`Welcome, ${user.name} !<a href='/'>Go to albums</a>`)
+    res.send(`Welcome, ${user.name} !<a href='/'> Go to albums </a>`)
 })
 
 router.get('/logout', async (req, res) => {
