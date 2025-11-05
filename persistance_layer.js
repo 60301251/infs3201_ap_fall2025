@@ -27,11 +27,8 @@ async function connectDatabase(){
 
 /**
  * Hash a plaintext password with a randomly generated salt using PBKDF2.
- * @param {string} password - The plaintext password to hash.
- * @returns {Object} An object containing:
- *   @property {string} salt - The randomly generated salt used for hashing.
- *   @property {string} hash - The resulting password hash in hexadecimal format.
- * @throws {Error} If the password is not a non-empty string.
+ * @param {string} password
+ * @returns {Object} { salt, hash }
  */
 function hashPassword(password){
     if(!password || typeof password!=='string'){
@@ -43,11 +40,11 @@ function hashPassword(password){
 }
 
 /**
- * Verify a plaintext password against a stored hash and salt using PBKDF2.
- * @param {string} password - The plaintext password to verify.
- * @param {string} salt - The salt used to generate the stored hash.
- * @param {string} storedHash - The stored password hash to compare against.
- * @returns {boolean} True if the password matches the stored hash, false otherwise.
+ * Verify a plaintext password against stored hash and salt.
+ * @param {string} password
+ * @param {string} salt
+ * @param {string} storedHash
+ * @returns {boolean}
  */
 function verifyPassword(password, salt,storedHash){
     if(!salt || !storedHash){
@@ -58,10 +55,10 @@ function verifyPassword(password, salt,storedHash){
 }
 
 /**
- * Load all documents from a given MongoDB collection.
+ * Load all documents from a MongoDB collection.
  * @async
- * @param {string} collectionName - The name of the collection.
- * @returns {Promise<Object[]>} Array of documents from the collection.
+ * @param {string} collectionName
+ * @returns {Promise<Object[]>}
  */
 async function loadAll(collectionName) {
     await connectDatabase()
@@ -73,11 +70,10 @@ async function loadAll(collectionName) {
 }
 
 /**
- * Save a document to a given MongoDB collection.
+ * Save a document to a MongoDB collection.
  * @async
- * @param {string} collectionName - The name of the collection.
- * @param {Object} doc - The document to save.
- * @returns {Promise<void>}
+ * @param {string} collectionName
+ * @param {Object} doc
  */
 async function saveDoc(collectionName, doc) {
     await connectDatabase()
@@ -87,12 +83,12 @@ async function saveDoc(collectionName, doc) {
 }
 
 /**
- * Register a new user with hashed password and salt.
+ * Register a new user.
  * @async
- * @param {string} name - Name of the user.
- * @param {string} email - Email of the user.
- * @param {string} password - Plaintext password to hash.
- * @returns {Promise<Object|string>} The new user object or 'exists' if email already exists.
+ * @param {string} name
+ * @param {string} email
+ * @param {string} password
+ * @returns {Promise<Object|string>} New user or 'exists'
  */
 async function registerUser(name, email, password) {
     const users = await loadAll('users')
