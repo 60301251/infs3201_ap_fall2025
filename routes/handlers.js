@@ -10,21 +10,7 @@
 
 const express= require('express')
 const router=express.Router()
-const{
-    signup,
-    login,
-    getPhoto,
-    getAlbum,
-    updatePhoto,
-    getByAlbum,
-    addTag,
-    addPhotoComment,
-    listPhotoComments,
-    loginUser,
-    logout,
-    getUserBySession,
-    createSession
-}= require('../business_layer')
+const business=  require('../business_layer')
 
 /**
  * @route GET /
@@ -61,8 +47,7 @@ router.get('/album/:id', async(req,res)=>{
         return res.send("Album not found")
     }
 
-    const currentUserEmail = req.user?.email || null
-    const result=await getByAlbum(album.name)
+    const result=await business.getByAlbum(album.name, req.user?.email)
     const photoCount = result.photos.length
     const photoLabel = photoCount === 1 ? 'photo' : 'photos'
 
@@ -114,7 +99,7 @@ router.get('/photo/:id', async(req,res)=>{
  */
 
 router.get('/photo/:id/edit', async (req, res) => {
-    const photo = await getPhoto(Number(req.params.id))
+    const photo = await business.getPhoto(Number(req.params.id))
     if (!photo) return res.send("Photo not found")
 
     if (!req.session.user || photo.ownerId !== req.user.id) {
@@ -143,13 +128,13 @@ router.get('/photo/:id/edit', async (req, res) => {
  */
 router.post('/photo/:id/edit', async (req, res) => {
     const { title, description,visibility,ownerId } = req.body
-    const photo = await getPhoto(Number(req.params.id));
+    const photo = await business.getPhoto(Number(req.params.id));
 
     if (!photo) {
         return res.render('error', { message: "Photo not found", layout: undefined });
     }
 
-    if (photo.ownerId != ownerId) {
+    if (!req.user || photo.ownerId != req.user.id) {
         return res.render('error', { message: "You are not allowed to edit this photo", layout: undefined });
     }
 
@@ -203,7 +188,7 @@ router.post('/photo/:id/tag', async (req, res) => {
  * @returns {Promise<void>} Redirects to photo page after adding the comment, or shows an error if unauthorized or invalid.
  */
 router.post('/photo/:id/comment', async (req, res) => {
-  if (!req.session || !req.user) {
+  if (!req.user) {
     return res.render('error', { 
       message: "Please log in to comment.", 
       layout: undefined 
@@ -255,7 +240,7 @@ router.post('/signup', async(req,res)=>{
     if (!name || !email || !password) {
         return res.render('error', { message: "All fields are required", layout: undefined })
     }
-    const result= await signup(name, email,password)
+    const result= await business.signup(name, email,password)
 
     if(result==='exists'){
         return res.render('error', {message:"email already registered", layout:undefined})
@@ -294,7 +279,7 @@ router.post('/login',async (req,res)=>{
      if (!email || !password) {
         return res.render('error', { message: "All fields are required", layout: undefined })
     }
-    const user= await login(email,password)
+    const user= await business.loginUser(email,password)
 
     if(!user){
         return res.render('error', {message: "Invalid email or password", layout:undefined})
@@ -308,10 +293,8 @@ router.post('/login',async (req,res)=>{
 
 router.get('/logout', async (req, res) => {
     const sessionId = req.cookies.sessionId;
-    if (sessionId) {
-        await business.deleteSession(sessionId);
-        res.clearCookie('sessionId');
-    }
+    if (sessionId) await business.deleteSession(sessionId);
+    res.clearCookie('sessionId');
     res.redirect('/login');
 })
 /**
