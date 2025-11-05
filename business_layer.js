@@ -148,8 +148,6 @@ async function addTag(photoId,newTag) {
     
 }
 
-/* COMMENTS */
-
 /**
  * Create a new comment for a photo.
  * @param {number|string} photoId
