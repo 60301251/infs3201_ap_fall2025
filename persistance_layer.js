@@ -9,11 +9,15 @@
 */
 
 const{ MongoClient}=require('mongodb')
-const mongodb= require('mongodb')
 const crypto=require('crypto')
 
 let client=null
 
+/**
+ * Connect to MongoDB database if not already connected.
+ * @async
+ * @returns {Promise<void>}
+ */
 async function connectDatabase(){
     if(!client){
         client=new MongoClient('mongodb+srv://60301251:12class34@cluster0.j7qvb.mongodb.net/')
@@ -59,7 +63,6 @@ function verifyPassword(password, salt,storedHash){
  * @param {string} collectionName - The name of the collection.
  * @returns {Promise<Object[]>} Array of documents from the collection.
  */
-
 async function loadAll(collectionName) {
     await connectDatabase()
     const db= client.db('INFS3201_fall2025')
