@@ -47,6 +47,20 @@ app.engine('handlebars',handlebars.engine({layoutsDir: undefined}))
 app.set('view engine','handlebars')
 app.set('views',path.join(__dirname,'templates'))
 
+app.use(async (req, res, next) => {
+    const sessionId = req.cookies && req.cookies.sessionId;
+
+    if (!sessionId) {
+        req.user = null;
+        return next();
+    }
+
+    const user = await business.getUserBySession(sessionId);
+    req.user = user || null;
+
+    next();
+});
+
 app.use('/',routes)
 
 /**
