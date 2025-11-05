@@ -113,17 +113,29 @@ async function updatePhoto(photoId,newtitle,newdes, newVisibility){
  * @param {string} albumName - Name of the album.
  * @returns {Promise<{album: Object, photos: Object[]} | null>} Object containing album and its photos, or null if album not found.
 */
-async function getByAlbum(albumName, currentUserEmail) {
-    const album = await findAlbumbyName(albumName);
-    if (!album) return null;
+async function getByAlbum(albumName){
+    const album= await findAlbumbyName(albumName)
+    let photos = await loadPhoto()
+    let albumPhotos=[]
 
-    const photos = await loadPhoto();
-    const albumPhotos = photos.filter(photo =>
-        (photo.albums || []).includes(album.id) &&
-        (photo.visibility === "public" || photo.ownerEmail === currentUserEmail)
-    );
+    if(!album){
+        return null
+    }
 
-    return { album, photos: albumPhotos };
+    for(let i=0;i<photos.length;i++){
+        let present=false
+        for(let j=0;j<(photos[i].albums ||[]).length;j++){
+            if(photos[i].albums[j]===album.id){
+                present = true
+                break
+            }
+        }
+        if(present){
+            albumPhotos.push(photos[i])
+        }
+    }
+    return {album, photos: albumPhotos}
+
 }
 
 /**
@@ -147,6 +159,8 @@ async function addTag(photoId,newTag) {
     return photo
     
 }
+
+/* COMMENTS */
 
 /**
  * Create a new comment for a photo.
