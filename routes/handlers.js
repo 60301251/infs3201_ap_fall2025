@@ -53,7 +53,7 @@ router.get('/album/:id', async(req,res)=>{
         return res.send("Album not found")
     }
 
-    const currentUserEmail = req.session?.user?.email || null
+    const currentUserEmail = req.user?.email || null
     const result=await getByAlbum(album.name)
     const photoCount = result.photos.length
     const photoLabel = photoCount === 1 ? 'photo' : 'photos'
@@ -82,7 +82,7 @@ router.get('/photo/:id', async(req,res)=>{
     const photo = await getPhoto(Number(req.params.id))
     if (!photo) return res.send("Photo not found")
 
-     const currentUser = req.session.user
+     const currentUser = req.user
 
     if (photo.visibility === "private" && (!currentUser || photo.ownerId !== currentUser.id)) {
         return res.render('error', { 
@@ -109,7 +109,7 @@ router.get('/photo/:id/edit', async (req, res) => {
     const photo = await getPhoto(Number(req.params.id))
     if (!photo) return res.send("Photo not found")
 
-    if (!req.session.user || photo.ownerId !== req.session.user.id) {
+    if (!req.session.user || photo.ownerId !== req.user.id) {
         return res.render('error', { 
             message: "You can only edit your own photos.", 
             layout: undefined 
@@ -196,7 +196,7 @@ router.post('/photo/:id/tag', async (req, res) => {
  * @returns {Promise<void>} Redirects to photo page after adding the comment, or shows an error if unauthorized or invalid.
  */
 router.post('/photo/:id/comment', async (req, res) => {
-  if (!req.session || !req.session.user) {
+  if (!req.session || !req.user) {
     return res.render('error', { 
       message: "Please log in to comment.", 
       layout: undefined 
@@ -204,14 +204,14 @@ router.post('/photo/:id/comment', async (req, res) => {
   }
 
   const photo = await getPhoto(Number(req.params.id))
-  if (photo.visibility === "private" && photo.ownerId !== req.session.user.id) {
+  if (photo.visibility === "private" && photo.ownerId !== req.user.id) {
     return res.render('error', { 
       message: "You can only comment on your own private photos.", 
       layout: undefined 
     })
   }
 
-  const result = await addPhotoComment(Number(req.params.id), req.session.user, req.body.comment)
+  const result = await addPhotoComment(Number(req.params.id), req.user, req.body.comment)
   if (!result) {
     return res.render('error', { 
       message: "Failed to add comment (make sure text is not empty).", 
@@ -293,6 +293,15 @@ router.post('/login',async (req,res)=>{
 
     res.cookie('sessionId', sessionId, { httpOnly: true, maxAge: 24*60*60*1000 })
     res.send(`Welcome, ${user.name} !<a href='/'>Go to albums</a>`)
+})
+
+router.get('/logout', async (req, res) => {
+    const sessionId = req.cookies.sessionId;
+    if (sessionId) {
+        await business.deleteSession(sessionId);
+        res.clearCookie('sessionId');
+    }
+    res.redirect('/login');
 })
 /**
  * @exports router
