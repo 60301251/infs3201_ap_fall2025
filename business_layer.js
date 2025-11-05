@@ -108,37 +108,6 @@ async function updatePhoto(photoId,newtitle,newdes, newVisibility){
 }
 
 /**
- * To create a CSV file about the album details
- * @async
- * @param {string} albumName - Name of the album.
- * @returns {Promise<{album: Object, photos: Object[]} | null>} Object containing album and its photos, or null if album not found.
-*/
-async function getByAlbum(albumName){
-    const album= await findAlbumbyName(albumName)
-    let photos = await loadPhoto()
-    let albumPhotos=[]
-
-    if(!album){
-        return null
-    }
-
-    for(let i=0;i<photos.length;i++){
-        let present=false
-        for(let j=0;j<(photos[i].albums ||[]).length;j++){
-            if(photos[i].albums[j]===album.id){
-                present = true
-                break
-            }
-        }
-        if(present){
-            albumPhotos.push(photos[i])
-        }
-    }
-    return {album, photos: albumPhotos}
-
-}
-
-/**
  * To add tags to a photo
  * @async
  * @param {number} photoId - ID of the photo.
