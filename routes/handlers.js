@@ -23,12 +23,12 @@ const business=  require('../business_layer')
  */
 
 router.get('/', async (req, res) => {
-    if (!req.user) {
-        return res.redirect('/login'); // redirect if not logged in
-    }
+    // if (!req.user) {
+    //     return res.redirect('/login')
+    // }
 
-    const albums = await require('../persistance_layer').loadAlbum();
-    res.render('albums', { albums, user: req.user, layout: undefined });
+    const albums = await require('../persistance_layer').loadAlbum()
+    res.render('albums', { albums, user: req.user, layout: undefined })
 })
 
 
@@ -72,7 +72,7 @@ router.get('/album/:id', async(req,res)=>{
  */
 
 router.get('/photo/:id', async(req,res)=>{
-    const photo = await getPhoto(Number(req.params.id))
+    const photo = await business.getPhoto(Number(req.params.id))
     if (!photo) return res.send("Photo not found")
 
      const currentUser = req.user
@@ -100,7 +100,8 @@ router.get('/photo/:id', async(req,res)=>{
 
 router.get('/photo/:id/edit', async (req, res) => {
     const photo = await business.getPhoto(Number(req.params.id))
-    if (!photo) return res.send("Photo not found")
+    if (!photo) {
+        return res.send("Photo not found")}
 
     if (!req.session.user || photo.ownerId !== req.user.id) {
         return res.render('error', { 
@@ -195,7 +196,7 @@ router.post('/photo/:id/comment', async (req, res) => {
     })
   }
 
-  const photo = await getPhoto(Number(req.params.id))
+  const photo = await business.getPhoto(Number(req.params.id))
   if (photo.visibility === "private" && photo.ownerId !== req.user.id) {
     return res.render('error', { 
       message: "You can only comment on your own private photos.", 
@@ -203,7 +204,7 @@ router.post('/photo/:id/comment', async (req, res) => {
     })
   }
 
-  const result = await addPhotoComment(Number(req.params.id), req.user, req.body.comment)
+  const result = await business.addPhotoComment(Number(req.params.id), req.user, req.body.comment)
   if (!result) {
     return res.render('error', { 
       message: "Failed to add comment (make sure text is not empty).", 
@@ -293,9 +294,9 @@ router.post('/login',async (req,res)=>{
 
 router.get('/logout', async (req, res) => {
     const sessionId = req.cookies.sessionId;
-    if (sessionId) await business.deleteSession(sessionId);
-    res.clearCookie('sessionId');
-    res.redirect('/login');
+    if (sessionId) await business.deleteSession(sessionId)
+    res.clearCookie('sessionId')
+    res.redirect('/login')
 })
 /**
  * @exports router
