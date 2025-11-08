@@ -4,7 +4,7 @@
 <p>Visibility: {{photo.visibility}}</p>
 
 {{#if user}}
-  {{#if (eq user.id photo.ownerId)}}
+  {{#if isOwner}}
     <form action="/photo/{{photo.id}}/edit" method="GET" style="margin-top:10px;">
       <button type="submit">✏️ Edit Photo</button>
     </form>
