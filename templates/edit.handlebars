@@ -1,16 +1,37 @@
+<h1>Photo Albums</h1>
+<ul>
+  {{#each albums}}
+    <li><a href="/album/{{id}}">{{name}}</a></li>
+  {{/each}}
+</ul>
+
+<p>
+  Logged in as: {{user.name}} | <a href="/logout">Logout</a>
+</p>
+
+<hr>
+
 <h1>Edit Photo: {{photo.title}}</h1>
 
+<img src="/photos/{{photo.filename}}" style="max-width:400px;"><br>
+
 <form action="/photo/{{photo.id}}/edit" method="POST">
-  <label>Title: <input type="text" name="title" value="{{photo.title}}"></label><br>
-  <label>Description: <input type="text" name="description" value="{{photo.description}}"></label><br>
+  <label>Title: 
+    <input type="text" name="title" value="{{photo.title}}" required>
+  </label><br><br>
+
+  <label>Description: 
+    <textarea name="description" rows="3" cols="40">{{photo.description}}</textarea>
+  </label><br><br>
 
   <label>Visibility:</label>
   <select name="visibility" required>
     <option value="public" {{#if (eq photo.visibility "public")}}selected{{/if}}>Public</option>
     <option value="private" {{#if (eq photo.visibility "private")}}selected{{/if}}>Private</option>
-  </select><br>
+  </select><br><br>
 
-  <button type="submit">Submit</button>
+  <button type="submit">Update Photo</button>
 </form>
 
+<br>
 <a href="/photo/{{photo.id}}">Cancel</a>
