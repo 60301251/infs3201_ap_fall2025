@@ -3,6 +3,12 @@
 <p>{{photo.description}}</p>
 <p>Visibility: {{photo.visibility}}</p>
 
+{{#if user}}
+  {{#if (eq user.id photo.ownerId)}}
+    <a href="/photo/{{photo.id}}/edit">Edit Photo</a>
+  {{/if}}
+{{/if}}
+
 <h3>Comments ({{comments.length}})</h3>
 <ul>
 {{#each comments}}
