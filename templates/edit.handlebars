@@ -5,24 +5,12 @@
   <label>Description: <input type="text" name="description" value="{{photo.description}}"></label><br>
 
 <label>Visibility:</label>
-<select name="visibility" required>
-  <option value="public" 
-    {{#if photo.visibility}}
-      {{#if photo.visibility}}
-        {{#unless (photo.visibility "private")}}selected{{/unless}}
-      {{/if}}
-    {{/if}}
-  >Public</option>
+<select name="visibility">
+  <option value="public">Public</option>
+  <option value="private">Private</option>
+</select>
 
-  <option value="private"
-    {{#if photo.visibility}}
-      {{#if photo.visibility}}
-        {{#unless (photo.visibility "public")}}selected{{/unless}}
-      {{/if}}
-    {{/if}}
-  >Private</option>
-</select><br>
-
+<p>Current: {{photo.visibility}}</p>
 
 
   <button type="submit">Save</button>
