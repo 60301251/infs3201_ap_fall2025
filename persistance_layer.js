@@ -238,6 +238,27 @@ async function findPhoto(id){
 }
 
 /**
+ * Update an existing photo document by ID.
+ * @async
+ * @param {number} photoId - The ID of the photo to update.
+ * @param {Object} update - The fields to update (e.g. { title, description, visibility }).
+ * @returns {Promise<Object|null>} Updated photo object or null if not found.
+ */
+async function updatePhotoDB(photoId, update) {
+    await connectDatabase()
+    const db = client.db('INFS3201_fall2025')
+    const photos = db.collection('photos')
+
+    const result = await photos.findOneAndUpdate(
+        { id: Number(photoId) },
+        { $set: update },
+        { returnDocument: 'after' }
+    )
+
+    return result.value || null
+}
+
+/**
  * Find an album using albumID
  * @async
  * @param {number} albumId - ID of the album.
@@ -394,6 +415,7 @@ module.exports={
     savePhoto,
     findUserByEmail,
     findPhoto,
+    updatePhotoDB,
     findAlbum,
     findAlbumbyName,
     updatePhoto,
