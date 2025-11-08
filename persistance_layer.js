@@ -390,7 +390,6 @@ module.exports={
     updatePhoto,
     addComment,
     getCommentsByPhoto,
-    getByAlbum,
     createSession,
     getUserBySession,
     deleteSession

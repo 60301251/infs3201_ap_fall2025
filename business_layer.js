@@ -21,7 +21,6 @@ const{
     updatePhoto : updatePhotoDB,
     addComment,
     getCommentsByPhoto,
-    getByAlbum,
     createSession,
     getUserBySession,
     deleteSession
