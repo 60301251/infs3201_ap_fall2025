@@ -30,7 +30,7 @@ function requireLogin(req, res, next) {
 
 router.get('/',requireLogin, async (req, res) => {
     const albums = await  persistance.loadAlbum()
-    res.render('album', { albums, user: req.user, layout: undefined })
+    res.render('album', { albums, user: req.user })
 })
 
 /**
@@ -41,11 +41,9 @@ router.get('/',requireLogin, async (req, res) => {
  * @param {express.Response} res - Express response object.
  * @returns {void} Renders the 'login' template.
  */
-router.get('/login', (req,res)=>{
-    if(req.user){
-        return res.redirect('/')
-    }
-    res.render('login',{layout: undefined})
+router.get('/login', (req, res) => {
+    if (req.user) return res.redirect('/')
+    res.render('login')  
 })
 
 /**

@@ -63,7 +63,18 @@ app.set('views',path.join(__dirname,'templates'))
 const { getUserBySession } = require('./business_layer')
 app.use(async (req, res, next) => {
     const sessionId = req.cookies?.sessionId
-        req.user = sessionId ? await getUserBySession(sessionId) : null
+
+    if (!sessionId) {
+        req.user = null
+        return next()
+    }
+
+   try {
+        req.user = await getUserBySession(sessionId)
+    } catch {
+        req.user = null
+    }
+
     next()
 })
 
