@@ -35,7 +35,7 @@ app.use(cookieParser())
 /**
  * Set Handlebars as the view engine
  */
-app.engine('handlebars', handlebars.engine({ layoutsDir: undefined }))
+app.engine('handlebars', handlebars.engine({ defaultLayout: false }))
 app.set('view engine', 'handlebars')
 app.set('views', path.join(__dirname, 'templates'))
 
