@@ -23,9 +23,9 @@ const business=  require('../business_layer')
  */
 
 router.get('/', async (req, res) => {
-     if (!req.user) {
-        return res.redirect('/login');
-    }
+    //  if (!req.user) {
+    //     return res.redirect('/login');
+    // }
     const albums = await require('../persistance_layer').loadAlbum()
     res.render('album', { albums, user: req.user, layout: undefined })
 })
