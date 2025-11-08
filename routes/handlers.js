@@ -24,7 +24,7 @@ const business=  require('../business_layer')
 
 router.get('/', async (req, res) => {
     const albums = await require('../persistance_layer').loadAlbum()
-    res.render('albums', { albums, user: req.user, layout: undefined })
+    res.render('album', { albums, user: req.user, layout: undefined })
 })
 
 
