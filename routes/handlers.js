@@ -38,7 +38,7 @@ router.get('/', async (req, res) => {
  * @returns {Promise<void>} Renders the 'album' template with album details and photos.
  */
 router.get('/album/:id', async(req,res)=>{
-    const album= await getAlbum(Number(req.params.id))
+    const album= await business.getAlbum(Number(req.params.id))
     if(!album){
         return res.send("Album not found")
     }
@@ -80,7 +80,7 @@ router.get('/photo/:id', async(req,res)=>{
         })
     }
     
-    const comments = await listPhotoComments(Number(req.params.id))
+    const comments = await business.listPhotoComments(Number(req.params.id))
     res.render('photo', { photo, comments, layout: undefined })
 })
 
@@ -135,7 +135,7 @@ router.post('/photo/:id/edit', async (req, res) => {
         return res.render('error', { message: "You are not allowed to edit this photo", layout: undefined });
     }
 
-    const updated = await updatePhoto(Number(req.params.id), title, description,visibility)
+    const updated = await business.updatePhoto(Number(req.params.id), title, description,visibility)
     if (!updated){
         return res.render('error', { 
         message: "Failed to update photo", 
@@ -157,7 +157,7 @@ router.post('/photo/:id/edit', async (req, res) => {
 
 router.post('/photo/:id/tag', async (req, res) => {
     const { tag } = req.body
-    const result = await addTag(Number(req.params.id), tag)
+    const result = await business.addTag(Number(req.params.id), tag)
 
     if (result === 'duplicate') {
         return res.render('error', { 
