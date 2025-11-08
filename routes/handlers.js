@@ -108,7 +108,7 @@ router.get('/album/:id', requireLogin, async (req, res) => {
         })
     }
 
-    const photos = await Promise.all(result.photos.map(async (photo) => {
+        const photos = await Promise.all(result.photos.map(async (photo) => {
         const comments = await business.listPhotoComments(photo.id)
         return {
             ...photo,

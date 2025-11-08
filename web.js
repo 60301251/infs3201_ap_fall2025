@@ -83,7 +83,7 @@ app.use(async (req, res, next) => {
  * Route handler setup
  * @param {express.Router} routes - Imported route handlers
  */
-app.use('/',routes)
+app.use('/login',routes)
 
 /**
  * Starts the server on defined PORT
