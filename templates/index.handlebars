@@ -1,7 +1,11 @@
 <h1>Photo Albums</h1>
+
 <ul>
-    {{#each albums}}
-        <li><a href="/album/{{id}}">{{name}}</a></li>
-    {{/each}}
+{{#each albums}}
+    <li><a href="/album/{{id}}">{{name}}</a></li>
+{{/each}}
 </ul>
-<a href="/signup">Sign Up</a> | <a href="/login">Login</a>
+
+<p>
+Logged in as: {{user.name}} | <a href="/logout">Logout</a>
+</p>

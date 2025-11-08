@@ -28,10 +28,11 @@ function requireLogin(req, res, next) {
  * @returns {Promise<void>} Renders the 'index' template with album data.
  */
 
-router.get('/',requireLogin, async (req, res) => {
-    const albums = await  persistance.loadAlbum()
-    res.render('album', { albums, user: req.user, layout: undefined })
+router.get('/', requireLogin, async (req, res) => {
+    const albums = await persistance.loadAlbum()
+    res.render('index', { albums, user: req.user, layout: undefined })
 })
+
 
 /**
  * @route GET /login
@@ -98,15 +99,18 @@ router.get('/album/:id', requireLogin, async (req, res) => {
 
     const result = await business.getByAlbum(album.name, req.user.email)
 
-    if (!result || !result.photos.length) {
-        return res.render('album', { 
-            album, 
-            photos: [], 
-            user: req.user, 
-            layout: undefined 
-        })
+    if (!result) {
+        return res.render('album', { album, photos: [], user: req.user, layout: undefined })
     }
+
+    return res.render('album', { 
+        album: result.album, 
+        photos: result.photos, 
+        user: req.user,
+        layout: undefined
+    })
 })
+
 
 
 /**
