@@ -31,19 +31,8 @@ const PORT=8000
 app.use(bodyParser.urlencoded({extended: true}))
 app.use('/photos', express.static(path.join(__dirname,'photos')))
 app.use('/public', express.static(path.join(__dirname,'public')))
+app.use(cookieParser())
 
-/**
- * Create Handlebars instance with custom helpers
- * @type {import('express-handlebars').CreateOptions}
- */
-const hbs = handlebars.create({
-  helpers: {
-    eq: function (a, b) {
-      return a === b;
-    }
-  },
-  layoutsDir: undefined
-});
 
 /**
  * Set Handlebars as the view engine
@@ -68,7 +57,7 @@ app.set('views',path.join(__dirname,'templates'))
  * @returns {Promise<void>} Calls `next()` after attaching `req.user`.
  */
 app.use(async (req, res, next) => {
-    const sessionId = req.cookies && req.cookies.sessionId;
+    const sessionId = req.cookies && req.cookies?.sessionId;
 
     if (!sessionId) {
         req.user = null;
