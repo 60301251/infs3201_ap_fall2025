@@ -57,7 +57,7 @@ app.set('views',path.join(__dirname,'templates'))
  * @returns {Promise<void>} Calls `next()` after attaching `req.user`.
  */
 app.use(async (req, res, next) => {
-    const sessionId = req.cookies && req.cookies?.sessionId;
+    const sessionId = req.cookies?.sessionId;
 
     if (!sessionId) {
         req.user = null;
