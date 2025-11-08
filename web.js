@@ -33,16 +33,12 @@ app.use('/public', express.static(path.join(__dirname,'public')))
 app.use(cookieParser())
 
 
-const hbs = handlebars.create({});
-hbs.handlebars.registerHelper('eq', (a, b) => a === b);
-app.engine('handlebars', hbs.engine)
-
-
 /**
  * Set Handlebars as the view engine
  */
-app.set('view engine','handlebars')
-app.set('views',path.join(__dirname,'templates'))
+app.engine('handlebars', handlebars.engine({ layoutsDir: undefined }))
+app.set('view engine', 'handlebars')
+app.set('views', path.join(__dirname, 'templates'))
 
 
 /**
