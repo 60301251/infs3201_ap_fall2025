@@ -89,19 +89,25 @@ router.get('/logout', async (req, res) => {
  * @returns {Promise<void>} Renders the 'album' template with album details and photos.
  */
 router.get('/album/:id', requireLogin, async (req, res) => {
-    const album = await business.getAlbum(Number(req.params.id))
-    if (!album) return res.render('error', { message: "Album not found" })
+    const albumId = Number(req.params.id)
+    const album = await business.getAlbum(albumId)
 
-    const result = await business.getByAlbum(album.name, req.user.email)
-    const photos = result?.photos || []
-    for (let photo of photos) {
-        photo.comments = await business.listPhotoComments(photo.id)
-        photo.commentCount = photo.comments.length
-        photo.canEdit = photo.ownerId === req.user.id
+    if (!album) {
+        return res.render('error', { message: "Album not found", layout: undefined })
     }
 
-    res.render('album', { album, photos, user: req.user })
+    const result = await business.getByAlbum(album.name, req.user.email)
+
+    if (!result || !result.photos.length) {
+        return res.render('album', { 
+            album, 
+            photos: [], 
+            user: req.user, 
+            layout: undefined 
+        })
+    }
 })
+
 
 /**
  * @route GET /photo/:id
