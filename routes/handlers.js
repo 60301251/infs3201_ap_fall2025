@@ -11,6 +11,7 @@
 const express= require('express')
 const router=express.Router()
 const business=  require('../business_layer')
+const persistance= require('../persistance_layer')
 
 function requireLogin(req, res, next) {
     if (!req.user) return res.redirect('/login')
@@ -28,7 +29,7 @@ function requireLogin(req, res, next) {
  */
 
 router.get('/',requireLogin, async (req, res) => {
-    const albums = await  business.loadAlbum()
+    const albums = await  persistance.loadAlbum()
     res.render('album', { albums, user: req.user, layout: undefined })
 })
 
