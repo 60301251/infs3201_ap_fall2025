@@ -1,7 +1,9 @@
 <h1>{{photo.title}}</h1>
 <img src="/photos/{{photo.filename}}" style="max-width:400px;"><br>
 <p>{{photo.description}}</p>
+
 <p>Visibility: {{photo.visibility}}</p>
+
 {{#if user}}
   <p><a href="/photo/{{photo.id}}/edit">Edit Photo</a></p>
 {{/if}}
