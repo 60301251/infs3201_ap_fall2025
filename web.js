@@ -29,7 +29,6 @@ const PORT=8000
  */
 app.use(bodyParser.urlencoded({extended: true}))
 app.use('/photos', express.static(path.join(__dirname,'photos')))
-app.use('/public', express.static(path.join(__dirname,'public')))
 app.use(cookieParser())
 
 

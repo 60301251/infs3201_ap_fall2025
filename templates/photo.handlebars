@@ -1,37 +1,20 @@
 <h1>{{photo.title}}</h1>
 <img src="/photos/{{photo.filename}}" style="max-width:400px;"><br>
 <p>{{photo.description}}</p>
+<p>Visibility: {{photo.visibility}}</p>
 
-<p>Tags: 
-  {{#if photo.tags.length}}
-    {{#each photo.tags}}<span>{{this}}</span> {{/each}}
-  {{else}}None{{/if}}
-</p>
-
-{{#if user}}
-  {{#if (eq user.id photo.ownerId)}}<a href="/photo/{{photo.id}}/edit">Edit</a>{{/if}}
-{{/if}}
-
-<a href="/album/{{photo.albumId}}">Back to Album</a>
-
-<hr>
 <h3>Comments ({{comments.length}})</h3>
-{{#if comments.length}}
 <ul>
-  {{#each comments}}
-    <li><strong>{{username}}</strong>: {{text}}<br><small>{{createdAt}}</small></li>
-  {{/each}}
+{{#each comments}}
+  <li><strong>{{username}}</strong>: {{text}}</li>
+{{/each}}
 </ul>
-{{else}}
-<p>No comments yet.</p>
-{{/if}}
 
 {{#if user}}
-<h4>Add a Comment</h4>
 <form action="/photo/{{photo.id}}/comment" method="POST">
-  <textarea name="comment" placeholder="Write your comment here" required></textarea><br>
+  <textarea name="comment" required></textarea><br>
   <button type="submit">Post Comment</button>
 </form>
-{{else}}
-<p><a href="/login">Login</a> to add a comment.</p>
 {{/if}}
+
+<a href="/album/{{photo.albums.[0]}}">Back to Album</a>
