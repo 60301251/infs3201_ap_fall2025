@@ -104,12 +104,13 @@ async function getByAlbum(albumName, currentUserEmail) {
 async function updatePhoto(photoId,newtitle,newdes, newVisibility){
     const update={}
 
-    if(newtitle && newtitle.trim()!== ""){
-        update.title=newtitle.trim()
+   if (typeof newtitle === "string" && newtitle.trim() !== "") {
+    update.title = newtitle.trim()
     }
-    if(newdes && newdes.trim()!== ""){
-        update.description=newdes.trim()
+    if (typeof newdes === "string" && newdes.trim() !== "") {
+    update.description = newdes.trim()
     }
+
 
     if(newVisibility && (newVisibility === "public" || newVisibility === "private")){
         update.visibility = newVisibility

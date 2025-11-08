@@ -277,15 +277,24 @@ async function findAlbumbyName(albumName){
 async function updatePhoto(photoId, newTitle, newDes, newVisibility) {
     const update = {};
 
-    if (newTitle && newTitle.trim() !== "") update.title = newTitle.trim();
-    if (newDes && newDes.trim() !== "") update.description = newDes.trim();
-    if (newVisibility && (newVisibility === "public" || newVisibility === "private")) update.visibility = newVisibility;
+    if (typeof newTitle === "string" && newTitle.trim() !== "") {
+        update.title = newTitle.trim();
+    }
+
+    if (typeof newDes === "string" && newDes.trim() !== "") {
+        update.description = newDes.trim();
+    }
+
+    if (newVisibility === "public" || newVisibility === "private") {
+        update.visibility = newVisibility;
+    }
 
     if (Object.keys(update).length === 0) return null;
 
     const updatedPhoto = await updatePhotoDB(Number(photoId), update);
     return updatedPhoto || null;
 }
+
 
 
 /* COMMENTS */
