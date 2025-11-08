@@ -282,7 +282,7 @@ router.post('/login',async (req,res)=>{
         return res.render('error', {message: "Invalid email or password", layout:undefined})
 
     }
-    const sessionId= await business.createSession(user.id)
+    const sessionId= await business.login(user.id)
 
     res.cookie('sessionId', sessionId, { httpOnly: true, maxAge: 24*60*60*1000 })
     res.redirect('/')
@@ -290,7 +290,7 @@ router.post('/login',async (req,res)=>{
 
 router.get('/logout', async (req, res) => {
     const sessionId = req.cookies.sessionId;
-    if (sessionId) await business.deleteSession(sessionId)
+    if (sessionId) await business.logout(sessionId)
     res.clearCookie('sessionId')
     res.redirect('/login')
 })
