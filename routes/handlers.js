@@ -148,19 +148,6 @@ router.get('/photo/:id', async (req, res) => {
 
 router.get('/photo/:id/edit', async (req, res) => {
     const photo = await business.getPhoto(Number(req.params.id))
-    const comments = await business.getCommentsForPhoto(Number(req.params.id)); // adjust if needed
-
-  if (!photo) {
-    return res.render('error', { message: "Photo not found", layout: undefined });
-  }
-
-  // Determine if logged-in user owns this photo
-  const isOwner = req.user && req.user.id === photo.ownerId;
-
-  res.render('photo', { photo, comments, user: req.user, isOwner, layout: undefined });
-    if (!photo){
-        return res.render('error', { message: "Photo not found", layout: undefined })
-    } 
 
     if (!req.user || photo.ownerId !== req.user.id) {
         return res.render('error', { 
