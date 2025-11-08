@@ -4,9 +4,9 @@
 <p>Visibility: {{photo.visibility}}</p>
 
 {{#if user}}
-  {{#if (eq user.id photo.ownerId)}}
-    <p><a href="/photo/{{photo.id}}/edit">Edit Photo</a></p>
-  {{/if}}
+  {{#ifEquals user.id photo.ownerId}}
+    <a href="/photo/{{photo.id}}/edit">Edit Photo</a>
+  {{/ifEquals}}
 {{/if}}
 
 <h3>Comments ({{comments.length}})</h3>
