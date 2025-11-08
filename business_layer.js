@@ -103,12 +103,13 @@ async function getByAlbum(albumName, currentUserEmail) {
 */
 async function updatePhoto(photoId,newtitle,newdes, newVisibility){
     const update={}
-
-   if (typeof newtitle === "string" && newtitle.trim() !== "") {
-    update.title = newtitle.trim()
+    
+    if (typeof newtitle === "string" ) {
+        update.title = newtitle.trim()
     }
-    if (typeof newdes === "string" && newdes.trim() !== "") {
-    update.description = newdes.trim()
+
+    if (typeof newdes === "string") {
+        update.description = newdes.trim()
     }
 
 
@@ -117,14 +118,16 @@ async function updatePhoto(photoId,newtitle,newdes, newVisibility){
     }
 
     if(Object.keys(update).length === 0){
-        return null
+        console.log("No valid fields to update.")
+        return false
     }
     const updatedPhoto= await updatePhotoDB(Number(photoId),update)
 
     if(!updatedPhoto){
-        return null
+        console.log("Database update failed for photo:", photoId)
+        return false
     }
-    return updatedPhoto
+    return true
 }
 
 /**
