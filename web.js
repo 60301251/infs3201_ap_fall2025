@@ -31,11 +31,17 @@ app.use(bodyParser.urlencoded({extended: true}))
 app.use('/photos', express.static(path.join(__dirname,'photos')))
 app.use(cookieParser())
 
+const hbs = handlebars.create({
+  defaultLayout: false,
+  helpers: {
+    eq: (a, b) => a == b
+  }
+});
+app.engine('handlebars', hbs.engine({ defaultLayout: false }))
 
 /**
  * Set Handlebars as the view engine
  */
-app.engine('handlebars', handlebars.engine({ defaultLayout: false }))
 app.set('view engine', 'handlebars')
 app.set('views', path.join(__dirname, 'templates'))
 
