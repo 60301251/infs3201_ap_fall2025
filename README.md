@@ -1,11 +1,13 @@
 INFS3201-WEB TECH 2- Project
-Team Members:
-1_Eva Paul_60301251
-2_Mufeeda Kalam_60303289
-3_Aysha Sultana_60099830
+
+TEAM MEMBERS:
+1)Eva Paul_60301251
+2)Mufeeda Kalam_60303289
+3)Aysha Sultana_60099830
 
 PROJECT DESCRIPTION:
 This project is a photo media management system build for our final project for INFS3201-Web Technology.
+
 PHASE 1- Implements User Registrantion and  Authentication, Photo Visibility, Comments for each photos
 
 FOLDER STRUCTURE:
