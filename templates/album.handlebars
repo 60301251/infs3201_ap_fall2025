@@ -1,33 +1,16 @@
 <h1>Album: {{album.name}}</h1>
+<p>Total {{photoCount}} {{photoLabel}}</p>
+<h1>Photo Albums</h1>
 
-{{#if photos.length}}
-  <ul>
+<ul>
     {{#each photos}}
-      <li>
-        <h3>{{title}}</h3>
-        <img src="/photos/{{filename}}" style="max-width:200px;"><br>
-        <p>{{description}}</p>
-
-        <p>
-          Tags: 
-          {{#if tags.length}}
-            {{#each tags}}{{this}} {{/each}}
-          {{else}}
-            None
-          {{/if}}
-        </p>
-
-        <p>Comments: {{commentCount}}</p>
-
-        {{#if canEdit}}
-          <a href="/photo/{{id}}/edit">Edit</a>
-        {{/if}}
-        | <a href="/photo/{{id}}">View</a>
-      </li>
+        <li><a href="/photo/{{id}}">{{title}}</a></li>
+    {{#each albums}}
+        <li><a href="/album/{{id}}">{{name}}</a></li>
     {{/each}}
-  </ul>
-{{else}}
-  <p>No photos in this album yet.</p>
-{{/if}}
+</ul>
+<a href="/">Back to Albums</a>
 
-<p><a href="/">Back to all albums</a></p>
+<p>
+    Logged in as: {{user.name}} | <a href="/logout">Logout</a>
+</p>
