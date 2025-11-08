@@ -65,13 +65,13 @@ router.post('/login',async (req,res)=>{
      if (!email || !password) {
         return res.render('error', { message: "All fields are required", layout: undefined })
     }
-    const user= await business.loginUser(email,password)
+    const result= await business.login(email,password)
 
-    if(!user){
+    if(!result){
         return res.render('error', {message: "Invalid email or password", layout:undefined})
 
     }
-    const sessionId= await business.login(user.id)
+    const{user, sessionId}= result
 
     res.cookie('sessionId', sessionId, { httpOnly: true, maxAge: 24*60*60*1000 })
     res.redirect('/')
