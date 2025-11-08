@@ -30,7 +30,7 @@ function requireLogin(req, res, next) {
 
 router.get('/',requireLogin, async (req, res) => {
     const albums = await  persistance.loadAlbum()
-    res.render('album', { albums, user: req.user })
+    res.render('album', { albums, user: req.user, layout: undefined })
 })
 
 /**
