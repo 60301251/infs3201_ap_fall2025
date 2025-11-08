@@ -4,11 +4,25 @@
   <label>Title: <input type="text" name="title" value="{{photo.title}}"></label><br>
   <label>Description: <input type="text" name="description" value="{{photo.description}}"></label><br>
 
-  <label>Visibility:</label>
+<label>Visibility:</label>
 <select name="visibility" required>
-  <option value="public" {{#if photo.visibility}} {{#if (contains photo.visibility "public")}}selected{{/if}} {{/if}}>Public</option>
-  <option value="private" {{#if photo.visibility}} {{#if (contains photo.visibility "private")}}selected{{/if}} {{/if}}>Private</option>
+  <option value="public" 
+    {{#if photo.visibility}}
+      {{#if photo.visibility}}
+        {{#unless (photo.visibility "private")}}selected{{/unless}}
+      {{/if}}
+    {{/if}}
+  >Public</option>
+
+  <option value="private"
+    {{#if photo.visibility}}
+      {{#if photo.visibility}}
+        {{#unless (photo.visibility "public")}}selected{{/unless}}
+      {{/if}}
+    {{/if}}
+  >Private</option>
 </select><br>
+
 
 
   <button type="submit">Save</button>
