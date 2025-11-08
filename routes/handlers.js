@@ -30,6 +30,53 @@ router.get('/', async (req, res) => {
     res.render('album', { albums, user: req.user, layout: undefined })
 })
 
+/**
+ * @route GET /login
+ * @description Renders the login page where existing users can authenticate.
+ * @function
+ * @param {express.Request} req - Express request object.
+ * @param {express.Response} res - Express response object.
+ * @returns {void} Renders the 'login' template.
+ */
+router.get('/login', (req,res)=>{
+    if(req.user){
+        return res.redirect('/')
+    }
+    res.render('login',{layout: undefined})
+})
+
+/**
+ * @route POST /login
+ * @description Handles user login. Validates email and password, and displays welcome message or error.
+ * @async
+ * @function
+ * @param {express.Request} req - Express request object containing email and password in body.
+ * @param {express.Response} res - Express response object.
+ * @returns {Promise<void>} Sends a welcome message with link to albums or renders an error page on failure.
+ */
+router.post('/login',async (req,res)=>{
+    const{email,password}= req.body
+     if (!email || !password) {
+        return res.render('error', { message: "All fields are required", layout: undefined })
+    }
+    const user= await business.loginUser(email,password)
+
+    if(!user){
+        return res.render('error', {message: "Invalid email or password", layout:undefined})
+
+    }
+    const sessionId= await business.login(user.id)
+
+    res.cookie('sessionId', sessionId, { httpOnly: true, maxAge: 24*60*60*1000 })
+    res.redirect('/')
+})
+
+router.get('/logout', async (req, res) => {
+    const sessionId = req.cookies?.sessionId;
+    if (sessionId) await business.logout(sessionId)
+    res.clearCookie('sessionId')
+    res.redirect('/login')
+})
 
 /**
  * @route GET /album/:id
@@ -248,55 +295,8 @@ router.post('/signup', async(req,res)=>{
     res.redirect('/login')
 })
 
-/**
- * @route GET /login
- * @description Renders the login page where existing users can authenticate.
- * @function
- * @param {express.Request} req - Express request object.
- * @param {express.Response} res - Express response object.
- * @returns {void} Renders the 'login' template.
- */
-router.get('/login', (req,res)=>{
-    if(req.user){
-        return res.redirect('/')
-    }
-    res.render('login',{layout: undefined})
-})
 
 
-
-/**
- * @route POST /login
- * @description Handles user login. Validates email and password, and displays welcome message or error.
- * @async
- * @function
- * @param {express.Request} req - Express request object containing email and password in body.
- * @param {express.Response} res - Express response object.
- * @returns {Promise<void>} Sends a welcome message with link to albums or renders an error page on failure.
- */
-router.post('/login',async (req,res)=>{
-    const{email,password}= req.body
-     if (!email || !password) {
-        return res.render('error', { message: "All fields are required", layout: undefined })
-    }
-    const user= await business.loginUser(email,password)
-
-    if(!user){
-        return res.render('error', {message: "Invalid email or password", layout:undefined})
-
-    }
-    const sessionId= await business.login(user.id)
-
-    res.cookie('sessionId', sessionId, { httpOnly: true, maxAge: 24*60*60*1000 })
-    res.redirect('/')
-})
-
-router.get('/logout', async (req, res) => {
-    const sessionId = req.cookies.sessionId;
-    if (sessionId) await business.logout(sessionId)
-    res.clearCookie('sessionId')
-    res.redirect('/login')
-})
 /**
  * @exports router
  * @description Exports the Express router handling all photo and album routes.
