@@ -11,6 +11,12 @@
 const express= require('express')
 const router=express.Router()
 const business=  require('../business_layer')
+const persistance= require('../persistance_layer')
+
+function requireLogin(req, res, next) {
+    if (!req.user) return res.redirect('/login')
+    next()
+}
 
 /**
  * @route GET /
@@ -22,11 +28,11 @@ const business=  require('../business_layer')
  * @returns {Promise<void>} Renders the 'index' template with album data.
  */
 
-router.get('/', async (req, res) => {
-    //  if (!req.user) {
-    //     return res.redirect('/login');
-    // }
-    const albums = await require('../persistance_layer').loadAlbum()
+router.get('/',requireLogin, async (req, res) => {
+     if (!req.user) {
+        return res.redirect('/login')
+    }
+    const albums = await  persistance.loadAlbum()
     res.render('album', { albums, user: req.user, layout: undefined })
 })
 
@@ -123,7 +129,7 @@ router.get('/photo/:id', async(req,res)=>{
 
      const currentUser = req.user
 
-    if (photo.visibility === "private" && (!currentUser || photo.ownerId !== currentUser.id)) {
+    if (photo.visibility === "private" && (!currentUser || photo.ownerId !== req.user.id)) {
         return res.render('error', { 
             message: "This photo is private and cannot be viewed.", 
             layout: undefined 
@@ -174,7 +180,7 @@ router.get('/photo/:id/edit', async (req, res) => {
  * @returns {Promise<void>} Redirects to the photo page if successful, otherwise renders an error page.
  */
 router.post('/photo/:id/edit', async (req, res) => {
-    const { title, description,visibility,ownerId } = req.body
+    const { title, description,visibility } = req.body
     const photo = await business.getPhoto(Number(req.params.id));
 
     if (!photo) {

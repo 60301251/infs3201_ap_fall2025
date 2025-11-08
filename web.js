@@ -57,18 +57,23 @@ app.set('views',path.join(__dirname,'templates'))
  * @returns {Promise<void>} Calls `next()` after attaching `req.user`.
  */
 app.use(async (req, res, next) => {
-    const sessionId = req.cookies?.sessionId;
+    const sessionId = req.cookies?.sessionId
 
     if (!sessionId) {
-        req.user = null;
-        return next();
+        req.user = null
+        return next()
     }
 
-    const user = await business.getUserBySession(sessionId);
-    req.user = user || null;
+   try {
+        const user = await business.getUserBySession(sessionId)
+        req.user = user || null
+    } catch (err) {
+        req.user = null
+    }
+    
 
-    next();
-});
+    next()
+})
 
 /**
  * Route handler setup
