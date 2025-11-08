@@ -41,7 +41,6 @@ app.engine('handlebars', hbs.engine)
 /**
  * Set Handlebars as the view engine
  */
-app.engine('handlebars',handlebars.engine({layoutsDir: undefined}))
 app.set('view engine','handlebars')
 app.set('views',path.join(__dirname,'templates'))
 
@@ -64,18 +63,7 @@ app.set('views',path.join(__dirname,'templates'))
 const { getUserBySession } = require('./business_layer')
 app.use(async (req, res, next) => {
     const sessionId = req.cookies?.sessionId
-
-    if (!sessionId) {
-        req.user = null
-        return next()
-    }
-
-   try {
-        req.user = await getUserBySession(sessionId)
-    } catch {
-        req.user = null
-    }
-
+        req.user = sessionId ? await getUserBySession(sessionId) : null
     next()
 })
 

@@ -11,7 +11,6 @@
 const express= require('express')
 const router=express.Router()
 const business=  require('../business_layer')
-const persistance= require('../persistance_layer')
 
 function requireLogin(req, res, next) {
     if (!req.user) return res.redirect('/login')
@@ -29,7 +28,7 @@ function requireLogin(req, res, next) {
  */
 
 router.get('/',requireLogin, async (req, res) => {
-    const albums = await  persistance.loadAlbum()
+    const albums = await  business.loadAlbum()
     res.render('album', { albums, user: req.user, layout: undefined })
 })
 
@@ -68,7 +67,7 @@ router.post('/login',async (req,res)=>{
         return res.render('error', {message: "Invalid email or password", layout:undefined})
 
     }
-    const{user, sessionId}= result
+    const{sessionId}= result
 
     res.cookie('sessionId', sessionId, { httpOnly: true, maxAge: 24*60*60*1000 })
     res.redirect('/')
@@ -91,38 +90,18 @@ router.get('/logout', async (req, res) => {
  * @returns {Promise<void>} Renders the 'album' template with album details and photos.
  */
 router.get('/album/:id', requireLogin, async (req, res) => {
-    const albumId = Number(req.params.id)
-    const album = await business.getAlbum(albumId)
+    const album = await business.getAlbum(Number(req.params.id))
+    if (!album) return res.render('error', { message: "Album not found" })
 
-    if (!album) {
-        return res.render('error', { message: "Album not found", layout: undefined })
-    }
     const result = await business.getByAlbum(album.name, req.user.email)
-
-    if (!result || !result.photos.length) {
-        return res.render('album', { 
-            album, 
-            photos: [], 
-            user: req.user, 
-            layout: undefined 
-        })
+    const photos = result?.photos || []
+    for (let photo of photos) {
+        photo.comments = await business.listPhotoComments(photo.id)
+        photo.commentCount = photo.comments.length
+        photo.canEdit = photo.ownerId === req.user.id
     }
 
-        const photos = await Promise.all(result.photos.map(async (photo) => {
-        const comments = await business.listPhotoComments(photo.id)
-        return {
-            ...photo,
-            commentCount: comments.length,
-            canEdit: photo.ownerId === req.user.id
-        }
-    }))
-
-    res.render('album', {
-        album,
-        photos,
-        user: req.user,
-        layout: undefined
-    })
+    res.render('album', { album, photos, user: req.user })
 })
 
 /**
@@ -135,21 +114,17 @@ router.get('/album/:id', requireLogin, async (req, res) => {
  * @returns {Promise<void>} Renders the 'photo' template or sends an error message if not found.
  */
 
-router.get('/photo/:id', async(req,res)=>{
-    const photo = await business.getPhoto(Number(req.params.id))
-    if (!photo) return res.send("Photo not found")
+router.get('/photo/:id', async (req, res) => {
+    const photo = await business.getPhoto(Number(req.params.id));
+    if (!photo) {
+        return res.render('error', { message: "Photo not found" })}
 
-     const currentUser = req.user
-
-    if (photo.visibility === "private" && (!currentUser || photo.ownerId !== req.user.id)) {
-        return res.render('error', { 
-            message: "This photo is private and cannot be viewed.", 
-            layout: undefined 
-        })
+    if (photo.visibility === 'private' && (!req.user || req.user.id !== photo.ownerId)) {
+        return res.render('error', { message: "This photo is private" })
     }
-    
-    const comments = await business.listPhotoComments(Number(req.params.id))
-    res.render('photo', { photo, comments, layout: undefined })
+
+    const comments = await business.listPhotoComments(photo.id)
+    res.render('photo', { photo, comments, user: req.user })
 })
 
 /**
