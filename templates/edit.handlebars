@@ -1,18 +1,16 @@
 <h1>Edit Photo: {{photo.title}}</h1>
 
 <form action="/photo/{{photo.id}}/edit" method="POST">
-    <label>Title: <input type="text" name="title" value="{{photo.title}}"></label><br>
-    <label>Description: <input type="text" name="description" value="{{photo.description}}"></label><br>
+  <label>Title: <input type="text" name="title" value="{{photo.title}}"></label><br>
+  <label>Description: <input type="text" name="description" value="{{photo.description}}"></label><br>
 
-    <label>Visibility:</label><br>
-    <select name="visibility" required>
-        <option value="public" {{#if (eq photo.visibility "public")}}selected{{/if}}>Public</option>
-        <option value="private" {{#if (eq photo.visibility "private")}}selected{{/if}}>Private</option>
-    </select><br>
+  <label>Visibility:</label>
+  <select name="visibility" required>
+    <option value="public" {{#if (eq photo.visibility "public")}}selected{{/if}}>Public</option>
+    <option value="private" {{#if (eq photo.visibility "private")}}selected{{/if}}>Private</option>
+  </select><br>
 
-    <input type="hidden" name="ownerId" value="{{photo.ownerId}}">
-
-    <button type="submit">Submit</button>
+  <button type="submit">Submit</button>
 </form>
 
 <a href="/photo/{{photo.id}}">Cancel</a>

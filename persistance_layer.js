@@ -337,26 +337,6 @@ async function getCommentsByPhoto(photoId) {
     return result
 }
 
-async function getByAlbum(albumName, currentUserEmail) {
-    const album = await findAlbumbyName(albumName)
-    if (!album) return null
-
-    const photos = await loadPhoto()
-    let visiblePhotos = []
-
-    for (let photo of photos) {
-        if ((photo.albums || []).includes(album.id)) {
-            
-            if (photo.visibility === "public" || photo.ownerEmail === currentUserEmail) {
-                visiblePhotos.push(photo)
-            }
-        }
-    }
-
-    return { album, photos: visiblePhotos }
-}
-
-
 
 async function createSession(userId) {
     await connectDatabase();

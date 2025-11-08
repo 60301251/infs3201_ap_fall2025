@@ -93,24 +93,41 @@ router.get('/logout', async (req, res) => {
  * @param {express.Response} res - Express response object.
  * @returns {Promise<void>} Renders the 'album' template with album details and photos.
  */
-router.get('/album/:id', async(req,res)=>{
-    const album= await business.getAlbum(Number(req.params.id))
-    if(!album){
-        return res.send("Album not found")
+router.get('/album/:id', requireLogin, async (req, res) => {
+    const albumId = Number(req.params.id)
+    const album = await business.getAlbum(albumId)
+
+    if (!album) {
+        return res.render('error', { message: "Album not found", layout: undefined })
+    }
+    const result = await business.getByAlbum(album.name, req.user.email)
+
+    if (!result || !result.photos.length) {
+        return res.render('album', { 
+            album, 
+            photos: [], 
+            user: req.user, 
+            layout: undefined 
+        })
     }
 
-    const result=await business.getByAlbum(album.name, req.user?.email)
-    const photoCount = result.photos.length
-    const photoLabel = photoCount === 1 ? 'photo' : 'photos'
+    const photos = await Promise.all(result.photos.map(async (photo) => {
+        const comments = await business.listPhotoComments(photo.id)
+        return {
+            ...photo,
+            commentCount: comments.length,
+            canEdit: photo.ownerId === req.user.id
+        }
+    }))
 
     res.render('album', {
         album,
-        photos: result.photos,
-        photoCount,
-        photoLabel,
+        photos,
+        user: req.user,
         layout: undefined
+    })
 })
-})
+
 
 
 /**
