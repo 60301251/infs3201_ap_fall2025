@@ -23,10 +23,6 @@ const business=  require('../business_layer')
  */
 
 router.get('/', async (req, res) => {
-    if (!req.user) {
-        return res.redirect('/login')
-    }
-
     const albums = await require('../persistance_layer').loadAlbum()
     res.render('albums', { albums, user: req.user, layout: undefined })
 })
@@ -289,7 +285,7 @@ router.post('/login',async (req,res)=>{
     const sessionId= await business.createSession(user.id)
 
     res.cookie('sessionId', sessionId, { httpOnly: true, maxAge: 24*60*60*1000 })
-    res.redirect(`Welcome, ${user.name} !<a href='/'> Go to albums </a>`)
+    res.redirect('/')
 })
 
 router.get('/logout', async (req, res) => {
