@@ -15,7 +15,6 @@ const handlebars= require('express-handlebars')
 const bodyParser=require('body-parser')
 const routes= require('./routes/handlers')
 const cookieParser= require('cookie-parser')
-const business=require('./business_layer')
 
 const app=express()
 const PORT=8000
@@ -34,12 +33,18 @@ app.use('/public', express.static(path.join(__dirname,'public')))
 app.use(cookieParser())
 
 
+const hbs = handlebars.create({});
+hbs.handlebars.registerHelper('eq', (a, b) => a === b);
+app.engine('handlebars', hbs.engine)
+
+
 /**
  * Set Handlebars as the view engine
  */
 app.engine('handlebars',handlebars.engine({layoutsDir: undefined}))
 app.set('view engine','handlebars')
 app.set('views',path.join(__dirname,'templates'))
+
 
 /**
  * Middleware to attach the logged-in user to the request object based on a session ID cookie.
@@ -56,6 +61,7 @@ app.set('views',path.join(__dirname,'templates'))
  * @param {express.NextFunction} next - The next middleware function in the chain.
  * @returns {Promise<void>} Calls `next()` after attaching `req.user`.
  */
+const { getUserBySession } = require('./business_layer')
 app.use(async (req, res, next) => {
     const sessionId = req.cookies?.sessionId
 
@@ -65,12 +71,10 @@ app.use(async (req, res, next) => {
     }
 
    try {
-        const user = await business.getUserBySession(sessionId)
-        req.user = user || null
-    } catch (err) {
+        req.user = await getUserBySession(sessionId)
+    } catch {
         req.user = null
     }
-    
 
     next()
 })

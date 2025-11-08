@@ -29,9 +29,6 @@ function requireLogin(req, res, next) {
  */
 
 router.get('/',requireLogin, async (req, res) => {
-     if (!req.user) {
-        return res.redirect('/login')
-    }
     const albums = await  persistance.loadAlbum()
     res.render('album', { albums, user: req.user, layout: undefined })
 })
@@ -128,8 +125,6 @@ router.get('/album/:id', requireLogin, async (req, res) => {
     })
 })
 
-
-
 /**
  * @route GET /photo/:id
  * @description Displays information about a specific photo.
@@ -169,8 +164,9 @@ router.get('/photo/:id', async(req,res)=>{
 
 router.get('/photo/:id/edit', async (req, res) => {
     const photo = await business.getPhoto(Number(req.params.id))
-    if (!photo) {
-        return res.send("Photo not found")}
+    if (!photo){
+        return res.render('error', { message: "Photo not found", layout: undefined })
+    } 
 
     if (!req.user || photo.ownerId !== req.user.id) {
         return res.render('error', { 
