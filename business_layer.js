@@ -101,33 +101,22 @@ async function getByAlbum(albumName, currentUserEmail) {
  * @param {string} newdes - New description (optional).
  * @returns {Promise<Object|null>} Updated photo object, or null if not found.
 */
-async function updatePhoto(photoId,newtitle,newdes, newVisibility){
-    const update={}
-    
-    if (typeof newtitle === "string" ) {
-        update.title = newtitle.trim()
-    }
+async function updatePhoto(photoId, ownerId, newTitle, newDes, newVisibility) {
+    const update = {}
+    if (typeof newTitle === 'string' && newTitle.trim() !== ''){ 
+        update.title = newTitle.trim()} 
 
-    if (typeof newdes === "string") {
-        update.description = newdes.trim()
-    }
+    if (typeof newDes === 'string' && newDes.trim() !== '') {
+        update.description = newDes.trim()}
 
+    if (newVisibility === 'public' || newVisibility === 'private') {
+        update.visibility = newVisibility}
 
-    if(newVisibility && (newVisibility === "public" || newVisibility === "private")){
-        update.visibility = newVisibility
-    }
+    if (Object.keys(update).length === 0) {
+        return false}
 
-    if(Object.keys(update).length === 0){
-        console.log("No valid fields to update.")
-        return false
-    }
-    const updatedPhoto= await updatePhotoDB(Number(photoId),update)
-
-    if(!updatedPhoto){
-        console.log("Database update failed for photo:", photoId)
-        return false
-    }
-    return true
+    const updated = await pers.updatePhotoDB(Number(photoId), Number(ownerId), update)
+    return !!updated
 }
 
 /**
