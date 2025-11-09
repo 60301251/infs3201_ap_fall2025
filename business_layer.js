@@ -18,7 +18,7 @@ const{
     findPhoto,
     findAlbum,
     findAlbumbyName,
-    updatePhoto : updatePhotoDB,
+    updatePhotoDB,
     addComment,
     getCommentsByPhoto,
     createSession,
@@ -101,23 +101,28 @@ async function getByAlbum(albumName, currentUserEmail) {
  * @param {string} newdes - New description (optional).
  * @returns {Promise<Object|null>} Updated photo object, or null if not found.
 */
-async function updatePhoto(photoId, ownerId, newTitle, newDes, newVisibility) {
-    const update = {}
-    if (typeof newTitle === 'string' && newTitle.trim() !== ''){ 
-        update.title = newTitle.trim()} 
+async function updatePhoto(photoId, newTitle, newDes, newVisibility, userId) {
+    const update = {};
 
-    if (typeof newDes === 'string' && newDes.trim() !== '') {
-        update.description = newDes.trim()}
+    if (typeof newTitle === "string" && newTitle.trim() !== "") {
+        update.title = newTitle.trim();
+    }
 
-    if (newVisibility === 'public' || newVisibility === 'private') {
-        update.visibility = newVisibility}
+    if (typeof newDes === "string" && newDes.trim() !== "") {
+        update.description = newDes.trim();
+    }
 
-    if (Object.keys(update).length === 0) {
-        return false}
+    if (newVisibility === "public" || newVisibility === "private") {
+        update.visibility = newVisibility;
+    }
 
-    const updated = await pers.updatePhotoDB(Number(photoId), Number(ownerId), update)
-    return !!updated
+    if (Object.keys(update).length === 0) return null;
+
+   
+    const updatedPhoto = await updatePhotoDB(Number(photoId), update, userId);
+    return updatedPhoto || null;
 }
+
 
 /**
  * To add tags to a photo

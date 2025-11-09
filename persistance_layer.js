@@ -154,13 +154,11 @@ async function loadPhoto(){
 async function savePhoto(photo) {
     await connectDatabase()
     const db = client.db('INFS3201_fall2025')
-    const photos = db.collection('photos')
-    const existing = await photos.findOne({ id: photo.id })
-    if (existing) {
-        await photos.updateOne({ id: photo.id }, { $set: photo })
-    } else {
-        await photos.insertOne(photo)
-    }
+    await db.collection('photos').updateOne(
+        { id: Number(photo.id) },
+        { $set: photo },
+        { upsert: true }
+  )
 }
     
 /**
@@ -241,28 +239,13 @@ async function updatePhotoDB(photoId, update, userId) {
     const photos = db.collection('photos');
 
     const result = await photos.updateOne(
-
-        { id: Number(photoId) },  
-
-        { id: Number(photoId), ownerId: Number(userId) },
-
+        { id: Number(photoId), ownerId: Number(userId) }, // ensures only owner can update
         { $set: update }
     );
 
+    if (result.matchedCount === 0) return null;
 
-    if (result.matchedCount === 0){
-        return null} 
-    
-    return await photos.findOne({ id: Number(photoId) })
-
-    if (result.matchedCount === 0) {
-        console.log("No photo found with ID:", photoId, "for user:", userId);
-        return null;
-    }
-
-    const updatedPhoto = await photos.findOne({ id: Number(photoId) });
-    return updatedPhoto;
-
+    return await photos.findOne({ id: Number(photoId) });
 }
 
 
@@ -296,36 +279,6 @@ async function findAlbumbyName(albumName){
    
 } 
 
-/**
- * Update a photo document by its ID (with validation).
- * @async
- * @param {string|number} photoId - The Id of the photo.
- * @param {string} newTitle
- * @param {string} newDes
- * @param {string} newVisibility
- * @param {number|string} userId - The ID of the owner
- * @returns {Promise<Object|null>} Updated photo object if found, otherwise null.
- */
-async function updatePhoto(photoId, newTitle, newDes, newVisibility, userId) {
-    const update = {};
-
-    if (typeof newTitle === "string" && newTitle.trim() !== "") {
-        update.title = newTitle.trim();
-    }
-
-    if (typeof newDes === "string" && newDes.trim() !== "") {
-        update.description = newDes.trim();
-    }
-
-    if (newVisibility === "public" || newVisibility === "private") {
-        update.visibility = newVisibility;
-    }
-
-    if (Object.keys(update).length === 0) return null;
-
-    const updatedPhoto = await updatePhotoDB(Number(photoId), update, userId);
-    return updatedPhoto || null;
-}
 
 
 
