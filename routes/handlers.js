@@ -179,7 +179,7 @@ router.post('/photo/:id/edit', requireLogin, async (req, res) => {
     const { title, description, visibility } = req.body
 
     // ✅ FIXED LINE — previously wrong or missing
-    const updatedPhoto = await persistence.updatePhoto(photoId, title, description, visibility, req.user.id)
+    const updatedPhoto = await persistance.updatePhoto(photoId, title, description, visibility, req.user.id)
 
     if (!updatedPhoto)
       return res.render('error', { message: 'Failed to update photo', layout: undefined })
