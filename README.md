@@ -14,6 +14,7 @@ This project is a photo media management system build for our final project for 
 PHASE 1- Implements User Registrantion and  Authentication, Photo Visibility, Comments for each photos
 
 MONGODB LINK:
+
 mongodb+srv://60301251:<db_password>@cluster0.j7qvb.mongodb.net/
 
 Account:60301251@udst.edu.qa
