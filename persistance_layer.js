@@ -382,7 +382,6 @@ module.exports={
     updatePhotoDB,
     findAlbum,
     findAlbumbyName,
-    updatePhoto,
     addComment,
     getCommentsByPhoto,
     createSession,
