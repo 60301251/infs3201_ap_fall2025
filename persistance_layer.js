@@ -228,26 +228,41 @@ async function findPhoto(id){
 }
 
 /**
- * Update an existing photo document by ID.
+ * Update an existing photo document by ID and ownerId (so only the owner can update).
  * @async
- * @param {number} photoId - The ID of the photo to update.
+ * @param {number|string} photoId - The ID of the photo to update.
  * @param {Object} update - The fields to update (e.g. { title, description, visibility }).
+ * @param {number|string} userId - The ID of the user performing the update.
  * @returns {Promise<Object|null>} Updated photo object or null if not found.
  */
-async function updatePhotoDB(photoId, update) {
-    await connectDatabase()
-    const db = client.db('INFS3201_fall2025')
-    const photos = db.collection('photos')
+async function updatePhotoDB(photoId, update, userId) {
+    await connectDatabase();
+    const db = client.db('INFS3201_fall2025');
+    const photos = db.collection('photos');
 
     const result = await photos.updateOne(
+<<<<<<< HEAD
         { id: Number(photoId) },  
+=======
+        { id: Number(photoId), ownerId: Number(userId) }, // make sure both match
+>>>>>>> e32929d52dc3804d8cb3e8169c5cbd3e98b1dc28
         { $set: update }
-    )
+    );
 
+<<<<<<< HEAD
     if (result.matchedCount === 0){
         return null} 
     
     return await photos.findOne({ id: Number(photoId) })
+=======
+    if (result.matchedCount === 0) {
+        console.log("No photo found with ID:", photoId, "for user:", userId);
+        return null;
+    }
+
+    const updatedPhoto = await photos.findOne({ id: Number(photoId) });
+    return updatedPhoto;
+>>>>>>> e32929d52dc3804d8cb3e8169c5cbd3e98b1dc28
 }
 
 
@@ -282,13 +297,16 @@ async function findAlbumbyName(albumName){
 } 
 
 /**
- * Update a photo document by its ID
+ * Update a photo document by its ID (with validation).
  * @async
- * @param {string} photoId - The Id of the photo.
- * @param {Object} update - Fields to update (e.g. { title, description }).
+ * @param {string|number} photoId - The Id of the photo.
+ * @param {string} newTitle
+ * @param {string} newDes
+ * @param {string} newVisibility
+ * @param {number|string} userId - The ID of the owner
  * @returns {Promise<Object|null>} Updated photo object if found, otherwise null.
  */
-async function updatePhoto(photoId, newTitle, newDes, newVisibility) {
+async function updatePhoto(photoId, newTitle, newDes, newVisibility, userId) {
     const update = {};
 
     if (typeof newTitle === "string" && newTitle.trim() !== "") {
@@ -305,7 +323,7 @@ async function updatePhoto(photoId, newTitle, newDes, newVisibility) {
 
     if (Object.keys(update).length === 0) return null;
 
-    const updatedPhoto = await updatePhotoDB(Number(photoId), update);
+    const updatedPhoto = await updatePhotoDB(Number(photoId), update, userId);
     return updatedPhoto || null;
 }
 
