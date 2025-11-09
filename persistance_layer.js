@@ -234,18 +234,18 @@ async function findPhoto(id){
  * @returns {Promise<Object|null>} Updated photo object or null if not found.
  */
 async function updatePhotoDB(photoId, update, userId) {
-    await connectDatabase();
-    const db = client.db('INFS3201_fall2025');
-    const photos = db.collection('photos');
+    await connectDatabase()
+    const db = client.db('INFS3201_fall2025')
+    const photos = db.collection('photos')
 
     const result = await photos.updateOne(
-        { id: Number(photoId), ownerId: Number(userId) }, // ensures only owner can update
+        { id: Number(photoId), ownerId: Number(userId) },
         { $set: update }
     );
 
-    if (result.matchedCount === 0) return null;
+    if (result.matchedCount === 0) return null
 
-    return await photos.findOne({ id: Number(photoId) });
+    return await photos.findOne({ id: Number(photoId) })
 }
 
 

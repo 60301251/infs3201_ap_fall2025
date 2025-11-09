@@ -101,28 +101,27 @@ async function getByAlbum(albumName, currentUserEmail) {
  * @param {string} newdes - New description (optional).
  * @returns {Promise<Object|null>} Updated photo object, or null if not found.
 */
-async function updatePhoto(photoId, newTitle, newDes, newVisibility, userId) {
-    const update = {};
+async function updatePhoto(photoId, userId, newTitle, newDes, newVisibility) {
+    const update = {}
 
-    if (typeof newTitle === "string" && newTitle.trim() !== "") {
-        update.title = newTitle.trim();
+    if (typeof newTitle === 'string' && newTitle.trim() !== '') {
+        update.title = newTitle.trim()
     }
 
-    if (typeof newDes === "string" && newDes.trim() !== "") {
-        update.description = newDes.trim();
+    if (typeof newDes === 'string' && newDes.trim() !== '') {
+        update.description = newDes.trim()
     }
 
-    if (newVisibility === "public" || newVisibility === "private") {
-        update.visibility = newVisibility;
+    if (newVisibility === 'public' || newVisibility === 'private') {
+        update.visibility = newVisibility
     }
 
-    if (Object.keys(update).length === 0) return null;
+    
+    if (Object.keys(update).length === 0) return null
 
-   
-    const updatedPhoto = await updatePhotoDB(Number(photoId), update, userId);
-    return updatedPhoto || null;
+    const updatedPhoto = await updatePhotoDB(Number(photoId), update, Number(userId))
+    return updatedPhoto
 }
-
 
 /**
  * To add tags to a photo
