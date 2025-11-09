@@ -151,25 +151,15 @@ async function loadPhoto(){
  * @param {Object[]} photoList - Array of photo objects to save
  * @returns {Promise<void>}
  */
-async function savePhoto(photoList) {
+async function savePhoto(photo) {
     await connectDatabase()
     const db = client.db('INFS3201_fall2025')
     const photos = db.collection('photos')
-
-    for (let i=0;i<photoList.length;i++) {
-        const photo = photoList[i]
-
-        if (photo && !photo.visibility){
-            photo.visibility = 'public'
-        }
-
-        if (photo.id) {
-            await photos.updateOne(
-                { id: photo.id },
-                { $set: photo },
-                { upsert: true }
-            )
-        }
+    const existing = await photos.findOne({ id: photo.id })
+    if (existing) {
+        await photos.updateOne({ id: photo.id }, { $set: photo })
+    } else {
+        await photos.insertOne(photo)
     }
 }
     
@@ -250,18 +240,16 @@ async function updatePhotoDB(photoId, update) {
     const photos = db.collection('photos')
 
     const result = await photos.updateOne(
-        { id: Number(photoId) },   // or change 'id' to 'photoId' if your field uses that
+        { id: Number(photoId) },  
         { $set: update }
     )
 
-    if (result.matchedCount === 0) {
-        console.log("No photo found with ID:", photoId)
-        return null
-    }
-
-    const updatedPhoto = await photos.findOne({ id: Number(photoId) })
-    return updatedPhoto
+    if (result.matchedCount === 0){
+        return null} 
+    
+    return await photos.findOne({ id: Number(photoId) })
 }
+
 
 /**
  * Find an album using albumID
