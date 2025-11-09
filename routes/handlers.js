@@ -173,7 +173,7 @@ router.get('/photo/:id/edit', async (req, res) => {
  * @param {express.Response} res - Express response object.
  * @returns {Promise<void>} Redirects to the photo page if successful, otherwise renders an error page.
  */
-app.post("/photo/:id/edit", async (req, res) => {
+router.post("/photo/:id/edit", async (req, res) => {
   try {
     const user = req.cookies.user;
     if (!user) return res.redirect("/login");
