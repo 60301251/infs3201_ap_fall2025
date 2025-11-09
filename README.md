@@ -32,10 +32,20 @@ HOW TO TEST:
 * Browse albums and photos
 * Confirm:
     -Public photos visible to all users
+  
     -Private photos visible only to owner
+  
     -Edit only works on your photos
+  
     -Comments only by logged-in users
+  
 
+INSTRUCTIONS TO USE:
+* Open server
+* Login to mufeeda@gmail.com, with password abcd
+* This user is the owner for the photos and can access/edit all the photos in the album
+* The edit visibility and photo should be only accessible only from this account
+ 
 SECURITY AND DATA HANDLING:
 * Passwords hashed using PBKDF2 + salt
 * No plaintext password storage
