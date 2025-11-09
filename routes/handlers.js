@@ -123,7 +123,7 @@ router.get('/album/:id', requireLogin, async (req, res) => {
  * @returns {Promise<void>} Renders the 'photo' template or sends an error message if not found.
  */
 
-router.get('/photo/:id', async (req, res) => {
+router.get('/photo/:id',requireLogin, async (req, res) => {
     const photo = await business.getPhoto(Number(req.params.id));
     if (!photo) {
         return res.render('error', { message: "Photo not found" })}
@@ -146,7 +146,7 @@ router.get('/photo/:id', async (req, res) => {
  * @returns {Promise<void>} Renders the 'edit' template or an error message if not found.
  */
 
-router.get('/photo/:id/edit', async (req, res) => {
+router.get('/photo/:id/edit', requireLogin, async (req, res) => {
     const photo = await business.getPhoto(Number(req.params.id))
 
     if (!req.user || photo.ownerId !== req.user.id) {
@@ -173,32 +173,24 @@ router.get('/photo/:id/edit', async (req, res) => {
  * @param {express.Response} res - Express response object.
  * @returns {Promise<void>} Redirects to the photo page if successful, otherwise renders an error page.
  */
-router.post("/photo/:id/edit", async (req, res) => {
+router.post('/photo/:id/edit', requireLogin, async (req, res) => {
   try {
-    const user = req.cookies.user;
-    if (!user) return res.redirect("/login");
+    const photoId = Number(req.params.id)
+    const { title, description, visibility } = req.body
 
-    const { id } = req.params;
-    const { title, description, visibility } = req.body;
+    // ✅ FIXED LINE — previously wrong or missing
+    const updatedPhoto = await persistence.updatePhoto(photoId, title, description, visibility, req.user.id)
 
-    const updatedPhoto = await persistence.updatePhoto(
-      id,
-      title,
-      description,
-      visibility,
-      user.id 
-    );
+    if (!updatedPhoto)
+      return res.render('error', { message: 'Failed to update photo', layout: undefined })
 
-    if (!updatedPhoto) {
-      return res.render("error", { message: "Failed to update photo" });
-    }
-
-    res.redirect("/myphotos");
+    res.redirect(`/photo/${photoId}`)
   } catch (error) {
-    console.error("Error updating photo:", error);
-    res.render("error", { message: "An error occurred while updating the photo" });
+    console.error('Error updating photo:', error)
+    res.render('error', { message: 'An error occurred while updating the photo', layout: undefined })
   }
-});
+})
+
 
 /**
  * @route POST /photo/:id/tag
