@@ -14,6 +14,7 @@ This project is a photo media management system build for our final project for 
 PHASE 1- Implements User Registrantion and  Authentication, Photo Visibility, Comments for each photos
 
 MONGODB LINK:
+
 mongodb+srv://60301251:<db_password>@cluster0.j7qvb.mongodb.net/
 
 Account:60301251@udst.edu.qa
@@ -32,10 +33,20 @@ HOW TO TEST:
 * Browse albums and photos
 * Confirm:
     -Public photos visible to all users
+  
     -Private photos visible only to owner
+  
     -Edit only works on your photos
+  
     -Comments only by logged-in users
+  
 
+INSTRUCTIONS TO USE:
+* Open server
+* Login to mufeeda@gmail.com, with password abcd
+* This user is the owner for the photos and can access/edit all the photos in the album
+* The edit visibility and photo should be only accessible only from this account
+ 
 SECURITY AND DATA HANDLING:
 * Passwords hashed using PBKDF2 + salt
 * No plaintext password storage
