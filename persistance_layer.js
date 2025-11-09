@@ -241,20 +241,20 @@ async function updatePhotoDB(photoId, update, userId) {
     const photos = db.collection('photos');
 
     const result = await photos.updateOne(
-<<<<<<< HEAD
+
         { id: Number(photoId) },  
-=======
-        { id: Number(photoId), ownerId: Number(userId) }, // make sure both match
->>>>>>> e32929d52dc3804d8cb3e8169c5cbd3e98b1dc28
+
+        { id: Number(photoId), ownerId: Number(userId) },
+
         { $set: update }
     );
 
-<<<<<<< HEAD
+
     if (result.matchedCount === 0){
         return null} 
     
     return await photos.findOne({ id: Number(photoId) })
-=======
+
     if (result.matchedCount === 0) {
         console.log("No photo found with ID:", photoId, "for user:", userId);
         return null;
@@ -262,7 +262,7 @@ async function updatePhotoDB(photoId, update, userId) {
 
     const updatedPhoto = await photos.findOne({ id: Number(photoId) });
     return updatedPhoto;
->>>>>>> e32929d52dc3804d8cb3e8169c5cbd3e98b1dc28
+
 }
 
 
