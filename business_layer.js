@@ -140,7 +140,7 @@ async function addTag(photoId,newTag) {
         return 'duplicate'
     } 
     photo.tags.push(newTag)
-    await savePhoto([photo])
+    await savePhoto(photo)
     return photo
     
 }
