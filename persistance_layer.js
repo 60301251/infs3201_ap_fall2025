@@ -146,9 +146,9 @@ async function loadPhoto(){
 }
 
 /**
- * To save updated photo list to MongoDB
+ * Upserts a single photo document by id.
  * @async
- * @param {Object[]} photoList - Array of photo objects to save
+ * @param {Object} photo
  * @returns {Promise<void>}
  */
 async function savePhoto(photo) {
@@ -280,54 +280,89 @@ async function findAlbumbyName(albumName){
 } 
 
 /**
- * Add a new comment to a photo.
- * @param {number|string} photoId
- * @param {number|string} userId
- * @param {string} username
- * @param {string} text
- * @returns {Promise<Object>} Inserted comment document
+ * Ensures required indexes for the comments collection.
+ * @async
  */
-async function addComment(photoId, userId, username, text) {
-    await connectDatabase()
-    const db = client.db('INFS3201_fall2025')
-    const comments = db.collection('comments')
-    let nextId = 1
-    const ids = await comments.find({}, { projection: { id: 1 } }).toArray()
-    for (let i = 0; i < ids.length; i++) {
-        if (ids[i] && typeof ids[i].id !== 'undefined' && ids[i].id >= nextId) {
-            nextId = ids[i].id + 1
-        }
-    }
-
-    const doc = {
-        id: nextId,
-        photoId: Number(photoId),
-        userId: userId,
-        username: username || "",
-        text: text || "",
-        createdAt: new Date()
-    }
-
-    await comments.insertOne(doc)
-    return doc
+async function ensureCommentIndexes() {
+  await connectDatabase()
+  const db = client.db('INFS3201_fall2025')
+  const comments = db.collection('comments')
+  await comments.createIndex({ id: 1 }, { unique: true })
+  await comments.createIndex({ photoId: 1, createdAt: 1 })
 }
 
 /**
- * Get all comments for a photo, oldest first.
- * @param {number|string} photoId
- * @returns {Promise<Array>}
+ * Adds a new comment to a photo.
+ * @async
+ * @param {number|string} photoId - Target photo ID.
+ * @param {number|string} userId - Commenter's user ID.
+ * @param {string} username - Commenter's name.
+ * @param {string} text - Comment text.
+ * @returns {Promise<Object>} Inserted comment document.
+ */
+async function addComment(photoId, userId, username, text) {
+  await connectDatabase()
+  await ensureCommentIndexes()
+
+  const db = client.db('INFS3201_fall2025')
+  const photos = db.collection('photos')
+  const comments = db.collection('comments')
+
+  if (!Number.isFinite(Number(photoId))) throw new Error('Invalid photoId')
+
+  const cleanUser = String(username || '').trim()
+  const cleanText = String(text || '').trim()
+  if (!cleanText) throw new Error('Empty comment')
+  if (cleanText.length > 1000) throw new Error('Comment too long')
+
+  const photo = await photos.findOne({ id: Number(photoId) })
+  if (!photo) throw new Error('Photo not found')
+
+  const last = await comments.find({}, { projection: { id: 1 } })
+    .sort({ id: -1 }).limit(1).toArray()
+  const nextId = (last[0]?.id || 0) + 1
+
+  const doc = {
+    id: nextId,
+    photoId: Number(photoId),
+    userId,
+    username: cleanUser,
+    text: cleanText,
+    createdAt: new Date()
+  }
+
+  await comments.insertOne(doc)
+  return doc
+}
+
+/**
+ * Retrieves all comments for a photo, sorted by creation time.
+ * @async
+ * @param {number|string} photoId - Photo ID.
+ * @returns {Promise<Object[]>} Array of comment documents.
  */
 async function getCommentsByPhoto(photoId) {
-    await connectDatabase()
-    const db = client.db('INFS3201_fall2025')
-    const comments = db.collection('comments')
+  await connectDatabase()
+  await ensureCommentIndexes()
 
-    const cursor = comments.find({ photoId: Number(photoId) }).sort({ createdAt: 1 })
-    const result = await cursor.toArray()
-    return result
+  const db = client.db('INFS3201_fall2025')
+  const comments = db.collection('comments')
+
+  if (!Number.isFinite(Number(photoId))) return []
+
+  return await comments
+    .find({ photoId: Number(photoId) })
+    .sort({ createdAt: 1 })
+    .toArray()
 }
 
 
+/**
+ * Creates a new user session and stores it in MongoDB.
+ * @async
+ * @param {number|string} userId - Logged-in user's ID.
+ * @returns {Promise<string>} The generated session ID.
+ */
 async function createSession(userId) {
     await connectDatabase();
     const db = client.db('INFS3201_fall2025');
@@ -345,6 +380,12 @@ async function createSession(userId) {
     return sessionId;
 }
 
+/**
+ * Retrieves a user associated with a given session ID.
+ * @async
+ * @param {string} sessionId - Session identifier.
+ * @returns {Promise<Object|null>} User object if found, otherwise null.
+ */
 async function getUserBySession(sessionId) {
     await connectDatabase();
     const db = client.db('INFS3201_fall2025');
@@ -358,6 +399,12 @@ async function getUserBySession(sessionId) {
     return user || null;
 }
 
+/**
+ * Deletes a user session (logout).
+ * @async
+ * @param {string} sessionId - Session identifier to remove.
+ * @returns {Promise<void>}
+ */
 async function deleteSession(sessionId) {
     await connectDatabase();
     const db = client.db('INFS3201_fall2025');
