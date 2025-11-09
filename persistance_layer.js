@@ -279,10 +279,6 @@ async function findAlbumbyName(albumName){
    
 } 
 
-
-
-
-
 /**
  * Add a new comment to a photo.
  * @param {number|string} photoId
