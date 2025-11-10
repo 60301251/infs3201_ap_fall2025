@@ -102,7 +102,7 @@ async function getAlbum(albumId){
  * @param {string} currentUserEmail - Email of the user requesting the photos.
  * @returns {Promise<{album: Object, photos: Object[] } | null>} Album and filtered photos, or null if album not found.
  */
-async function getByAlbum(albumName, currentUser) {
+async function getByAlbum(albumName, currentUserEmail) {
     const album = await findAlbumbyName(albumName)
     if (!album) return null
 
@@ -112,7 +112,7 @@ async function getByAlbum(albumName, currentUser) {
     for (let photo of photos) {
         if ((photo.albums || []).includes(album.id)) {
             
-            if (photo.visibility === "public" || photo.ownerId === currentUser.id) {
+            if (photo.visibility === "public" || photo.ownerEmail === currentUserEmail) {
                 visiblePhotos.push(photo)
             }
         }
