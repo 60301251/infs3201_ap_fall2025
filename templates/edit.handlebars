@@ -6,8 +6,8 @@
 
 <label>Visibility:</label>
 <select name="visibility">
-  <option value="public" {{#if (photo.visibility "public")}}selected{{/if}}>Public</option>
-  <option value="private" {{#if (photo.visibility "private")}}selected{{/if}}>Private</option>
+  <option value="public" {{#if (eq photo.visibility "public")}}selected{{/if}}>Public</option>
+  <option value="private" {{#if (eq photo.visibility "private")}}selected{{/if}}>Private</option>
 </select>
 
 <p>Current: {{photo.visibility}}</p>
