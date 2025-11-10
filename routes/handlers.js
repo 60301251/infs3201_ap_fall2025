@@ -193,30 +193,21 @@ router.post('/photo/:id/edit', requireLogin, async (req, res) => {
     return res.render('error', { message: "Invalid photo ID.", layout: undefined })
   }
 
-  const title = (req.body.title || '').trim()
-  const description = (req.body.description || '').trim()
-  const visibility = req.body.visibility?.trim() 
-  
-  const update = {}
-  if (title) update.title = title
-  if (description) update.description = description
-  if (visibility === 'public' || visibility === 'private') {
-    update.visibility = visibility
+  try {
+    const title = (req.body.title || '').trim()     
+    const description = (req.body.description || '').trim()
+    const visibility = (req.body.visibility || '').trim()
+
+    const updatedPhoto = await business.updatePhoto(photoId, req.user.id, title, description, visibility)
+    if (!updatedPhoto) {
+      return res.render('error', { message: 'Failed to update photo', layout: undefined })
+    }
+    res.redirect(`/photo/${photoId}`)
+  } catch (error) {
+    console.error('Error updating photo:', error)
+    res.render('error', { message: 'An error occurred while updating the photo', layout: undefined })
   }
-
-  if (Object.keys(update).length === 0) {
-    return res.render('error', { message: "No changes to update.", layout: undefined })
-  }
-
-  const updatedPhoto = await business.updatePhoto(photoId, req.user.id, title, description, visibility)
-
-  if (!updatedPhoto) {
-    return res.render('error', { message: "Failed to update photo.", layout: undefined })
-  }
-
-  res.redirect(`/photo/${photoId}`)
 })
-
 
 /**
  * @route POST /photo/:id/tag
