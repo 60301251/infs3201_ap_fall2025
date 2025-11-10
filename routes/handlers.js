@@ -275,6 +275,30 @@ router.post('/photo/:id/comment', requireLogin, async (req, res) => {
   }
 })
 
+router.get('/album/:id', requireLogin, async (req, res) => {
+  const albumId = Number(req.params.id)
+
+  if (isNaN(albumId)) {
+    return res.render('error', { message: "Invalid album ID.", layout: undefined })
+  }
+
+  const album = await business.getAlbum(albumId)
+
+  if (!album) {
+    return res.render('error', { message: "Album not found", layout: undefined })
+  }
+
+  const result = await business.getByAlbum(album.name, req.user?.email)
+
+  // result = { album, photos } or null
+  if (!result) {
+    return res.render('album', { album, photos: [], user: req.user, layout: undefined })
+  }
+
+  res.render('album', { album: result.album, photos: result.photos, user: req.user, layout: undefined })
+})
+
+
 /**
  * @route GET /signup
  * @description Renders the signup page where a new user can register.
