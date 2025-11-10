@@ -35,7 +35,15 @@ app.use(cookieParser())
 /**
  * Set Handlebars as the view engine
  */
-app.engine('handlebars', handlebars.engine({ defaultLayout: false }))
+
+const hbs = handlebars.create({
+    defaultLayout: false,
+    helpers: {
+        eq: (a, b) => a === b 
+    }
+})
+
+app.engine('handlebars', hbs.engine)
 app.set('view engine', 'handlebars')
 app.set('views', path.join(__dirname, 'templates'))
 
