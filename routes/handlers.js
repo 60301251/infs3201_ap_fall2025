@@ -137,8 +137,11 @@ router.get('/photo/:id', requireLogin, async (req, res) => {
       return res.render('error', { message: "Photo not found", layout: undefined })
     }
 
-    if (photo.visibility === 'private' && (!req.user || Number(req.user.id) !== Number(photo.ownerId))) {
-    return res.render('error', { message: "This photo is private", layout: undefined })
+    if (
+      photo.visibility === 'private' &&
+      (!req.user || Number(req.user.id) !== Number(photo.ownerId))
+    ) {
+      return res.render('error', { message: "This photo is private", layout: undefined })
     }
 
     const comments = await business.listPhotoComments(photo.id)
@@ -147,6 +150,7 @@ router.get('/photo/:id', requireLogin, async (req, res) => {
     res.render('error', { message: "Failed to load photo.", layout: undefined })
   }
 })
+
 
 /**
  * @route GET /photo/:id/edit

@@ -108,8 +108,11 @@ async function getByAlbum(albumName, currentUserId) {
 
   const photos = await loadPhoto()
   const visiblePhotos = []
+
   for (let i = 0; i < photos.length; i++) {
     const p = photos[i]
+
+    // check if photo belongs to this album (no higher-order funcs)
     let inAlbum = false
     const al = p.albums || []
     for (let j = 0; j < al.length; j++) {
@@ -117,6 +120,7 @@ async function getByAlbum(albumName, currentUserId) {
     }
     if (!inAlbum) continue
 
+    // visibility: public or owned by current user
     const vis = p.visibility || 'public'
     if (vis === 'public' || Number(p.ownerId) === Number(currentUserId)) {
       visiblePhotos.push(p)
@@ -151,6 +155,40 @@ async function updatePhoto(photoId, userId, newTitle, newDes, newVisibility) {
         update.visibility = newVisibility
     }
 
+    if (Object.keys(update).length === 0) return null
+
+    const updatedPhoto = await updatePhotoDB(Number(photoId), update, Number(userId))
+    return updatedPhoto
+}
+
+/**
+ * Update details of a photo.
+ * @async
+ * @param {number|string} photoId - ID of the photo to update.
+ * @param {number|string} userId - ID of the user performing the update (must own the photo).
+ * @param {string} [newTitle] - New title (optional).
+ * @param {string} [newDes] - New description (optional).
+ * @param {"public"|"private"} [newVisibility] - New visibility (optional).
+ * @returns {Promise<Object|null>} Updated photo object, or null if not found or nothing to update.
+ */
+async function updatePhoto(photoId, userId, newTitle, newDes, newVisibility) {
+    const update = {}
+
+    if (typeof newTitle === 'string' && newTitle.trim() !== '') {
+        update.title = newTitle.trim()
+    }
+
+    if (typeof newDes === 'string' && newDes.trim() !== '') {
+        update.description = newDes.trim()
+    }
+
+    if (newVisibility === 'public' || newVisibility === 'private') {
+        update.visibility = newVisibility
+    }
+    else {
+    delete update.visibility 
+}
+
     
     if (Object.keys(update).length === 0) return null
 
@@ -171,7 +209,6 @@ async function addTag(photoId, newTag) {
 
     photo.tags = photo.tags || []
 
-    // check duplicate with a plain loop (no higher-order funcs)
     let exists = false
     for (let i = 0; i < photo.tags.length; i++) {
         if (photo.tags[i] === newTag) { exists = true; break }

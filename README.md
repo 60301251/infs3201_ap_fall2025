@@ -46,6 +46,7 @@ INSTRUCTIONS TO USE:
 * Login to mufeeda@gmail.com, with password abcd
 * This user is the owner for the photos and can access/edit all the photos in the album
 * The edit visibility and photo should be only accessible only from this account
+* In album beach vacations, sunny beach is private and can be only accessed through this account
  
 SECURITY AND DATA HANDLING:
 * Passwords hashed using PBKDF2 + salt
