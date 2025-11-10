@@ -39,7 +39,7 @@ app.use(cookieParser())
 const hbs = handlebars.create({
     defaultLayout: false,
     helpers: {
-        eq: (a, b) => a === b // <-- This is the helper
+        eq: (a, b) => a === b 
     }
 })
 
