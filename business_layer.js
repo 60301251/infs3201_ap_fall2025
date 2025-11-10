@@ -179,7 +179,6 @@ async function addTag(photoId, newTag) {
 
     photo.tags = photo.tags || []
 
-    // check duplicate with a plain loop (no higher-order funcs)
     let exists = false
     for (let i = 0; i < photo.tags.length; i++) {
         if (photo.tags[i] === newTag) { exists = true; break }
