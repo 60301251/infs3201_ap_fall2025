@@ -144,6 +144,9 @@ async function updatePhoto(photoId, userId, newTitle, newDes, newVisibility) {
     if (newVisibility === 'public' || newVisibility === 'private') {
         update.visibility = newVisibility
     }
+    else {
+    delete update.visibility 
+}
 
     
     if (Object.keys(update).length === 0) return null
