@@ -112,7 +112,7 @@ async function getByAlbum(albumName, currentUserEmail) {
     for (let photo of photos) {
         if ((photo.albums || []).includes(album.id)) {
             
-            if (photo.visibility === "public" || photo.ownerEmail === currentUserEmail) {
+            if (photo.visibility === "public" || photo.ownerId === currentUser.id) {
                 visiblePhotos.push(photo)
             }
         }
