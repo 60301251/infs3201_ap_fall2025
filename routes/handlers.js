@@ -137,8 +137,8 @@ router.get('/photo/:id', requireLogin, async (req, res) => {
       return res.render('error', { message: "Photo not found", layout: undefined })
     }
 
-    if (photo.visibility === 'private' && (!req.user || req.user.id !== photo.ownerId)) {
-      return res.render('error', { message: "This photo is private", layout: undefined })
+    if (photo.visibility === 'private' && (!req.user || Number(req.user.id) !== Number(photo.ownerId))) {
+    return res.render('error', { message: "This photo is private", layout: undefined })
     }
 
     const comments = await business.listPhotoComments(photo.id)
@@ -164,8 +164,8 @@ router.get('/photo/:id/edit', requireLogin, async (req, res) => {
 
   try {
     const photo = await business.getPhoto(photoId)
-    if (!photo || photo.ownerId !== req.user.id) {
-      return res.render('error', { message: "You can only edit your own photos.", layout: undefined })
+    if (!photo || Number(photo.ownerId) !== Number(req.user.id)) {
+    return res.render('error', { message: "You can only edit your own photos.", layout: undefined })
     }
 
     const visibilityOptions = [
@@ -236,8 +236,8 @@ router.post('/photo/:id/tag', requireLogin, async (req, res) => {
       return res.render('error', { message: "Photo not found.", layout: undefined })
     }
 
-    if (photo.ownerId !== req.user.id) {
-      return res.render('error', { message: "You can only tag your own photo.", layout: undefined })
+    if (Number(photo.ownerId) !== Number(req.user.id)) {
+    return res.render('error', { message: "You can only tag your own photo.", layout: undefined })
     }
 
     const result = await business.addTag(photoId, tag)
@@ -278,8 +278,9 @@ router.post('/photo/:id/comment', requireLogin, async (req, res) => {
     if (!photo) {
       return res.render('error', { message: "Photo not found.", layout: undefined })
     }
-    if (photo.visibility === "private" && photo.ownerId !== req.user.id) {
-      return res.render('error', { message: "You can only comment on your own private photos.", layout: undefined })
+    
+    if (photo.visibility === "private" && Number(photo.ownerId) !== Number(req.user.id)) {
+    return res.render('error', { message: "You can only comment on your own private photos.", layout: undefined })
     }
 
     const ok = await business.addPhotoComment(photo.id, req.user, text)
@@ -314,7 +315,7 @@ router.get('/album/:id', requireLogin, async (req, res) => {
     return res.render('error', { message: "Album not found", layout: undefined })
   }
 
-  const result = await business.getByAlbum(album.name, req.user?.email)
+  const result = await business.getByAlbum(album.name, req.user?.id)
   if (!result) {
     return res.render('album', { album, photos: [], user: req.user, layout: undefined })
   }

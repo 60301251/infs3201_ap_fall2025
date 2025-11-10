@@ -67,11 +67,11 @@ async function logout(sessionId) {
 }
 
 /**
- * To getPhoto using userId
- *  @async
- * @param {number} photoId - The ID of the photo.
- * @returns {Promise<Object|null>} Photo object if allowed, or null if not found.
-*/
+ * Get a photo by ID.
+ * @async
+ * @param {number|string} photoId - The ID of the photo.
+ * @returns {Promise<Object|null>} Photo object if found, otherwise null.
+ */
 async function getPhoto(photoId){
     const photo=await findPhoto(Number(photoId))
     if(!photo){
@@ -99,37 +99,43 @@ async function getAlbum(albumId){
  * Get an album by name and return only photos visible to the current user.
  *
  * @param {string} albumName - Name of the album to search for.
- * @param {string} currentUserEmail - Email of the user requesting the photos.
+ * @param {string} currentUserId - Id of the user requesting the photos.
  * @returns {Promise<{album: Object, photos: Object[] } | null>} Album and filtered photos, or null if album not found.
  */
-async function getByAlbum(albumName, currentUserEmail) {
-    const album = await findAlbumbyName(albumName)
-    if (!album) return null
+async function getByAlbum(albumName, currentUserId) {
+  const album = await findAlbumbyName(albumName)
+  if (!album) return null
 
-    const photos = await loadPhoto()
-    let visiblePhotos = []
-
-    for (let photo of photos) {
-        if ((photo.albums || []).includes(album.id)) {
-            
-            if (photo.visibility === "public" || photo.ownerId === currentUser.id) {
-                visiblePhotos.push(photo)
-            }
-        }
+  const photos = await loadPhoto()
+  const visiblePhotos = []
+  for (let i = 0; i < photos.length; i++) {
+    const p = photos[i]
+    let inAlbum = false
+    const al = p.albums || []
+    for (let j = 0; j < al.length; j++) {
+      if (al[j] === album.id) { inAlbum = true; break }
     }
+    if (!inAlbum) continue
 
-    return { album, photos: visiblePhotos }
+    const vis = p.visibility || 'public'
+    if (vis === 'public' || Number(p.ownerId) === Number(currentUserId)) {
+      visiblePhotos.push(p)
+    }
+  }
+
+  return { album, photos: visiblePhotos }
 }
 
-
 /**
- * To update details of photo using photoId
+ * Update details of a photo.
  * @async
- * @param {number} photoId - ID of the photo to update.
- * @param {string} newtitle - New title (optional).
- * @param {string} newdes - New description (optional).
- * @returns {Promise<Object|null>} Updated photo object, or null if not found.
-*/
+ * @param {number|string} photoId - ID of the photo to update.
+ * @param {number|string} userId - ID of the user performing the update (must own the photo).
+ * @param {string} [newTitle] - New title (optional).
+ * @param {string} [newDes] - New description (optional).
+ * @param {"public"|"private"} [newVisibility] - New visibility (optional).
+ * @returns {Promise<Object|null>} Updated photo object, or null if not found or nothing to update.
+ */
 async function updatePhoto(photoId, userId, newTitle, newDes, newVisibility) {
     const update = {}
 
@@ -153,43 +159,52 @@ async function updatePhoto(photoId, userId, newTitle, newDes, newVisibility) {
 }
 
 /**
- * To add tags to a photo
+ * Add a tag to a photo.
  * @async
- * @param {number} photoId - ID of the photo.
+ * @param {number|string} photoId - ID of the photo.
  * @param {string} newTag - Tag to add.
- * @returns {Promise<Object|null>} Updated photo object, "duplicate" if tag exists, or null if not found.
-*/
-async function addTag(photoId,newTag) {
-    let photo = await findPhoto(Number(photoId))
-    if (!photo){
-        return null
-    } 
+ * @returns {Promise<Object|"duplicate"|null>} Updated photo, "duplicate" if tag exists, or null if not found.
+ */
+async function addTag(photoId, newTag) {
+    const photo = await findPhoto(Number(photoId))
+    if (!photo) return null
+
     photo.tags = photo.tags || []
-    if (photo.tags.includes(newTag)){
-        return 'duplicate'
-    } 
+
+    // check duplicate with a plain loop (no higher-order funcs)
+    let exists = false
+    for (let i = 0; i < photo.tags.length; i++) {
+        if (photo.tags[i] === newTag) { exists = true; break }
+    }
+    if (exists) return 'duplicate'
+
     photo.tags.push(newTag)
     await savePhoto(photo)
     return photo
-    
 }
-
 
 /**
  * Create a new comment for a photo.
+ * Allowed only if user is logged in AND (photo is public OR user owns the photo).
  * @param {number|string} photoId
  * @param {Object} user - logged-in user object
  * @param {string} text - comment text
- * @returns {Promise<Object|null>} Inserted comment or null on validation failure
+ * @returns {Promise<Object|null>} Inserted comment or null on validation/permission failure
  */
 async function addPhotoComment(photoId, user, text) {
-    if (!user) {
-        return null
-    }
-    if (!text || text.trim() === "") {
-        return null
-    }
+    if (!user) return null
+    if (typeof text !== 'string') return null
+
     const cleaned = text.trim()
+    if (cleaned.length < 1 || cleaned.length > 500) return null
+
+    const photo = await findPhoto(Number(photoId))
+    if (!photo) return null
+
+    const isOwner = Number(photo.ownerId) === Number(user.id)
+    const isPublic = (photo.visibility || 'public') === 'public'
+    if (!isOwner && !isPublic) return null
+
     const result = await addComment(Number(photoId), user.id, user.name, cleaned)
     return result
 }
@@ -209,8 +224,8 @@ module.exports={
     login,
     getPhoto,
     getAlbum,
-    updatePhoto,
     getByAlbum,
+    updatePhoto,
     addTag,
     addPhotoComment,
     listPhotoComments,
