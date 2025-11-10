@@ -13,6 +13,16 @@ const router = express.Router()
 const business = require('../business_layer')
 const persistance = require('../persistance_layer')
 
+/**
+ * Middleware to ensure the user is logged in.
+ *
+ * Redirects to /login if no authenticated user is found.
+ *
+ * @param {Request} req - Express request object.
+ * @param {Response} res - Express response object.
+ * @param {Function} next - Express next middleware function.
+ * @returns {void}
+ */
 function requireLogin(req, res, next) {
   if (!req.user) return res.redirect('/login')
   next()
@@ -89,6 +99,14 @@ router.post('/login', async (req, res) => {
   }
 })
 
+/**
+ * Log out the current user by clearing session and redirecting to login.
+ *
+ * @route GET /logout
+ * @param {Request} req - Express request containing session cookie.
+ * @param {Response} res - Express response to clear cookie and redirect.
+ * @returns {void}
+ */
 router.get('/logout', async (req, res) => {
   const sessionId = req.cookies?.sessionId
   try {
@@ -275,6 +293,14 @@ router.post('/photo/:id/comment', requireLogin, async (req, res) => {
   }
 })
 
+/**
+ * Render a specific album and its photos.
+ * 
+ * @route GET /album/:id
+ * @param {Request} req - Express request with album ID and user session.
+ * @param {Response} res - Express response to render the album page.
+ * @returns {void}
+ */
 router.get('/album/:id', requireLogin, async (req, res) => {
   const albumId = Number(req.params.id)
 
@@ -289,8 +315,6 @@ router.get('/album/:id', requireLogin, async (req, res) => {
   }
 
   const result = await business.getByAlbum(album.name, req.user?.email)
-
-  // result = { album, photos } or null
   if (!result) {
     return res.render('album', { album, photos: [], user: req.user, layout: undefined })
   }

@@ -26,11 +26,26 @@ const{
     deleteSession
 } = require('./persistance_layer')
 
+/**
+ * Register a new user.
+ *
+ * @param {string} name - User's full name.
+ * @param {string} email - User's email address.
+ * @param {string} password - Plain text password to register.
+ * @returns {Promise<Object>} Newly created user record.
+ */
 async function signup(name, email, password) {
     return await registerUser(name, email, password)
     
 }
 
+/**
+ * Authenticate a user and create a session.
+ *
+ * @param {string} email - User's email.
+ * @param {string} password - User's password.
+ * @returns {Promise<{user: Object, sessionId: string} | null>} Authenticated user and session ID, or null if invalid login.
+ */
 async function login(email, password) {
     const user = await loginUser(email, password);
     if (!user) return null;
@@ -39,6 +54,13 @@ async function login(email, password) {
     return { user, sessionId };
 }
 
+
+/**
+ * Log out a user by deleting their session.
+ *
+ * @param {string} sessionId - The session ID to remove.
+ * @returns {Promise<void>}
+ */
 async function logout(sessionId) {
     await deleteSession(sessionId)
     
@@ -73,6 +95,13 @@ async function getAlbum(albumId){
     return album
 }
 
+/**
+ * Get an album by name and return only photos visible to the current user.
+ *
+ * @param {string} albumName - Name of the album to search for.
+ * @param {string} currentUserEmail - Email of the user requesting the photos.
+ * @returns {Promise<{album: Object, photos: Object[] } | null>} Album and filtered photos, or null if album not found.
+ */
 async function getByAlbum(albumName, currentUserEmail) {
     const album = await findAlbumbyName(albumName)
     if (!album) return null
