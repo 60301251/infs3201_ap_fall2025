@@ -226,18 +226,30 @@ async function listPhotoComments(photoId) {
     return items
 }
 
-async function getPhotosByAlbum(albumId, currentUserEmail) {
-    const photos = await persistance.loadPhoto();
-    let visiblePhotos = [];
+async function getPhotosByAlbum(albumId, userEmail) {
+    const photos = await loadPhoto();
+    let result = [];
 
-    for (let photo of photos) {
-        if ((photo.albums || []).includes(albumId)) {
-            if (photo.visibility === "public" || photo.ownerEmail === currentUserEmail) {
-                visiblePhotos.push(photo);
+    for (let i = 0; i < photos.length; i++) {
+        const photo = photos[i];
+        let inAlbum = false;
+        if (photo.albums) {
+            for (let j = 0; j < photo.albums.length; j++) {
+                if (photo.albums[j] === albumId) {
+                    inAlbum = true;
+                    break;
+                }
             }
         }
+
+        if (!inAlbum) continue;
+
+        if (photo.visibility === "public" || photo.ownerEmail === userEmail) {
+            result.push(photo);
+        }
     }
-    return visiblePhotos;
+
+    return result;
 }
 
 module.exports={
