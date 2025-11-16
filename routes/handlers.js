@@ -328,7 +328,7 @@ router.get('/album/:id', requireLogin, async (req, res) => {
         albumName: album.name,
         photos: photos
     })
-  }
+})
 
 /**
  * @route GET /signup
