@@ -324,9 +324,11 @@ router.get('/album/:id', requireLogin, async (req, res) => {
     return res.render('album', { album, photos: [], user: req.user, layout: undefined })
   }
 
-  res.render('album', { album: result.album, photos: result.photos, user: req.user, layout: undefined })
-})
-
+  res.render('album_gallery', {
+        albumName: album.name,
+        photos: photos
+    })
+  }
 
 /**
  * @route GET /signup
