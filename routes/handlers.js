@@ -369,20 +369,20 @@ router.post('/signup', async (req, res) => {
 })
 
 router.get('/album/:name', async (req, res) => {
-    const albumName = req.params.name;
-    const album = await business.findAlbumbyName(albumName);
+    const albumName = req.params.name
+    const album = await business.findAlbumbyName(albumName)
 
     if (!album) {
-        return res.render('error', { message: "Album not found" });
+        return res.render('error', { message: "Album not found" })
     }
 
-    const photos = await business.getPhotosByAlbum(album.id, req.session.userEmail);
+    const photos = await business.getPhotosByAlbum(album.id, req.session.userEmail)
 
     res.render('album_gallery', {
         albumName: album.name,
         photos: photos
-    });
-});
+    })
+})
 
 
 /**

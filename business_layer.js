@@ -24,7 +24,6 @@ const{
     createSession,
     getUserBySession,
     deleteSession,
-    findAlbumById
 } = require('./persistance_layer')
 
 /**
@@ -227,17 +226,17 @@ async function listPhotoComments(photoId) {
 }
 
 async function getPhotosByAlbum(albumId, userEmail) {
-    const photos = await loadPhoto();
-    let result = [];
+    const photos = await loadPhoto()
+    let result = []
 
     for (let i = 0; i < photos.length; i++) {
-        const photo = photos[i];
-        let inAlbum = false;
+        const photo = photos[i]
+        let inAlbum = false
         if (photo.albums) {
             for (let j = 0; j < photo.albums.length; j++) {
                 if (photo.albums[j] === albumId) {
-                    inAlbum = true;
-                    break;
+                    inAlbum = true
+                    break
                 }
             }
         }
@@ -245,11 +244,11 @@ async function getPhotosByAlbum(albumId, userEmail) {
         if (!inAlbum) continue;
 
         if (photo.visibility === "public" || photo.ownerEmail === userEmail) {
-            result.push(photo);
+            result.push(photo)
         }
     }
 
-    return result;
+    return result
 }
 
 module.exports={

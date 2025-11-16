@@ -1,8 +1,7 @@
 <h1>Photo Albums</h1>
-
+<link rel="stylesheet" href="/public/styles/gallery.css">
 <ul>
 {{#each albums}}
-    <link rel="stylesheet" href="public/styles/gallery.css">
     <li><a href="/album/{{id}}">{{name}}</a></li>
 {{/each}}
 </ul>
