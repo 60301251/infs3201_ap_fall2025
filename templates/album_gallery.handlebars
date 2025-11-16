@@ -13,7 +13,9 @@
     {{#if photos.length}}
         {{#each photos}}
             <div class="photo-card">
-                <img src="/uploads/{{this.filename}}" alt="{{this.title}}" />
+                <a href="/photo/{{this.id}}">
+                    <img src="/photos/{{this.filename}}" alt="{{this.title}}" />
+                </a>
                 <p>{{this.title}}</p>
             </div>
         {{/each}}
