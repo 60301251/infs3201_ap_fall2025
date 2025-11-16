@@ -23,7 +23,8 @@ const{
     getCommentsByPhoto,
     createSession,
     getUserBySession,
-    deleteSession
+    deleteSession,
+    findAlbumById
 } = require('./persistance_layer')
 
 /**
@@ -112,7 +113,6 @@ async function getByAlbum(albumName, currentUserId) {
   for (let i = 0; i < photos.length; i++) {
     const p = photos[i]
 
-    // Check if this photo belongs to the album
     let inAlbum = false
     const al = p.albums || []
     for (let j = 0; j < al.length; j++) {
@@ -226,6 +226,20 @@ async function listPhotoComments(photoId) {
     return items
 }
 
+async function getPhotosByAlbum(albumId, currentUserEmail) {
+    const photos = await persistance.loadPhoto();
+    let visiblePhotos = [];
+
+    for (let photo of photos) {
+        if ((photo.albums || []).includes(albumId)) {
+            if (photo.visibility === "public" || photo.ownerEmail === currentUserEmail) {
+                visiblePhotos.push(photo);
+            }
+        }
+    }
+    return visiblePhotos;
+}
+
 module.exports={
     signup,
     login,
@@ -239,5 +253,6 @@ module.exports={
     loginUser,
     logout,
     getUserBySession,
-    createSession
+    createSession,
+    getPhotosByAlbum
 }

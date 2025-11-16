@@ -1,0 +1,38 @@
+{{!-- Album Gallery Page --}}
+<h1>{{albumName}}</h1>
+
+<div class="gallery-grid">
+    {{#if photos.length}}
+        {{#each photos}}
+            <div class="photo-card">
+                <img src="/uploads/{{this.filename}}" alt="{{this.title}}" />
+                <p>{{this.title}}</p>
+            </div>
+        {{/each}}
+    {{else}}
+        <p>No photos in this album yet.</p>
+    {{/if}}
+</div>
+
+<style>
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .photo-card img {
+        max-width: 200px;
+        max-height: 200px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+    }
+
+    .photo-card p {
+        text-align: center;
+        margin-top: 5px;
+        font-size: 14px;
+    }
+</style>

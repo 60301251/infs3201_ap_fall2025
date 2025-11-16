@@ -1,0 +1,17 @@
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    padding: 20px;
+}
+
+.photo-box {
+    text-align: center;
+}
+
+.photo-box img {
+    max-width: 200px;
+    max-height: 200px;
+    object-fit: cover; 
+    border-radius: 8px;
+}

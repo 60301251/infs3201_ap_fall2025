@@ -412,6 +412,11 @@ async function deleteSession(sessionId) {
     await sessions.deleteOne({ sessionId });
 }
 
+async function findAlbumById(id) {
+    const albums = await loadAlbum();
+    return albums.find(a => a.id == id);
+}
+
 
 module.exports={
     registerUser,
@@ -429,5 +434,6 @@ module.exports={
     getCommentsByPhoto,
     createSession,
     getUserBySession,
-    deleteSession
+    deleteSession,
+    findAlbumById
 }

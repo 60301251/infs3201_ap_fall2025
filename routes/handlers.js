@@ -368,6 +368,23 @@ router.post('/signup', async (req, res) => {
   }
 })
 
+router.get('/album/:albumId/gallery', async (req, res) => {
+    const albumId = req.params.albumId;
+    const currentUserEmail = req.session.user?.email;
+
+    const photos = await business.getPhotosByAlbum(albumId, currentUserEmail);
+    const album = await business.findAlbumById(albumId);
+
+    if (!album) {
+        return res.status(404).send("Album not found");
+    }
+
+    res.render('album_gallery', {
+        album,
+        photos
+    });
+});
+
 /**
  * @exports router
  * @description Exports the Express router handling all photo and album routes.
