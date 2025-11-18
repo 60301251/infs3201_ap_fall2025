@@ -5,7 +5,7 @@
 *                     Aysha Sultana_60099830
 * 
 * INFS3201-5/6- Web Tech 2 
-* Project Phase 1
+* Project Phase 2
 */
 
 const{
@@ -23,7 +23,7 @@ const{
     getCommentsByPhoto,
     createSession,
     getUserBySession,
-    deleteSession
+    deleteSession,
 } = require('./persistance_layer')
 
 // === ADDED FOR PHASE 2 SEARCH FEATURE ===
@@ -115,7 +115,6 @@ async function getByAlbum(albumName, currentUserId) {
   for (let i = 0; i < photos.length; i++) {
     const p = photos[i]
 
-    // Check if this photo belongs to the album
     let inAlbum = false
     const al = p.albums || []
     for (let j = 0; j < al.length; j++) {
@@ -245,8 +244,34 @@ async function searchPhotos(searchTerm) {
     }
     const photos = await searchPublicPhotos(trimmed)
     return photos
+
+async function getPhotosByAlbum(albumId, userEmail) {
+    const photos = await loadPhoto()
+    let result = []
+
+    for (let i = 0; i < photos.length; i++) {
+        const photo = photos[i]
+        let inAlbum = false
+        if (photo.albums) {
+            for (let j = 0; j < photo.albums.length; j++) {
+                if (photo.albums[j] === albumId) {
+                    inAlbum = true
+                    break
+                }
+            }
+        }
+
+        if (!inAlbum) continue;
+
+        if (photo.visibility === "public" || photo.ownerEmail === userEmail) {
+            result.push(photo)
+        }
+    }
+
+    return result
 }
 
+}
 module.exports={
     signup,
     login,

@@ -5,7 +5,7 @@
 *                     Aysha Sultana_60099830
 * 
 * INFS3201-5/6- Web Tech 2 
-* Project Phase 1
+* Project Phase 2
 */
 
 const{ MongoClient}=require('mongodb')
@@ -446,6 +446,8 @@ async function searchPublicPhotos(searchTerm) {
 }
 
 
+
+
 module.exports={
     registerUser,
     loginUser,
@@ -462,7 +464,7 @@ module.exports={
     getCommentsByPhoto,
     createSession,
     getUserBySession,
-    deleteSession
+    deleteSession,
 }
 
 /** Export for Phase 2 search feature
