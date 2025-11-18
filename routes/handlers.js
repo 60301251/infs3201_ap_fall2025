@@ -327,6 +327,31 @@ router.get('/album/:id', requireLogin, async (req, res) => {
   res.render('album', { album: result.album, photos: result.photos, user: req.user, layout: undefined })
 })
 
+// FOR PHASE 2 SEARCH FEATURE
+/**
+ * @route GET /search
+ * @description Search public photos by title, description, or tags and render them in a grid.
+ * @async
+ * @param {express.Request} req
+ * @param {express.Response} res
+ * @returns {Promise<void>}
+ */
+router.get('/search', requireLogin, async (req, res) => {
+  const raw = req.query.q || ''
+  const searchTerm = String(raw).trim()
+
+  try {
+    const photos = await business.searchPhotos(searchTerm)
+    res.render('search', {
+      photos: photos,
+      searchTerm: searchTerm,
+      user: req.user,
+      layout: undefined
+    })
+  } catch {
+    res.render('error', { message: "Search failed.", layout: undefined })
+  }
+})
 
 /**
  * @route GET /signup

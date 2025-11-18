@@ -26,6 +26,9 @@ const{
     deleteSession
 } = require('./persistance_layer')
 
+// === ADDED FOR PHASE 2 SEARCH FEATURE ===
+const { searchPublicPhotos } = require('./persistance_layer')
+
 /**
  * Register a new user.
  *
@@ -226,6 +229,24 @@ async function listPhotoComments(photoId) {
     return items
 }
 
+
+// FOR PHASE 2 SEARCH FEATURE
+/**
+ * Search public photos by title, description, or tags.
+ *
+ * @param {string} searchTerm - Text entered by the user.
+ * @returns {Promise<Object[]>} Matching public photo objects.
+ */
+async function searchPhotos(searchTerm) {
+    const term = typeof searchTerm === 'string' ? searchTerm : ''
+    const trimmed = term.trim()
+    if (!trimmed) {
+        return []
+    }
+    const photos = await searchPublicPhotos(trimmed)
+    return photos
+}
+
 module.exports={
     signup,
     login,
@@ -241,3 +262,6 @@ module.exports={
     getUserBySession,
     createSession
 }
+
+/** Export for Phase 2 search feature */
+module.exports.searchPhotos = searchPhotos
