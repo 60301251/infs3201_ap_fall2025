@@ -480,52 +480,33 @@ router.get("/:albumId/upload", function(req, res) {
     })
 })
 
-router.get("/:albumId/upload", function(req, res) {
-    if (!req.session.isLoggedIn) {
-        return res.redirect("/login")
-    }
+// router.get("/:albumId/upload", function(req, res) {
+//     if (!req.session.isLoggedIn) {
+//         return res.redirect("/login")
+//     }
 
-    var album = albumManager.getAlbum(req.params.albumId)
+//     var album = albumManager.getAlbum(req.params.albumId)
 
-    if (!album || album.userId !== req.session.userId) {
-        return res.redirect("/albums")
-    }
+//     if (!album || album.userId !== req.session.userId) {
+//         return res.redirect("/albums")
+//     }
 
-    res.render("pages/upload", {
-        album: album,
-        session: req.session,
-        notifications: notificationService.getNotifications(req)
-    })
-})
+//     res.render("pages/upload", {
+//         album: album,
+//         session: req.session,
+//         notifications: notificationService.getNotifications(req)
+//     })
+// })
 
-router.post("/:albumId/upload", upload.single("photo"), function(req, res) {
-    if (!req.session.isLoggedIn) {
-        return res.redirect("/login")
-    }
+router.post('/album/:albumid/upload', (req, res) => {
+    let user = req.session.user
+    if (!user) return res.redirect('/login')
 
-    var albumId = req.params.albumId;
-    var album = albumManager.getAlbum(albumId)
+    let albumid = req.params.albumid
 
-    
-    if (!album || album.userId !== req.session.userId) {
-        return res.redirect("/albums")
-    }
-
-    if (!req.file) {
-        return res.redirect("/albums/" + albumId)
-    }
-
-    photoManager.addPhoto({
-        albumId: albumId,
-        userId: req.session.userId,
-        fileName: req.file.filename,
-        title: "",
-        description: "",
-        tags: [],
-        private: true,
-    })
-
-    res.redirect("/albums/" + albumId)
+    business.uploadPhoto(user.userid, albumid, req.files.photo)
+        .then(() => res.redirect('/album/' + albumid))
+        .catch(err => res.render('error', { message: err }))
 })
 
 
