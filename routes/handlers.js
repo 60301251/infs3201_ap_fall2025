@@ -24,7 +24,10 @@ const persistance = require('../persistance_layer')
  * @returns {void}
  */
 function requireLogin(req, res, next) {
-  if (!req.user) return res.redirect('/login')
+  if (!req.session || !req.session.user) {
+    return res.redirect('/login')
+  }
+  req.user = req.session.user
   next()
 }
 
@@ -474,6 +477,9 @@ router.get('/:albumId/upload', requireLogin, async (req, res) => {
 
 })
 
+router.get('/:albumId/upload', requireLogin, async (req, res) => {
+  const albumId = Number(req.params.albumId)
+  const album = await business.getAlbum(albumId)
 
 // router.get("/:albumId/upload", function(req, res) {
 //     if (!req.session.isLoggedIn) {
@@ -507,8 +513,6 @@ router.post('/album/:albumId/upload', requireLogin, async (req, res) => {
     await business.uploadPhoto(req.user.id, albumId, file)
     res.redirect('/album/' + albumId)
 })
-
-
 
 
 
