@@ -412,7 +412,7 @@ async function deleteSession(sessionId) {
     await sessions.deleteOne({ sessionId });
 }
 
-// FOR PHASE 2 SEARCH FEATURE
+
 /**
  * Search public photos by title, description, or tags.
  * @async
@@ -424,27 +424,19 @@ async function searchPublicPhotos(searchTerm) {
     const db = client.db('INFS3201_fall2025')
     const photos = db.collection('photos')
 
-    // Ensure searchTerm is a clean string
     const term = String(searchTerm || '').trim()
     if (!term) {
-
-        return []
+        return [];
     }
 
     const query = {
         visibility: 'public',
-        $or: [
-            { title:       { $regex: term, $options: 'i' } },
-            { description: { $regex: term, $options: 'i' } },
-            { tags:        { $regex: term, $options: 'i' } }
-        ]
-    }
+        $text: { $search: term }  }
 
     const cursor = await photos.find(query)
     const result = await cursor.toArray()
     return result
 }
-
 
 
 

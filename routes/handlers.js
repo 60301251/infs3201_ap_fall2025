@@ -334,7 +334,7 @@ router.get('/album/:id', requireLogin, async (req, res) => {
 })
 
 
-// FOR PHASE 2 SEARCH FEATURE
+
 /**
  * @route GET /search
  * @description Search public photos by title, description, or tags and render them in a grid.

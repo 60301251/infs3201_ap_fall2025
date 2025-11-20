@@ -24,10 +24,8 @@ const{
     createSession,
     getUserBySession,
     deleteSession,
+    searchPublicPhotos
 } = require('./persistance_layer')
-
-// === ADDED FOR PHASE 2 SEARCH FEATURE ===
-const { searchPublicPhotos } = require('./persistance_layer')
 
 /**
  * Register a new user.
@@ -126,7 +124,7 @@ async function getByAlbum(albumName, currentUserId) {
 
     if (!inAlbum) continue
 
-    // Show photo if it's public or owned by the current user
+   
     const vis = p.visibility || 'public'
     if (vis === 'public' || Number(p.ownerId) === Number(currentUserId)) {
       visiblePhotos.push(p)
@@ -229,7 +227,6 @@ async function listPhotoComments(photoId) {
 }
 
 
-// FOR PHASE 2 SEARCH FEATURE
 /**
  * Search public photos by title, description, or tags.
  *
@@ -285,8 +282,6 @@ module.exports={
     loginUser,
     logout,
     getUserBySession,
-    createSession
+    createSession,
+    searchPhotos
 }
-
-/** Export for Phase 2 search feature */
-module.exports.searchPhotos = searchPhotos
