@@ -498,7 +498,7 @@ router.get("/:albumId/upload", function(req, res) {
 //     })
 // })
 
-router.post('/album/:albumid/upload', (req, res) => {
+router.post('/album/:id/upload', (req, res) => {
     let user = req.session.user
     if (!user) return res.redirect('/login')
 
