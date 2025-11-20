@@ -242,6 +242,16 @@ async function searchPhotos(searchTerm) {
     const photos = await searchPublicPhotos(trimmed)
     return photos
 
+
+/**
+ * Retrieves all photos that belong to a specific album and are visible to the user.
+ *
+ * @async
+ * @param {string} albumId - The ID of the album to filter photos by.
+ * @param {string} userEmail - The email of the current user to check for private photo access.
+ * @returns {Promise<Array<Object>>} A promise that resolves to an array of photo objects 
+ *   that belong to the album and are either public or owned by the user.
+ */
 async function getPhotosByAlbum(albumId, userEmail) {
     const photos = await loadPhoto()
     let result = []
@@ -267,7 +277,6 @@ async function getPhotosByAlbum(albumId, userEmail) {
 
     return result
 }
-
 }
 module.exports={
     signup,
