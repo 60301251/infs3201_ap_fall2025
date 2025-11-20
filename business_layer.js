@@ -279,28 +279,20 @@ async function getPhotosByAlbum(albumId, userEmail) {
 }
 
 async function uploadPhoto(userid, albumid, file) {
-    await new Promise((resolve, reject) => {
+    if (!file) return reject("No file uploaded")
 
-        if (!file) return reject("No file uploaded")
-
-        let photo = {
+    let photo = {
             title: "",
             description: "",
             tags: "",
             isPrivate: true,
             filename: file.name
-        };
+        }
 
-        persistance.savePhoto(userid, albumid, photo, file)
-            .then(resolve)
-            .catch(reject)
-    })
+        return await persistance.savePhoto(userid, albumid, photo, file)
+    }
 }
 
-
-
-
-}
 module.exports={
     signup,
     login,
