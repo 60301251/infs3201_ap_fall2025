@@ -13,6 +13,10 @@ const router = express.Router()
 const business = require('../business_layer')
 const persistance = require('../persistance_layer')
 
+const fs = require('fs')
+const path = require('path')
+
+
 /**
  * Middleware to ensure the user is logged in.
  *
