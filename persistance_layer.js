@@ -473,6 +473,14 @@ async function searchPublicPhotos(searchTerm) {
     return result
 }
 
+function sendMail(to, subject, body) {
+  console.log('--- sendMail called ---')
+  console.log('to:', to)
+  console.log('subject:', subject)
+  console.log('body:', body)
+  console.log('-----------------------')
+}
+
 
 
 module.exports={
