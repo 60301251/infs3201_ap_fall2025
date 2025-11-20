@@ -16,7 +16,7 @@
 <p>No photos in this album yet.</p>
 {{/if}}
 
-<form action="/album/{{albumid}}/upload" method="POST" enctype="multipart/form-data">
+<form action="/album/{{album.id}}/upload" method="POST" enctype="multipart/form-data">
     <input type="file" name="photo" required>
     <button type="submit">Upload Photo</button>
 </form>
