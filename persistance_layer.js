@@ -500,9 +500,7 @@ module.exports={
     createSession,
     getUserBySession,
     deleteSession,
+    searchPublicPhotos,
+    sendMail
 }
 
-/** Export for Phase 2 search feature
-Allows the business layer to access MongoDB search for public photos
-*/
-module.exports.searchPublicPhotos = searchPublicPhotos
