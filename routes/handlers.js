@@ -481,23 +481,12 @@ router.get('/:albumId/upload', requireLogin, async (req, res) => {
   const albumId = Number(req.params.albumId)
   const album = await business.getAlbum(albumId)
 
-// router.get("/:albumId/upload", function(req, res) {
-//     if (!req.session.isLoggedIn) {
-//         return res.redirect("/login")
-//     }
+  if (!album || Number(album.ownerId) !== Number(req.user.id)) {
+    return res.redirect('/albums')
+  }
 
-//     var album = albumManager.getAlbum(req.params.albumId)
-
-//     if (!album || album.userId !== req.session.userId) {
-//         return res.redirect("/albums")
-//     }
-
-//     res.render("pages/upload", {
-//         album: album,
-//         session: req.session,
-//         notifications: notificationService.getNotifications(req)
-//     })
-// })
+  res.render('upload', { album, user: req.user, layout: undefined })
+})
 
 router.post('/album/:albumId/upload', requireLogin, async (req, res) => {
     const albumId = Number(req.params.albumId)
