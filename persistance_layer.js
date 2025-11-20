@@ -8,6 +8,8 @@
 * Project Phase 2
 */
 
+const fs = require('fs')
+const path = require('path')
 const{ MongoClient}=require('mongodb')
 const crypto=require('crypto')
 
@@ -151,14 +153,51 @@ async function loadPhoto(){
  * @param {Object} photo
  * @returns {Promise<void>}
  */
-async function savePhoto(photo) {
-    await connectDatabase()
-    const db = client.db('INFS3201_fall2025')
-    await db.collection('photos').updateOne(
-        { id: Number(photo.id) },
-        { $set: photo },
-        { upsert: true }
-  )
+function savePhoto(userid, albumid, photo, uploadedFile) {
+    return new Promise((resolve, reject) => {
+
+        let dir = path.join(__dirname, '../photos', userid, albumid)
+
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true })
+        }
+
+        let savePath = path.join(dir, uploadedFile.name)
+
+        uploadedFile.mv(savePath, err => {
+            if (err) return reject("Failed to save photo")
+
+            let db = loadDB()
+
+            let userIndex = -1;
+            for (let i = 0; i < db.users.length; i++) {
+                if (db.users[i].userid == userid) {
+                    userIndex = i
+                    break
+                }
+            }
+
+            if (userIndex == -1) return reject("User not found")
+
+            let albumList = db.users[userIndex].albums
+            let albumIndex = -1
+            for (let i = 0; i < albumList.length; i++) {
+                if (albumList[i].albumid == albumid) {
+                    albumIndex = i
+                    break
+                }
+            }
+
+            if (albumIndex == -1) return reject("Album not found")
+
+            
+            db.users[userIndex].albums[albumIndex].photos.push(photo)
+
+            saveDB(db)
+
+            resolve()
+        })
+    })
 }
     
 /**
