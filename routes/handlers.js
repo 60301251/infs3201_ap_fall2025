@@ -330,7 +330,7 @@ router.get('/album/:id', requireLogin, async (req, res) => {
 })
 
 
-// FOR PHASE 2 SEARCH FEATURE
+
 /**
  * @route GET /search
  * @description Search public photos by title, description, or tags and render them in a grid.
@@ -397,6 +397,22 @@ router.post('/signup', async (req, res) => {
   }
 })
 
+/**
+ * GET /album/:name
+ * 
+ * Renders the gallery page for a specific album.
+ *
+ * @async
+ * @param {Object} req - Express request object.
+ * @param {Object} req.params - Route parameters.
+ * @param {string} req.params.name - The name of the album to display.
+ * @param {Object} req.session - Session object containing user information.
+ * @param {string} req.session.userEmail - The email of the current user.
+ * @param {Object} res - Express response object.
+ *
+ * @returns {void} Renders 'album_gallery' view with album photos if found,
+ *   otherwise renders 'error' view with a not found message.
+ */
 router.get('/album/:name', async (req, res) => {
     const albumName = req.params.name
     const album = await business.findAlbumbyName(albumName)
@@ -412,6 +428,15 @@ router.get('/album/:name', async (req, res) => {
         photos: photos
     })
 })
+
+/**
+ * GET /album/:id/gallery
+ * Renders the gallery for a specific album (requires login).
+ *
+ * @async
+ * @param {Object} req - Express request (params.id, user)
+ * @param {Object} res - Express response
+ */
 router.get('/album/:id/gallery', requireLogin, async (req, res) => {
     const albumId = Number(req.params.id)
 
@@ -472,7 +497,6 @@ router.get("/:albumId/upload", function(req, res) {
         notifications: notificationService.getNotifications(req)
     })
 })
-
 
 
 

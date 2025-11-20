@@ -24,10 +24,8 @@ const{
     createSession,
     getUserBySession,
     deleteSession,
+    searchPublicPhotos
 } = require('./persistance_layer')
-
-// === ADDED FOR PHASE 2 SEARCH FEATURE ===
-const { searchPublicPhotos } = require('./persistance_layer')
 
 /**
  * Register a new user.
@@ -126,7 +124,7 @@ async function getByAlbum(albumName, currentUserId) {
 
     if (!inAlbum) continue
 
-    // Show photo if it's public or owned by the current user
+   
     const vis = p.visibility || 'public'
     if (vis === 'public' || Number(p.ownerId) === Number(currentUserId)) {
       visiblePhotos.push(p)
@@ -229,7 +227,6 @@ async function listPhotoComments(photoId) {
 }
 
 
-// FOR PHASE 2 SEARCH FEATURE
 /**
  * Search public photos by title, description, or tags.
  *
@@ -245,6 +242,16 @@ async function searchPhotos(searchTerm) {
     const photos = await searchPublicPhotos(trimmed)
     return photos
 
+
+/**
+ * Retrieves all photos that belong to a specific album and are visible to the user.
+ *
+ * @async
+ * @param {string} albumId - The ID of the album to filter photos by.
+ * @param {string} userEmail - The email of the current user to check for private photo access.
+ * @returns {Promise<Array<Object>>} A promise that resolves to an array of photo objects 
+ *   that belong to the album and are either public or owned by the user.
+ */
 async function getPhotosByAlbum(albumId, userEmail) {
     const photos = await loadPhoto()
     let result = []
@@ -270,7 +277,6 @@ async function getPhotosByAlbum(albumId, userEmail) {
 
     return result
 }
-
 }
 module.exports={
     signup,
@@ -285,8 +291,6 @@ module.exports={
     loginUser,
     logout,
     getUserBySession,
-    createSession
+    createSession,
+    searchPhotos
 }
-
-/** Export for Phase 2 search feature */
-module.exports.searchPhotos = searchPhotos
