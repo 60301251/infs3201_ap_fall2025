@@ -22,6 +22,14 @@
     {{else}}
         <p>No photos in this album yet.</p>
     {{/if}}
+
+    {{#if user}}
+<form action="/album/{{album.id}}/upload" method="POST" enctype="multipart/form-data">
+    <input type="file" name="photo" required>
+    <button type="submit">Upload Photo</button>
+</form>
+{{/if}}
+
 </div>
 
 <a class="back-link" href="/">Back to Albums</a>

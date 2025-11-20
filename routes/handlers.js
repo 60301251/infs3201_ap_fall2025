@@ -470,6 +470,8 @@ router.get('/:albumId/upload', requireLogin, async (req, res) => {
     }
 
     res.render('upload', { album, user: req.user, layout: undefined })
+    res.render('album_gallery', { album, photos, user: req.user, layout: undefined })
+
 })
 
 
@@ -491,7 +493,7 @@ router.get('/:albumId/upload', requireLogin, async (req, res) => {
 //     })
 // })
 
-router.post('/:albumId/upload', requireLogin, async (req, res) => {
+router.post('/album/:albumId/upload', requireLogin, async (req, res) => {
     const albumId = Number(req.params.albumId)
     const album = await business.getAlbum(albumId)
 
@@ -499,21 +501,13 @@ router.post('/:albumId/upload', requireLogin, async (req, res) => {
         return res.redirect('/albums')
     }
 
-    if (!req.files || !req.files.photo) {
-        return res.render('error', { message: 'No photo uploaded', layout: undefined })
-    }
+    const file = req.files?.photo
+    if (!file) return res.render('error', { message: 'No file uploaded', layout: undefined })
 
-    const file = req.files.photo
-    const title = (req.body.title || '').trim()
-    const description = (req.body.description || '').trim()
-
-    try {
-        await business.uploadPhoto(req.user.id, albumId, { ...file, title, description })
-        res.redirect(`/album/${albumId}`)
-    } catch (err) {
-        res.render('error', { message: 'Failed to upload photo: ' + err.message, layout: undefined })
-    }
+    await business.uploadPhoto(req.user.id, albumId, file)
+    res.redirect('/album/' + albumId)
 })
+
 
 
 
