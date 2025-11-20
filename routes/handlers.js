@@ -503,8 +503,6 @@ router.post('/album/:albumId/upload', requireLogin, async (req, res) => {
     res.redirect('/album/' + albumId)
 })
 
-
-
 /**
  * @exports router
  * @description Exports the Express router handling all photo and album routes.
