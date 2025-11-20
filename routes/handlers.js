@@ -437,6 +437,24 @@ router.get('/album/:id/gallery', requireLogin, async (req, res) => {
     }
 })
 
+router.get("/:albumId/upload", function(req, res) {
+    if (!req.session.isLoggedIn) {
+        return res.redirect("/login")
+    }
+
+    var album = albumManager.getAlbum(req.params.albumId);
+
+    if (!album || album.userId !== req.session.userId) {
+        return res.redirect("/albums")
+    }
+
+    res.render("pages/upload", {
+        album: album,
+        session: req.session,
+        notifications: notificationService.getNotifications(req)
+    })
+})
+
 
 
 /**
