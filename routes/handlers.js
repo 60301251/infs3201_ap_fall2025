@@ -498,6 +498,36 @@ router.get("/:albumId/upload", function(req, res) {
     })
 })
 
+router.post("/:albumId/upload", upload.single("photo"), function(req, res) {
+    if (!req.session.isLoggedIn) {
+        return res.redirect("/login")
+    }
+
+    var albumId = req.params.albumId;
+    var album = albumManager.getAlbum(albumId)
+
+    
+    if (!album || album.userId !== req.session.userId) {
+        return res.redirect("/albums")
+    }
+
+    if (!req.file) {
+        return res.redirect("/albums/" + albumId)
+    }
+
+    photoManager.addPhoto({
+        albumId: albumId,
+        userId: req.session.userId,
+        fileName: req.file.filename,
+        title: "",
+        description: "",
+        tags: [],
+        private: true,
+    })
+
+    res.redirect("/albums/" + albumId)
+})
+
 
 
 /**
