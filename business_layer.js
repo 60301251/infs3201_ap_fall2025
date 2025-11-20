@@ -241,6 +241,7 @@ async function searchPhotos(searchTerm) {
     }
     const photos = await searchPublicPhotos(trimmed)
     return photos
+}
 
 
 /**
@@ -290,8 +291,8 @@ async function uploadPhoto(userid, albumid, file) {
         }
 
         return await persistance.savePhoto(userid, albumid, photo, file)
-    }
 }
+
 
 module.exports={
     signup,
