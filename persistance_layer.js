@@ -154,51 +154,47 @@ async function loadPhoto(){
  * @returns {Promise<void>}
  */
 function savePhoto(userid, albumid, photo, uploadedFile) {
-    return new Promise((resolve, reject) => {
+   let dir = path.join(__dirname, '../photos', userid, albumid)
 
-        let dir = path.join(__dirname, '../photos', userid, albumid)
+   if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true })
+    }
 
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true })
+    let savePath = path.join(dir, uploadedFile.name)
+
+    try {
+        fs.writeFileSync(savePath, uploadedFile.data)
+    } catch (err) {
+        throw new Error("Failed to save photo")
+    }
+
+    let db = loadDB()
+    let userIndex = -1;
+    for (let i = 0; i < db.users.length; i++) {
+        if (db.users[i].userid == userid) {
+            userIndex = i
+            break
         }
+    }
 
-        let savePath = path.join(dir, uploadedFile.name)
+    if (userIndex == -1) throw new Error("User not found")
 
-        uploadedFile.mv(savePath, err => {
-            if (err) return reject("Failed to save photo")
+    let albumList = db.users[userIndex].albums
+    let albumIndex = -1
+    for (let i = 0; i < albumList.length; i++) {
+        if (albumList[i].albumid == albumid) {
+            albumIndex = i
+            break
+        }
+    }
 
-            let db = loadDB()
+    if (albumIndex == -1) throw new Error("Album not found")
 
-            let userIndex = -1;
-            for (let i = 0; i < db.users.length; i++) {
-                if (db.users[i].userid == userid) {
-                    userIndex = i
-                    break
-                }
-            }
+    db.users[userIndex].albums[albumIndex].photos.push(photo)
 
-            if (userIndex == -1) return reject("User not found")
-
-            let albumList = db.users[userIndex].albums
-            let albumIndex = -1
-            for (let i = 0; i < albumList.length; i++) {
-                if (albumList[i].albumid == albumid) {
-                    albumIndex = i
-                    break
-                }
-            }
-
-            if (albumIndex == -1) return reject("Album not found")
-
-            
-            db.users[userIndex].albums[albumIndex].photos.push(photo)
-
-            saveDB(db)
-
-            resolve()
-        })
-    })
+    saveDB(db)
 }
+
     
 /**
  * To load albums from the file
