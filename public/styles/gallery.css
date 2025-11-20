@@ -240,3 +240,10 @@ form input, form select, form textarea {
 form button {
     margin-top: 10px;
 }
+.photo-grid .photo-card img {
+    width: 75%;      
+    height: auto;     
+    object-fit: contain; 
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
