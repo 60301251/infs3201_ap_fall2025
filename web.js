@@ -5,7 +5,7 @@
 *                     Aysha Sultana_60099830
 * 
 * INFS3201-5/6- Web Tech 2 
-* Project Phase 1
+* Project Phase 2
 */
 
 
@@ -29,6 +29,8 @@ const PORT=8000
  */
 app.use(bodyParser.urlencoded({extended: true}))
 app.use('/photos', express.static(path.join(__dirname,'photos')))
+app.use(express.static(path.join(__dirname, 'public')))
+
 app.use(cookieParser())
 
 

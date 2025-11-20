@@ -5,7 +5,7 @@
 *                     Aysha Sultana_60099830
 * 
 * INFS3201-5/6- Web Tech 2 
-* Project Phase 1
+* Project Phase 2
 */
 
 const{ MongoClient}=require('mongodb')
@@ -412,6 +412,41 @@ async function deleteSession(sessionId) {
     await sessions.deleteOne({ sessionId });
 }
 
+// FOR PHASE 2 SEARCH FEATURE
+/**
+ * Search public photos by title, description, or tags.
+ * @async
+ * @param {string} searchTerm - Text to search for.
+ * @returns {Promise<Object[]>} Matching public photos.
+ */
+async function searchPublicPhotos(searchTerm) {
+    await connectDatabase()
+    const db = client.db('INFS3201_fall2025')
+    const photos = db.collection('photos')
+
+    // Ensure searchTerm is a clean string
+    const term = String(searchTerm || '').trim()
+    if (!term) {
+
+        return []
+    }
+
+    const query = {
+        visibility: 'public',
+        $or: [
+            { title:       { $regex: term, $options: 'i' } },
+            { description: { $regex: term, $options: 'i' } },
+            { tags:        { $regex: term, $options: 'i' } }
+        ]
+    }
+
+    const cursor = await photos.find(query)
+    const result = await cursor.toArray()
+    return result
+}
+
+
+
 
 module.exports={
     registerUser,
@@ -429,5 +464,10 @@ module.exports={
     getCommentsByPhoto,
     createSession,
     getUserBySession,
-    deleteSession
+    deleteSession,
 }
+
+/** Export for Phase 2 search feature
+Allows the business layer to access MongoDB search for public photos
+*/
+module.exports.searchPublicPhotos = searchPublicPhotos

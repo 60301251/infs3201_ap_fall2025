@@ -5,7 +5,7 @@
 *                     Aysha Sultana_60099830
 * 
 * INFS3201-5/6- Web Tech 2 
-* Project Phase 1
+* Project Phase 2
 */
 
 const express = require('express')
@@ -136,7 +136,11 @@ router.get('/photo/:id', requireLogin, async (req, res) => {
     if (!photo) {
       return res.render('error', { message: "Photo not found", layout: undefined })
     }
-    if (photo.visibility === 'private' && !req.user) {
+
+    if (
+      photo.visibility === 'private' &&
+      (!req.user || Number(req.user.id) !== Number(photo.ownerId))
+    ) {
       return res.render('error', { message: "This photo is private", layout: undefined })
     }
 
@@ -164,8 +168,8 @@ router.get('/photo/:id/edit', requireLogin, async (req, res) => {
 
   try {
     const photo = await business.getPhoto(photoId)
-    if (!photo || photo.ownerId !== req.user.id) {
-      return res.render('error', { message: "You can only edit your own photos.", layout: undefined })
+    if (!photo || Number(photo.ownerId) !== Number(req.user.id)) {
+    return res.render('error', { message: "You can only edit your own photos.", layout: undefined })
     }
 
     const visibilityOptions = [
@@ -236,8 +240,8 @@ router.post('/photo/:id/tag', requireLogin, async (req, res) => {
       return res.render('error', { message: "Photo not found.", layout: undefined })
     }
 
-    if (photo.ownerId !== req.user.id) {
-      return res.render('error', { message: "You can only tag your own photo.", layout: undefined })
+    if (Number(photo.ownerId) !== Number(req.user.id)) {
+    return res.render('error', { message: "You can only tag your own photo.", layout: undefined })
     }
 
     const result = await business.addTag(photoId, tag)
@@ -278,8 +282,9 @@ router.post('/photo/:id/comment', requireLogin, async (req, res) => {
     if (!photo) {
       return res.render('error', { message: "Photo not found.", layout: undefined })
     }
-    if (photo.visibility === "private" && photo.ownerId !== req.user.id) {
-      return res.render('error', { message: "You can only comment on your own private photos.", layout: undefined })
+    
+    if (photo.visibility === "private" && Number(photo.ownerId) !== Number(req.user.id)) {
+    return res.render('error', { message: "You can only comment on your own private photos.", layout: undefined })
     }
 
     const ok = await business.addPhotoComment(photo.id, req.user, text)
@@ -314,12 +319,41 @@ router.get('/album/:id', requireLogin, async (req, res) => {
     return res.render('error', { message: "Album not found", layout: undefined })
   }
 
-  const result = await business.getByAlbum(album.name, req.user?.email)
+  const result = await business.getByAlbum(album.name, req.user?.id)
   if (!result) {
-    return res.render('album', { album, photos: [], user: req.user, layout: undefined })
-  }
+       
+        return res.render('album_gallery', { album, photos: [], user: req.user, layout: undefined })
+    }
 
-  res.render('album', { album: result.album, photos: result.photos, user: req.user, layout: undefined })
+  
+    res.render('album_gallery', { album: result.album, photos: result.photos, user: req.user, layout: undefined })
+})
+
+
+// FOR PHASE 2 SEARCH FEATURE
+/**
+ * @route GET /search
+ * @description Search public photos by title, description, or tags and render them in a grid.
+ * @async
+ * @param {express.Request} req
+ * @param {express.Response} res
+ * @returns {Promise<void>}
+ */
+router.get('/search', requireLogin, async (req, res) => {
+  const raw = req.query.q || ''
+  const searchTerm = String(raw).trim()
+
+  try {
+    const photos = await business.searchPhotos(searchTerm)
+    res.render('search', {
+      photos: photos,
+      searchTerm: searchTerm,
+      user: req.user,
+      layout: undefined
+    })
+  } catch {
+    res.render('error', { message: "Search failed.", layout: undefined })
+  }
 })
 
 
@@ -362,6 +396,48 @@ router.post('/signup', async (req, res) => {
     res.render('error', { message: "Signup failed.", layout: undefined })
   }
 })
+
+router.get('/album/:name', async (req, res) => {
+    const albumName = req.params.name
+    const album = await business.findAlbumbyName(albumName)
+
+    if (!album) {
+        return res.render('error', { message: "Album not found" })
+    }
+
+    const photos = await business.getPhotosByAlbum(album.id, req.session.userEmail)
+
+    res.render('album_gallery', {
+        albumName: album.name,
+        photos: photos
+    })
+})
+router.get('/album/:id/gallery', requireLogin, async (req, res) => {
+    const albumId = Number(req.params.id)
+
+    if (isNaN(albumId)) {
+        return res.render('error', { message: "Invalid album ID.", layout: undefined })
+    }
+    try {
+        const album = await business.getAlbum(albumId)
+        if (!album) {
+            return res.render('error', { message: "Album not found", layout: undefined })
+        } 
+        const photos = await business.getByAlbum(album.name, req.user?.id)
+        res.render('album_gallery', {
+            album: photos?.album || album,
+            photos: photos?.photos || [],
+            user: req.user,
+            layout: undefined
+        });
+
+    } catch (error) {
+        console.error("Error loading album gallery:", error);
+        res.render('error', { message: "Failed to load album gallery.", layout: undefined })
+    }
+})
+
+
 
 /**
  * @exports router

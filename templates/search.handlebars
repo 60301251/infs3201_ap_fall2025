@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Photos</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .page-shell {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .top-bar a {
+            text-decoration: none;
+            color: #1f5fbf;
+            font-weight: bold;
+        }
+
+        .search-title {
+            margin: 0 0 10px 0;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .search-form input[type="text"] {
+            flex: 1;
+            padding: 8px 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        .search-form button {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 4px;
+            background-color: #1f5fbf;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .search-form button:hover {
+            background-color: #17478e;
+        }
+
+        .summary {
+            margin: 0 0 15px 0;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .photo-card {
+            display: block;
+            text-decoration: none;
+            color: #222;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        /* :hover effect for rubric */
+        .photo-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+        }
+
+        .photo-card img {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .photo-info {
+            padding: 8px 10px 10px 10px;
+        }
+
+        .photo-info h3 {
+            margin: 0 0 4px 0;
+            font-size: 15px;
+        }
+
+        .photo-info p {
+            margin: 0;
+            font-size: 13px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+<div class="page-shell">
+
+    <div class="top-bar">
+        <a href="/">← Back to albums</a>
+
+        {{#if user}}
+            <div>
+                <span style="margin-right: 10px;">Logged in as {{user.name}}</span>
+                <a href="/logout">Logout</a>
+            </div>
+        {{/if}}
+    </div>
+
+    <h1 class="search-title">Search photos</h1>
+
+    <form class="search-form" method="get" action="/search">
+        <input
+            type="text"
+            name="q"
+            placeholder="Search by title, description, or tags"
+            value="{{searchTerm}}"
+            required
+        >
+        <button type="submit">Search</button>
+    </form>
+
+    {{#if showNoResults}}
+        <p class="summary">No public photos matched your search.</p>
+    {{/if}}
+
+    {{#if hasResults}}
+        <p class="summary">Showing {{resultCount}} matching public photo(s).</p>
+    {{/if}}
+
+    <div class="photo-grid">
+        {{#each photos}}
+            <a class="photo-card" href="/photo/{{id}}">
+                
+                <img src="/photos/{{filename}}" alt="{{title}}">
+
+                <div class="photo-info">
+                    <h3>{{title}}</h3>
+                    <p>{{description}}</p>
+                </div>
+            </a>
+        {{/each}}
+    </div>
+
+</div>
+</body>
+</html>

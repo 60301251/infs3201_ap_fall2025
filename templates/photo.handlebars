@@ -8,18 +8,31 @@
   <p><a href="/photo/{{photo.id}}/edit">Edit Photo</a></p>
 {{/if}}
 
-<h3>Comments ({{comments.length}})</h3>
-<ul>
-{{#each comments}}
-  <li><strong>{{username}}</strong>: {{text}}</li>
-{{/each}}
-</ul>
+<h3>Comments {{#if comments}}({{comments.length}}){{/if}}</h3>
 
-{{#if user}}
-<form action="/photo/{{photo.id}}/comment" method="POST">
-  <textarea name="comment" required></textarea><br>
-  <button type="submit">Post Comment</button>
-</form>
+{{#if comments}}
+  <ul>
+    {{#each comments}}
+      <li><strong>{{this.userName}}</strong>: {{this.text}}</li>
+    {{/each}}
+  </ul>
+{{else}}
+  <p>No comments yet.</p>
 {{/if}}
 
+<<<<<<< HEAD
 <a href="/album/{{photo.albums.[0]}}">Back to Album</a> 
+=======
+{{#if user}}
+  <form action="/photo/{{photo.id}}/comment" method="POST" style="margin-top:10px;">
+    <textarea name="comment" rows="3" maxlength="500" required></textarea><br>
+    <button type="submit">Post Comment</button>
+  </form>
+{{else}}
+  <p><a href="/login">Log in</a> to add a comment.</p>
+{{/if}}
+
+{{#if photo.albums.[0]}}
+  <a href="/album/{{photo.albums.[0]}}">Back to Album</a>
+{{/if}}
+>>>>>>> 23d55685f542efdb90e0118f962d50f17e3b7b48

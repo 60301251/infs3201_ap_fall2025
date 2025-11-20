@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{albumName}} - Album Gallery</title>
+    <link rel="stylesheet" href="/styles/gallery.css">
+</head>
+<body>
+
+<h1>{{albumName}}</h1>
+
+<div class="gallery-grid">
+    {{#if photos.length}}
+        {{#each photos}}
+            <div class="photo-card">
+                <a href="/photo/{{this.id}}">
+                    <img src="/photos/{{this.filename}}" alt="{{this.title}}" />
+                </a>
+                <p>{{this.title}}</p>
+            </div>
+        {{/each}}
+    {{else}}
+        <p>No photos in this album yet.</p>
+    {{/if}}
+</div>
+
+<a class="back-link" href="/">Back to Albums</a>
+
+</body>
+</html>
