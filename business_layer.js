@@ -279,7 +279,7 @@ async function getPhotosByAlbum(albumId, userEmail) {
 }
 
 async function uploadPhoto(userid, albumid, file) {
-    if (!file) return reject("No file uploaded")
+    if (!file) throw new Error("No file uploaded")
 
     let photo = {
             title: "",
