@@ -370,5 +370,6 @@ module.exports={
     searchPhotos,
     uploadPhoto,
     sendMail,
-    addComment
+    addComment,
+    sendMail
 }
