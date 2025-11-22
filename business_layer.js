@@ -362,6 +362,7 @@ module.exports={
     updatePhoto,
     addTag,
     addPhotoComment,
+    addComment,
     listPhotoComments,
     loginUser,
     logout,
@@ -369,7 +370,5 @@ module.exports={
     createSession,
     searchPhotos,
     uploadPhoto,
-    sendMail,
-    addComment,
     sendMail
 }
