@@ -290,9 +290,20 @@ router.post('/photo/:id/comment', requireLogin, async (req, res) => {
     return res.render('error', { message: "You can only comment on your own private photos.", layout: undefined })
     }
 
-    const ok = await business.addPhotoComment(photo.id, req.user, text)
-    if (!ok) {
+    const added = await business.addPhotoComment(photo.id, req.user, text)
+    if (!added) {
       return res.render('error', { message: "Failed to add comment.", layout: undefined })
+    }
+
+    if (Number(photo.ownerId) !== Number(req.user.id)) {
+      const owner = await business.getUserById(photo.ownerId);
+      if (owner) {
+        business.sendMail(
+          owner.email,
+          "New comment on your photo",
+          `User ${req.user.name} commented: "${text}" on your photo.`
+        )
+      }
     }
 
     res.redirect(`/photo/${photo.id}`)
@@ -502,6 +513,7 @@ router.post('/album/:albumId/upload', requireLogin, async (req, res) => {
     await business.uploadPhoto(req.user.id, albumId, file)
     res.redirect('/album/' + albumId)
 })
+
 
 /**
  * @exports router
