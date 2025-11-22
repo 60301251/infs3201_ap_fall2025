@@ -477,18 +477,6 @@ router.get('/album/:id/gallery', requireLogin, async (req, res) => {
 })
 
 router.get('/:albumId/upload', requireLogin, async (req, res) => {
-    const albumId = Number(req.params.albumId)
-    const album = await business.getAlbum(albumId)
-    if (!album || Number(album.ownerId) !== Number(req.user.id)) {
-        return res.redirect('/albums')
-    }
-
-    res.render('upload', { album, user: req.user, layout: undefined })
-    res.render('album_gallery', { album, photos, user: req.user, layout: undefined })
-
-})
-
-router.get('/:albumId/upload', requireLogin, async (req, res) => {
   const albumId = Number(req.params.albumId)
   const album = await business.getAlbum(albumId)
 
