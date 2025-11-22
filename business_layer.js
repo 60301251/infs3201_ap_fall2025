@@ -354,5 +354,6 @@ module.exports={
     createSession,
     searchPhotos,
     uploadPhoto,
-    sendMail
+    sendMail,
+    addComment
 }
