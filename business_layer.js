@@ -338,8 +338,10 @@ async function uploadPhoto(userid, albumid, file) {
             title: "",
             description: "",
             tags: "",
-            isPrivate: true,
-            filename: file.name
+            visibility: "private", 
+            filename: file.name,
+            ownerId: userid,
+            albums: [albumid]
         }
 
         return await persistance.savePhoto(userid, albumid, photo, file)
