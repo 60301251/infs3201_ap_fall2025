@@ -362,6 +362,7 @@ module.exports={
     updatePhoto,
     addTag,
     addPhotoComment,
+    getPhotosByAlbum,
     addComment,
     listPhotoComments,
     loginUser,
