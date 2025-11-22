@@ -513,7 +513,6 @@ module.exports={
     createSession,
     getUserBySession,
     deleteSession,
-    searchPublicPhotos,
-    addComment
+    searchPublicPhotos
 }
 
