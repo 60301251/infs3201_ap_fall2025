@@ -483,6 +483,8 @@ function sendMail(to, subject, body) {
 
 
 
+
+
 module.exports={
     registerUser,
     loginUser,
@@ -500,7 +502,6 @@ module.exports={
     createSession,
     getUserBySession,
     deleteSession,
-    searchPublicPhotos,
-    sendMail
+    searchPublicPhotos
 }
 
