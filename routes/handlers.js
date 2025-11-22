@@ -496,7 +496,9 @@ router.post('/album/:albumId/upload', requireLogin, async (req, res) => {
     }
 
     const file = req.files?.photo
-    if (!file) return res.render('error', { message: 'No file uploaded', layout: undefined })
+    if (!file){ 
+      return res.render('error', { message: 'No file uploaded', layout: undefined })
+    }
 
     await business.uploadPhoto(req.user.id, albumId, file)
     res.redirect('/album/' + albumId)
