@@ -212,46 +212,61 @@ async function addPhotoComment(photoId, user, text) {
     const isPublic = (photo.visibility || 'public') === 'public'
     if (!isOwner && !isPublic) return null
 
-    const result = await addComment(Number(photoId), user.id, user.name, cleaned)
-    return result
+    const comment = await addComment(photo.id, user.id, user.name, cleaned)
+
+    if (!isOwner) {
+        const owner = await findUserByEmail(photo.ownerEmail);
+        if (owner) {
+            const subject = `New Comment on Your Photo`;
+            const body = `Hello ${owner.name},\n\n` +
+                         `${user.name} commented on your photo "${photo.title}":\n\n` +
+                         `"${cleaned}"\n\nRegards,\nPhoto App`;
+            sendMail(owner.email, subject, body);
+        }
+    }
+
+    return comment
+
+    // const result = await addComment(Number(photoId), user.id, user.name, cleaned)
+    // return result
 }
 
-async function addComment(photoID, userID, text) {
-    const db = await connect()
+// async function addComment(photoID, userID, text) {
+//     const db = await connect()
 
 
-    const commentObj = {
-        photoID: photoID,
-        userID: userID,
-        text: text,
-        date: new Date()
-    }
-    await db.collection("comments").insertOne(commentObj)
+//     const commentObj = {
+//         photoID: photoID,
+//         userID: userID,
+//         text: text,
+//         date: new Date()
+//     }
+//     await db.collection("comments").insertOne(commentObj)
 
 
-    const photo = await db.collection("photos").findOne({ _id: photoID })
-    if (!photo) {
-        return "Photo not found"
-    }
+//     const photo = await db.collection("photos").findOne({ _id: photoID })
+//     if (!photo) {
+//         return "Photo not found"
+//     }
 
  
-    const owner = await db.collection("users").findOne({ _id: photo.ownerID })
-    if (!owner) {
-        return "Owner not found"
-    }
+//     const owner = await db.collection("users").findOne({ _id: photo.ownerID })
+//     if (!owner) {
+//         return "Owner not found"
+//     }
 
 
-    const subject = "New Comment on Your Photo"
-    const body =
-        "Hello " + owner.username + ",\n\n" +
-        "You have a new comment on your photo:\n\n" +
-        text + "\n\n" +
-        "Regards,\nPhoto App"
+//     const subject = "New Comment on Your Photo"
+//     const body =
+//         "Hello " + owner.username + ",\n\n" +
+//         "You have a new comment on your photo:\n\n" +
+//         text + "\n\n" +
+//         "Regards,\nPhoto App"
 
-    sendMail(owner.email, subject, body)
+//     sendMail(owner.email, subject, body)
 
-    return "Comment added and notification sent."
-}
+//     return "Comment added and notification sent."
+// }
 
 /**
  * List all comments for a photo.
