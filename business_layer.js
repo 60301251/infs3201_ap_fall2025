@@ -316,5 +316,6 @@ module.exports={
     getUserBySession,
     createSession,
     searchPhotos,
-    uploadPhoto
+    uploadPhoto,
+    sendMail
 }
