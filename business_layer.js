@@ -26,6 +26,7 @@ const{
     deleteSession,
     searchPublicPhotos
 } = require('./persistance_layer')
+const { sendMail } = require("../email")
 
 /**
  * Register a new user.
@@ -225,48 +226,10 @@ async function addPhotoComment(photoId, user, text) {
         }
     }
 
-    return comment
-
-    // const result = await addComment(Number(photoId), user.id, user.name, cleaned)
-    // return result
+    return comment  
 }
 
-// async function addComment(photoID, userID, text) {
-//     const db = await connect()
 
-
-//     const commentObj = {
-//         photoID: photoID,
-//         userID: userID,
-//         text: text,
-//         date: new Date()
-//     }
-//     await db.collection("comments").insertOne(commentObj)
-
-
-//     const photo = await db.collection("photos").findOne({ _id: photoID })
-//     if (!photo) {
-//         return "Photo not found"
-//     }
-
- 
-//     const owner = await db.collection("users").findOne({ _id: photo.ownerID })
-//     if (!owner) {
-//         return "Owner not found"
-//     }
-
-
-//     const subject = "New Comment on Your Photo"
-//     const body =
-//         "Hello " + owner.username + ",\n\n" +
-//         "You have a new comment on your photo:\n\n" +
-//         text + "\n\n" +
-//         "Regards,\nPhoto App"
-
-//     sendMail(owner.email, subject, body)
-
-//     return "Comment added and notification sent."
-// }
 
 /**
  * List all comments for a photo.
@@ -331,20 +294,18 @@ async function getPhotosByAlbum(albumId, userEmail) {
     return result
 }
 
-async function uploadPhoto(userid, albumid, file) {
-    if (!file) throw new Error("No file uploaded")
+async function uploadPhoto(owner, albumId, photoName) {
+    const photo = {
+        owner: owner,
+        albumId: albumId,
+        filename: photoName,
+        title: "",
+        description: "",
+        tags: [],
+        private: true
+    }
 
-    let photo = {
-            title: "",
-            description: "",
-            tags: "",
-            visibility: "private", 
-            filename: file.name,
-            ownerId: userid,
-            albums: [albumid]
-        }
-
-        return await persistance.savePhoto(userid, albumid, photo, file)
+        return persistance.savePhoto(photo)
 }
 
 module.exports={
