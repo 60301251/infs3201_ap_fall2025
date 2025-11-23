@@ -347,14 +347,6 @@ async function uploadPhoto(userid, albumid, file) {
         return await persistance.savePhoto(userid, albumid, photo, file)
 }
 
-function sendMail(to, subject, body) {
-    console.log("=== EMAIL NOTIFICATION ===")
-    console.log("To:", to)
-    console.log("Subject:", subject)
-    console.log("Body:", body)
-    console.log("==========================")
-}
-
 module.exports={
     signup,
     login,
@@ -372,6 +364,5 @@ module.exports={
     getUserBySession,
     createSession,
     searchPhotos,
-    uploadPhoto,
-    sendMail
+    uploadPhoto
 }
