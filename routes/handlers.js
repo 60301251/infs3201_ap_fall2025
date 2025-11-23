@@ -68,10 +68,18 @@ router.get('/', requireLogin, async (req, res) => {
  * @param {express.Response} res
  * @returns {void}
  */
-router.get('/login', (req, res) => {
-  if (req.user) return res.redirect('/')
+router.get('/login', async (req, res) => {
+
+  const sessionId = req.cookies?.sessionId
+  if (sessionId) {
+    const user = await getUserBySession(sessionId)
+    if (user) {
+      return res.redirect('/')
+    }
+  }
   res.render('login')
 })
+
 
 /**
  * @route POST /login
@@ -94,10 +102,12 @@ router.post('/login', async (req, res) => {
     if (!result) {
       return res.render('error', { message: "Invalid email or password", layout: undefined })
     }
-    const { sessionId } = result
-    res.cookie('sessionId', sessionId, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 })
+    const { sessionId, user } = result
+    req.session.user = user
+    res.cookie('sessionId', sessionId, { httpOnly: true,sameSite:'lax', maxAge: 24 * 60 * 60 * 1000 })
     res.redirect('/')
-  } catch {
+  } 
+  catch {
     res.render('error', { message: "Login failed.", layout: undefined })
   }
 })
@@ -427,7 +437,7 @@ router.post('/signup', async (req, res) => {
  * @returns {void} Renders 'album_gallery' view with album photos if found,
  *   otherwise renders 'error' view with a not found message.
  */
-router.get('/album/:name', async (req, res) => {
+router.get('/album/name/:name', async (req, res) => {
     const albumName = req.params.name
     const album = await business.findAlbumbyName(albumName)
 
@@ -452,29 +462,44 @@ router.get('/album/:name', async (req, res) => {
  * @param {Object} res - Express response
  */
 router.get('/album/:id/gallery', requireLogin, async (req, res) => {
-    const albumId = Number(req.params.id)
+    const albumId = Number(req.params.id);
 
     if (isNaN(albumId)) {
-        return res.render('error', { message: "Invalid album ID.", layout: undefined })
+        return res.render('error', { 
+            message: "Invalid album ID.",
+            layout: undefined
+        });
     }
+
     try {
-        const album = await business.getAlbum(albumId)
+        const album = await business.getAlbum(albumId);
+
         if (!album) {
-            return res.render('error', { message: "Album not found", layout: undefined })
-        } 
-        const photos = await business.getByAlbum(album.name, req.user?.id)
+            return res.render('error', { 
+                message: "Album not found.",
+                layout: undefined
+            });
+        }
+
+        const photos = await business.getByAlbum(album.name, req.session.userId);
+
         res.render('album_gallery', {
             album: photos?.album || album,
             photos: photos?.photos || [],
-            user: req.user,
+            user: req.session.user,
             layout: undefined
         });
 
-    } catch (error) {
-        console.error("Error loading album gallery:", error);
-        res.render('error', { message: "Failed to load album gallery.", layout: undefined })
+    } catch (err) {
+        console.error("Error loading album gallery:", err);
+
+        return res.render('error', { 
+            message: "Failed to load album gallery.",
+            layout: undefined
+        });
     }
-})
+});
+
 
 router.get('/:albumId/upload', requireLogin, async (req, res) => {
   const albumId = Number(req.params.albumId)
