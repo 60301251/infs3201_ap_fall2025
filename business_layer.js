@@ -26,7 +26,7 @@ const{
     deleteSession,
     searchPublicPhotos
 } = require('./persistance_layer')
-const { sendMail } = require("../email")
+const { sendMail } = require("./email")
 
 /**
  * Register a new user.
@@ -229,17 +229,17 @@ async function addPhotoComment(photoId, user, text) {
     return comment  
 }
 
-async function addComment(photoId, commenter, commentText) {
-    const photo = await persistence.addComment(photoId, commenter, commentText)
+// async function addComment(photoId, commenter, commentText) {
+//     const photo = await persistence.addComment(photoId, commenter, commentText)
 
-    sendMail(
-        photo.owner,
-        "New Comment on Your Photo",
-        `User ${commenter} commented: "${commentText}"`
-    )
+//     sendMail(
+//         photo.owner,
+//         "New Comment on Your Photo",
+//         `User ${commenter} commented: "${commentText}"`
+//     )
 
-    return photo
-}
+//     return photo
+// }
 
 
 /**
@@ -329,7 +329,7 @@ module.exports={
     addTag,
     addPhotoComment,
     getPhotosByAlbum,
-    addComment,
+    // addComment,
     listPhotoComments,
     loginUser,
     logout,
