@@ -229,6 +229,17 @@ async function addPhotoComment(photoId, user, text) {
     return comment  
 }
 
+async function addComment(photoId, commenter, commentText) {
+    const photo = await persistence.addComment(photoId, commenter, commentText)
+
+    sendMail(
+        photo.owner,
+        "New Comment on Your Photo",
+        `User ${commenter} commented: "${commentText}"`
+    )
+
+    return photo
+}
 
 
 /**
