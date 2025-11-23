@@ -504,6 +504,19 @@ router.post('/album/:albumId/upload', requireLogin, async (req, res) => {
     res.redirect('/album/' + albumId)
 })
 
+router.post("/photo/upload", requireLogin, async (req, res) => {
+    const albumId = Number(req.body.albumId)
+    const photoName = req.body.photoName
+
+    if (!photoName) {
+        return res.render("error", { message: "Photo name required" })
+    }
+
+    await business.uploadPhoto(req.user.email, albumId, photoName)
+
+    res.redirect("/album/" + albumId)
+})
+
 
 /**
  * @exports router
