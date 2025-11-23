@@ -229,19 +229,6 @@ async function addPhotoComment(photoId, user, text) {
     return comment  
 }
 
-// async function addComment(photoId, commenter, commentText) {
-//     const photo = await persistence.addComment(photoId, commenter, commentText)
-
-//     sendMail(
-//         photo.owner,
-//         "New Comment on Your Photo",
-//         `User ${commenter} commented: "${commentText}"`
-//     )
-
-//     return photo
-// }
-
-
 /**
  * List all comments for a photo.
  * @param {number|string} photoId
@@ -329,7 +316,6 @@ module.exports={
     addTag,
     addPhotoComment,
     getPhotosByAlbum,
-    // addComment,
     listPhotoComments,
     loginUser,
     logout,
