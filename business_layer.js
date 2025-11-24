@@ -29,6 +29,8 @@ const{
     findUserByEmail
 } = require('./persistance_layer')
 const { sendMail } = require("./email")
+const path = require('path')
+const fs = require('fs')
 
 /**
  * Register a new user.
@@ -281,91 +283,46 @@ async function searchPhotos(searchTerm) {
  *   that belong to the album and are either public or owned by the user.
  */
 async function getPhotosByAlbum(albumId, userEmail) {
-    const photos = await loadPhoto()
-    let result = []
+    const photos = await loadPhoto(); // Load all photos
+    const result = [];
 
-    for (let i = 0; i < photos.length; i++) {
-        const photo = photos[i]
-        let inAlbum = false
-        if (photo.albums) {
-            for (let j = 0; j < photo.albums.length; j++) {
-                if (photo.albums[j] === albumId) {
-                    inAlbum = true
-                    break
-                }
-            }
-        }
+    for (const photo of photos) {
+        // Skip photos not in this album
+        if (!photo.albums || !photo.albums.includes(albumId)) continue;
 
-        if (!inAlbum) continue;
-
+        // Include photo if it's public or owned by the current user
         if (photo.visibility === "public" || photo.ownerEmail === userEmail) {
-            result.push(photo)
+            result.push(photo);
         }
     }
 
-    return result
+    return result;
 }
 
-async function uploadPhoto(userid, albumid, uploadedFile, photoData) {
 
-    const dir = path.join(__dirname, '../photos', String(userid), String(albumid));
-    try {
-        await fs.mkdir(dir, { recursive: true });
-    } catch (err) {
-        throw new Error('Failed to create directory: ' + err.message);
-    }
+async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
+    const db = await connectDatabase();
+    const photos = db.collection('photos');
 
+    // Save file to disk first
+    const uploadPath = path.join(__dirname, 'photos', uploadedFile.name);
+    await uploadedFile.mv(uploadPath);
 
-    const savePath = path.join(dir, uploadedFile.name);
-    try {
-        await uploadedFile.mv(savePath);  
-    } catch (err) {
-        throw new Error('Failed to save file: ' + err.message);
-    }
-    const dbPath = path.join(__dirname, '../db.json');
-    let db;
-    try {
-        const data = await fs.readFile(dbPath, 'utf8');
-        db = JSON.parse(data);
-    } catch (err) {
-        throw new Error('Failed to read database: ' + err.message);
-    }
+    // Add file path and album info
+    const photoRecord = {
+        ...photoData,
+        ownerId: userId,
+        albums: [albumId],
+        path: uploadPath,
+        uploadedAt: new Date()
+    };
 
-    let user = null;
-    for (let i = 0; i < db.users.length; i++) {
-        if (db.users[i].userid == userid) {
-            user = db.users[i];
-            break;
-        }
-    }
-    if (!user) throw new Error('User not found');
-
-
-    let album = null;
-    for (let i = 0; i < user.albums.length; i++) {
-        if (user.albums[i].albumid == albumid) {
-            album = user.albums[i];
-            break;
-        }
-    }
-    if (!album) throw new Error('Album not found');
-
-    album.photos.push({
-        id: Date.now(), 
-        filename: uploadedFile.name,
-        title: photoData.title || uploadedFile.name,
-        description: photoData.description || '',
-        uploadedAt: new Date().toISOString(),
-        visibility: photoData.visibility || 'public'
-    });
-    try {
-        await fs.writeFile(dbPath, JSON.stringify(db, null, 2), 'utf8');
-    } catch (err) {
-        throw new Error('Failed to save database: ' + err.message);
-    }
-
-    return true;
+    await photos.insertOne(photoRecord);
+    return photoRecord;
 }
+
+
+
 
 module.exports={
     signup,
@@ -383,5 +340,6 @@ module.exports={
     getUserBySession,
     createSession,
     searchPhotos,
-    uploadPhoto
+    uploadPhoto,
+    getPhotosByAlbum
 }

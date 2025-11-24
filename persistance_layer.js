@@ -155,53 +155,23 @@ async function loadPhoto(){
  * @param {Object} photo
  * @returns {Promise<void>}
  */
+async function savePhoto(photoData) {
+    const db = await connectDatabase();
+    const photosCollection = db.collection('photos');
 
-async function savePhoto(userid, albumid, photo, uploadedFile) {
-    // 1️⃣ Ensure upload directory exists
-    const dir = path.join(__dirname, '../photos', String(userid), String(albumid));
-    try {
-        await fs.mkdir(dir, { recursive: true });
-    } catch (err) {
-        throw new Error("Failed to create upload directory: " + err.message);
-    }
+    const photoDoc = {
+        title: photoData.title || '',
+        description: photoData.description || '',
+        visibility: photoData.visibility || 'public',
+        ownerId: Number(photoData.ownerId),
+        albumId: Number(photoData.albumId),
+        filePath: photoData.filePath,
+        uploadedAt: new Date()
+    };
 
-    // 2️⃣ Save the file to disk
-    const savePath = path.join(dir, uploadedFile.name);
-    try {
-        await fs.writeFile(savePath, uploadedFile.data);
-    } catch (err) {
-        throw new Error("Failed to save photo: " + err.message);
-    }
-
-    // 3️⃣ Load the database
-    const db = loadDB();
-
-    // 4️⃣ Find the user
-    const user = db.users.find(u => u.userid == userid);
-    if (!user) throw new Error("User not found");
-
-    // 5️⃣ Find the album
-    const album = user.albums.find(a => a.albumid == albumid);
-    if (!album) throw new Error("Album not found");
-
-    // 6️⃣ Assign a new photo ID
-    const lastId = album.photos.length > 0 ? album.photos[album.photos.length - 1].id : 0;
-    photo.id = lastId + 1;
-
-    // 7️⃣ Add filename and timestamp to photo metadata
-    photo.filename = uploadedFile.name;
-    photo.uploadedAt = new Date().toISOString();
-
-    // 8️⃣ Push the photo to the album
-    album.photos.push(photo);
-
-    // 9️⃣ Save the database back
-    await saveDB(db);
-
-    return photo; // return saved photo object if needed
+    const result = await photosCollection.insertOne(photoDoc);
+    return result.insertedId;
 }
-
-
     
 /**
  * To load albums from the file
@@ -488,7 +458,7 @@ async function searchPublicPhotos(searchTerm) {
 
 }
 
-<<<<<<< Updated upstream
+
 async function findUserById(id) {
     await connectDatabase()
     const db = client.db('INFS3201_fall2025')
@@ -509,9 +479,7 @@ async function getCommentsByPhoto(photoId) {
 
   const db = client.db('INFS3201_fall2025')
   const comments = db.collection('comments')
-=======
- 
->>>>>>> Stashed changes
+
 
   if (!Number.isFinite(Number(photoId))) return []
 
