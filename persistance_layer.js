@@ -471,6 +471,17 @@ async function searchPublicPhotos(searchTerm) {
     const cursor = await photos.find(query)
     const result = await cursor.toArray()
     return result
+
+}
+
+async function findUserById(id) {
+    const users = await loadAll('users')
+    for (let i = 0; i < users.length; i++) {
+        if (Number(users[i].id) === Number(id)) {
+            return users[i]
+        }
+    }
+    return null
 }
 
 module.exports={
@@ -490,6 +501,7 @@ module.exports={
     createSession,
     getUserBySession,
     deleteSession,
-    searchPublicPhotos
+    searchPublicPhotos,
+    findUserById
 }
 
