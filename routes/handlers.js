@@ -303,18 +303,7 @@ router.post('/photo/:id/comment', requireLogin, async (req, res) => {
     if (!added) {
       return res.render('error', { message: "Failed to add comment.", layout: undefined })
     }
-
-    if (Number(photo.ownerId) !== Number(req.user.id)) {
-      const owner = await business.getUserById(photo.ownerId);
-      if (owner) {
-        business.sendMail(
-          owner.email,
-          "New comment on your photo",
-          `User ${req.user.name} commented: "${text}" on your photo.`
-        )
-      }
-    }
-
+    
     res.redirect(`/photo/${photo.id}`)
   } catch {
     res.render('error', { message: "Failed to add comment.", layout: undefined })
