@@ -505,7 +505,7 @@ router.get('/:albumId/upload', requireLogin, async (req, res) => {
   const album = await business.getAlbum(albumId)
 
   if (!album || Number(album.ownerId) !== Number(req.user.id)) {
-    return res.redirect('/albums')
+    return res.redirect('/')
   }
 
   res.render('upload', { album, user: req.user, layout: undefined })
@@ -516,7 +516,7 @@ router.post('/album/:albumId/upload', requireLogin, async (req, res) => {
     const album = await business.getAlbum(albumId)
 
     if (!album || Number(album.ownerId) !== Number(req.user.id)) {
-        return res.redirect('/albums')
+        return res.redirect('/')
     }
 
     const file = req.files?.photo
