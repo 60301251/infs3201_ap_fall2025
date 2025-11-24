@@ -473,27 +473,27 @@ async function searchPublicPhotos(searchTerm) {
     return result
 }
 
-async function addComment(photoId, userId, username, text) {
-    await connectDatabase();
-    const db = client.db('INFS3201_fall2025')
-    const comments = db.collection('comments')
+// async function addComment(photoId, userId, username, text) {
+//     await connectDatabase();
+//     const db = client.db('INFS3201_fall2025')
+//     const comments = db.collection('comments')
 
    
-    const last = await comments.find().sort({ id: -1 }).limit(1).toArray();
-    const nextId = (last[0]?.id || 0) + 1
+//     const last = await comments.find().sort({ id: -1 }).limit(1).toArray();
+//     const nextId = (last[0]?.id || 0) + 1
 
-    const doc = {
-        id: nextId,
-        photoId: Number(photoId),
-        userId,
-        username,
-        text,
-        createdAt: new Date()
-    }
+//     const doc = {
+//         id: nextId,
+//         photoId: Number(photoId),
+//         userId,
+//         username,
+//         text,
+//         createdAt: new Date()
+//     }
 
-    await comments.insertOne(doc)
-    return doc
-}
+//     await comments.insertOne(doc)
+//     return doc
+// }
 
 
 module.exports={
