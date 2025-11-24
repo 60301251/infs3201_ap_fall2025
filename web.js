@@ -66,6 +66,7 @@ app.set('views', path.join(__dirname, 'templates'))
  * @returns {Promise<void>} Calls `next()` after attaching `req.user`.
  */
 const { getUserBySession } = require('./business_layer')
+
 app.use(async (req, res, next) => {
     const sessionId = req.cookies?.sessionId
 
@@ -74,14 +75,25 @@ app.use(async (req, res, next) => {
         return next()
     }
 
-   try {
-        req.user = await getUserBySession(sessionId)
-    } catch {
+    try {
+        const user = await getUserBySession(sessionId)
+
+        if (user) {
+            req.user = user      
+        } else {
+            res.clearCookie('sessionId')  
+            req.user = null
+        }
+
+    } catch (e) {
+        console.error("Session lookup failed:", e)
+        res.clearCookie('sessionId')
         req.user = null
     }
 
     next()
 })
+
 
 /**
  * Route handler setup

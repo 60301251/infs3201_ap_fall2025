@@ -12,6 +12,7 @@ const express = require('express')
 const router = express.Router()
 const business = require('../business_layer')
 const persistance = require('../persistance_layer')
+const { getUserBySession } = require('../business_layer')
 
 /**
  * Middleware to ensure the user is logged in.
@@ -24,10 +25,9 @@ const persistance = require('../persistance_layer')
  * @returns {void}
  */
 function requireLogin(req, res, next) {
-  if (!req.session || !req.session.user) {
+  if (!req.user) {
     return res.redirect('/login')
   }
-  req.user = req.session.user
   next()
 }
 
@@ -103,7 +103,6 @@ router.post('/login', async (req, res) => {
       return res.render('error', { message: "Invalid email or password", layout: undefined })
     }
     const { sessionId, user } = result
-    req.session.user = user
     res.cookie('sessionId', sessionId, { httpOnly: true,sameSite:'lax', maxAge: 24 * 60 * 60 * 1000 })
     res.redirect('/')
   } 
@@ -486,7 +485,7 @@ router.get('/album/:id/gallery', requireLogin, async (req, res) => {
         res.render('album_gallery', {
             album: photos?.album || album,
             photos: photos?.photos || [],
-            user: req.session.user,
+            user: req.user,
             layout: undefined
         });
 
