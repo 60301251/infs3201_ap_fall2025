@@ -1,15 +1,13 @@
 <h2>Upload Photo</h2>
 
-<form method="post" action="/photo/upload">
-    <label>Photo Name:</label>
-    <input type="text" name="photoName" required>
-
-    <label>Album:</label>
-    <select name="albumId">
-        {{#each albums}}
-            <option value="{{this.id}}">{{this.name}}</option>
-        {{/each}}
-    </select>
-
-    <button type="submit">Upload</button>
+<form action="/album/{{album.id}}/upload" method="POST" enctype="multipart/form-data">
+  <input type="text" name="title" placeholder="Photo title">
+  <input type="text" name="description" placeholder="Description">
+  <input type="file" name="photo" required>
+  <select name="visibility">
+    <option value="public">Public</option>
+    <option value="private">Private</option>
+  </select>
+  <button type="submit">Upload</button>
 </form>
+

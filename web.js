@@ -15,6 +15,7 @@ const handlebars= require('express-handlebars')
 const bodyParser=require('body-parser')
 const routes= require('./routes/handlers')
 const cookieParser= require('cookie-parser')
+const fileUpload = require('express-fileupload')
 
 const app=express()
 const PORT=8000
@@ -30,6 +31,11 @@ const PORT=8000
 app.use(bodyParser.urlencoded({extended: true}))
 app.use('/photos', express.static(path.join(__dirname,'photos')))
 app.use(express.static(path.join(__dirname, 'public')))
+app.use(fileUpload({
+    limits: { fileSize: 50 * 1024 * 1024 }, 
+    useTempFiles: true,
+    tempFileDir: '/tmp/'
+}))
 
 app.use(cookieParser())
 
@@ -69,7 +75,6 @@ const { getUserBySession } = require('./business_layer')
 
 app.use(async (req, res, next) => {
     const sessionId = req.cookies?.sessionId
-
     if (!sessionId) {
         req.user = null
         return next()
@@ -77,14 +82,12 @@ app.use(async (req, res, next) => {
 
     try {
         const user = await getUserBySession(sessionId)
-
         if (user) {
-            req.user = user      
+            req.user = { ...user, id: user.id || user.userId } 
         } else {
-            res.clearCookie('sessionId')  
+            res.clearCookie('sessionId')
             req.user = null
         }
-
     } catch (e) {
         console.error("Session lookup failed:", e)
         res.clearCookie('sessionId')
@@ -93,6 +96,8 @@ app.use(async (req, res, next) => {
 
     next()
 })
+
+
 
 
 /**

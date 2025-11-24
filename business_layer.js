@@ -306,18 +306,65 @@ async function getPhotosByAlbum(albumId, userEmail) {
     return result
 }
 
-async function uploadPhoto(owner, albumId, photoName) {
-    const photo = {
-        owner: owner,
-        albumId: albumId,
-        filename: photoName,
-        title: "",
-        description: "",
-        tags: [],
-        private: true
+async function uploadPhoto(userid, albumid, uploadedFile, photoData) {
+
+    const dir = path.join(__dirname, '../photos', String(userid), String(albumid));
+    try {
+        await fs.mkdir(dir, { recursive: true });
+    } catch (err) {
+        throw new Error('Failed to create directory: ' + err.message);
     }
 
-        return persistance.savePhoto(photo)
+
+    const savePath = path.join(dir, uploadedFile.name);
+    try {
+        await uploadedFile.mv(savePath);  
+    } catch (err) {
+        throw new Error('Failed to save file: ' + err.message);
+    }
+    const dbPath = path.join(__dirname, '../db.json');
+    let db;
+    try {
+        const data = await fs.readFile(dbPath, 'utf8');
+        db = JSON.parse(data);
+    } catch (err) {
+        throw new Error('Failed to read database: ' + err.message);
+    }
+
+    let user = null;
+    for (let i = 0; i < db.users.length; i++) {
+        if (db.users[i].userid == userid) {
+            user = db.users[i];
+            break;
+        }
+    }
+    if (!user) throw new Error('User not found');
+
+
+    let album = null;
+    for (let i = 0; i < user.albums.length; i++) {
+        if (user.albums[i].albumid == albumid) {
+            album = user.albums[i];
+            break;
+        }
+    }
+    if (!album) throw new Error('Album not found');
+
+    album.photos.push({
+        id: Date.now(), 
+        filename: uploadedFile.name,
+        title: photoData.title || uploadedFile.name,
+        description: photoData.description || '',
+        uploadedAt: new Date().toISOString(),
+        visibility: photoData.visibility || 'public'
+    });
+    try {
+        await fs.writeFile(dbPath, JSON.stringify(db, null, 2), 'utf8');
+    } catch (err) {
+        throw new Error('Failed to save database: ' + err.message);
+    }
+
+    return true;
 }
 
 module.exports={

@@ -25,7 +25,15 @@
 
     {{#if user}}
 <form action="/album/{{album.id}}/upload" method="POST" enctype="multipart/form-data">
+    <label>Photo:</label>
     <input type="file" name="photo" required>
+
+    <label>Title:</label>
+    <input type="text" name="title" required>
+
+    <label>Description (optional):</label>
+    <input type="text" name="description">
+
     <button type="submit">Upload Photo</button>
 </form>
 {{/if}}
