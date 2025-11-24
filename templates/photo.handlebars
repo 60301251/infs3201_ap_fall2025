@@ -21,8 +21,6 @@
   <p>No comments yet.</p>
 {{/if}}
 
-
-<a href="/album/{{photo.albums.[0]}}">Back to Album</a> 
 {{#if user}}
   <form action="/photo/{{photo.id}}/comment" method="POST" style="margin-top:10px;">
     <textarea name="comment" rows="3" maxlength="500" required></textarea><br>
