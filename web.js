@@ -31,11 +31,15 @@ const PORT=8000
 app.use(bodyParser.urlencoded({extended: true}))
 app.use('/photos', express.static(path.join(__dirname,'photos')))
 app.use(express.static(path.join(__dirname, 'public')))
+
 app.use(fileUpload({
     limits: { fileSize: 50 * 1024 * 1024 }, 
     useTempFiles: true,
-    tempFileDir: '/tmp/'
+    tempFileDir: '/tmp/',
+    createParentPath: true,
+    safeFileNames: true
 }))
+
 
 app.use(cookieParser())
 
@@ -79,24 +83,16 @@ app.use(async (req, res, next) => {
         req.user = null
         return next()
     }
-
     try {
-        const user = await getUserBySession(sessionId)
-        if (user) {
-            req.user = { ...user, id: user.id || user.userId } 
-        } else {
-            res.clearCookie('sessionId')
-            req.user = null
-        }
-    } catch (e) {
-        console.error("Session lookup failed:", e)
-        res.clearCookie('sessionId')
+        const user = await getUserBySession(sessionId);
+        req.user = user ? { ...user, id: user.id || user.userId } : null
+        if (!user) res.clearCookie('sessionId')
+    } catch {
         req.user = null
+        res.clearCookie('sessionId')
     }
-
     next()
 })
-
 
 
 

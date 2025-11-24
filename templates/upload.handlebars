@@ -1,13 +1,33 @@
-<h2>Upload Photo</h2>
+{{!-- <h2>Upload Photo</h2>
 
 <form action="/album/{{album.id}}/upload" method="POST" enctype="multipart/form-data">
-  <input type="text" name="title" placeholder="Photo title">
-  <input type="text" name="description" placeholder="Description">
-  <input type="file" name="photo" required>
-  <select name="visibility">
-    <option value="public">Public</option>
-    <option value="private">Private</option>
-  </select>
-  <button type="submit">Upload</button>
+    <input type="text" name="title" placeholder="Photo Title">
+    <input type="text" name="description" placeholder="Description">
+    <select name="visibility">
+        <option value="public">Public</option>
+        <option value="private">Private</option>
+    </select>
+    <input type="file" name="photo">
+    <button type="submit">Upload</button>
+</form> --}}
+<form action="/photo/upload" method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="albumId" value="{{album.id}}">
+    
+    <label>Photo:</label>
+    <input type="file" name="photo" />
+
+    <label>Title:</label>
+    <input type="text" name="title" />
+
+    <label>Description:</label>
+    <textarea name="description"></textarea>
+
+    <label>Visibility:</label>
+    <select name="visibility">
+        <option value="public">Public</option>
+        <option value="private">Private</option>
+    </select>
+
+    <button type="submit">Upload</button>
 </form>
 

@@ -17,6 +17,7 @@ const fs = require('fs').promises;
 
 let client=null
 
+
 /**
  * Connect to MongoDB database if not already connected.
  * @async
@@ -24,10 +25,12 @@ let client=null
  */
 async function connectDatabase(){
     if(!client){
-        client=new MongoClient('mongodb+srv://60301251:12class34@cluster0.j7qvb.mongodb.net/')
+        client=new MongoClient('mongodb+srv://60301251:12class34@cluster0.j7qvb.mongodb.net/',{useUnifiedTopology:true, useNewUrlParser: true})
         await client.connect()
     }
+    return client.db('myDB'); 
 }
+
 
 /**
  * Hash a plaintext password with a randomly generated salt using PBKDF2.
@@ -490,6 +493,7 @@ async function getCommentsByPhoto(photoId) {
 }
 
 module.exports={
+    connectDatabase,
     registerUser,
     loginUser,
     loadPhoto,
@@ -508,6 +512,6 @@ module.exports={
     deleteSession,
     searchPublicPhotos,
     findUserById,
-    getCommentsByPhoto  
+    getCommentsByPhoto,
 }
 

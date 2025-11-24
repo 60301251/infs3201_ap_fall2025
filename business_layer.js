@@ -9,6 +9,7 @@
 */
 
 const{
+    connectDatabase,
     registerUser,
     loginUser,
     loadPhoto,
@@ -26,7 +27,7 @@ const{
     deleteSession,
     searchPublicPhotos,
     findUserById,
-    findUserByEmail
+    findUserByEmail,
 } = require('./persistance_layer')
 const { sendMail } = require("./email")
 const path = require('path')
@@ -93,12 +94,12 @@ async function getPhoto(photoId){
  * @param {number} albumId - The ID of the album.
  * @returns {Promise<Object|null>} Album object if found, otherwise null.
 */
-async function getAlbum(albumId){
-    const album = await findAlbum(Number(albumId))
-    if(!album){
-        return null
-    }
-    return album
+async function getAlbum(albumId){ 
+    const album = await findAlbum(Number(albumId)) 
+    if(!album){ 
+        return null 
+    } 
+    return album 
 }
 
 /**
@@ -300,27 +301,37 @@ async function getPhotosByAlbum(albumId, userEmail) {
 }
 
 
+
 async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
-    const db = await connectDatabase();
-    const photos = db.collection('photos');
+const db = await connectDatabase();
+const photosCollection = db.collection('photos');
+// Make sure photos folder exists
+const photosDir = path.join(__dirname, 'photos');
+if (!fs.existsSync(photosDir)) fs.mkdirSync(photosDir);
 
-    // Save file to disk first
-    const uploadPath = path.join(__dirname, 'photos', uploadedFile.name);
-    await uploadedFile.mv(uploadPath);
+// Save the file with unique name
+const fileExt = path.extname(uploadedFile.name);
+const fileName = `${Date.now()}_${userId}${fileExt}`;
+const filePath = path.join(photosDir, fileName);
 
-    // Add file path and album info
-    const photoRecord = {
-        ...photoData,
-        ownerId: userId,
-        albums: [albumId],
-        path: uploadPath,
-        uploadedAt: new Date()
-    };
+await uploadedFile.mv(filePath); // move file from temp to photos/
 
-    await photos.insertOne(photoRecord);
-    return photoRecord;
+// Insert into MongoDB
+const photoRecord = {
+    userId,
+    albumId,
+    title: photoData.title,
+    description: photoData.description,
+    visibility: photoData.visibility,
+    ownerEmail: photoData.ownerEmail,
+    fileName,
+    filePath,
+    createdAt: new Date()
+};
+
+const result = await photosCollection.insertOne(photoRecord);
+return result.insertedId;
 }
-
 
 
 
@@ -341,5 +352,5 @@ module.exports={
     createSession,
     searchPhotos,
     uploadPhoto,
-    getPhotosByAlbum
+    getPhotosByAlbum,
 }
