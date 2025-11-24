@@ -24,7 +24,9 @@ const{
     createSession,
     getUserBySession,
     deleteSession,
-    searchPublicPhotos
+    searchPublicPhotos,
+    findUserById,
+    findUserByEmail
 } = require('./persistance_layer')
 const { sendMail } = require("./email")
 
@@ -200,41 +202,45 @@ async function addTag(photoId, newTag) {
  * @returns {Promise<Object|null>} Inserted comment or null on validation/permission failure
  */
 async function addPhotoComment(photoId, user, text) {
-    if (!user) return null
+    try {
+        if (!user) return null
+        if (typeof text !== 'string') return null
 
-    const cleaned = String(text || '').trim()
-    if (cleaned.length < 1 || cleaned.length > 500) return null
+        const cleaned = text.trim()
+        if (cleaned.length < 1 || cleaned.length > 500) return null
 
-    const photo = await findPhoto(Number(photoId))
-    if (!photo) return null
+        const photo = await findPhoto(Number(photoId))
+        if (!photo) return null
 
-    const isOwner = Number(photo.ownerId) === Number(user.id)
-    const isPublic = (photo.visibility || 'public') === 'public'
+        const isOwner = Number(photo.ownerId) === Number(user.id)
+        const isPublic = (photo.visibility || 'public') === 'public'
+        if (!isOwner && !isPublic) return null
 
-    if (!isOwner && !isPublic) return null
+        const comment = await addComment(photo.id, user.id, user.name, cleaned)
 
-    const comment = await addComment(photo.id, user.id, user.name, cleaned)
+        if (!isOwner) {
+            const owner = await findUserById(photo.ownerId)
+            if (owner && owner.email) {
+                const subject = `New Comment on Your Photo`
+                const body = `Hello ${owner.name},
 
-    if (!isOwner) {
-        const owner = await findUserById(photo.ownerId)
-
-        if (owner) {
-            const subject = "New Comment on Your Photo"
-            const body =
-`Hello ${owner.name},
-
-${user.name} commented on your photo "${photo.title}":
+${user.name} commented on your photo "${photo.title || ''}":
 
 "${cleaned}"
 
 Regards,
 Photo App`
-
-            sendMail(owner.email, subject, body);
+                sendMail(owner.email, subject, body)
+            } else {
+                console.warn("Owner not found for photoId:", photo.id, "ownerId:", photo.ownerId)
+            }
         }
-    }
 
-    return comment;
+        return comment
+    } catch (err) {
+        console.error("Error in addPhotoComment:", err)
+        return null
+    }
 }
 
 /**

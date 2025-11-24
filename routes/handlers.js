@@ -303,9 +303,10 @@ router.post('/photo/:id/comment', requireLogin, async (req, res) => {
     if (!added) {
       return res.render('error', { message: "Failed to add comment.", layout: undefined })
     }
-    
+
     res.redirect(`/photo/${photo.id}`)
-  } catch {
+  } catch (err) {
+    console.error("Error in POST /photo/:id/comment:", err)
     res.render('error', { message: "Failed to add comment.", layout: undefined })
   }
 })

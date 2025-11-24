@@ -475,13 +475,32 @@ async function searchPublicPhotos(searchTerm) {
 }
 
 async function findUserById(id) {
-    const users = await loadAll('users')
-    for (let i = 0; i < users.length; i++) {
-        if (Number(users[i].id) === Number(id)) {
-            return users[i]
-        }
+    await connectDatabase()
+    const db = client.db('INFS3201_fall2025')
+    const users = db.collection('users')
+
+    const queryId = Number(id)
+    const cursor = await users.find({}) 
+    const arr = await cursor.toArray()
+    for (let i = 0; i < arr.length; i++) {
+        if (Number(arr[i].id) === queryId) return arr[i]
     }
     return null
+}
+
+async function getCommentsByPhoto(photoId) {
+  await connectDatabase()
+  await ensureCommentIndexes()
+
+  const db = client.db('INFS3201_fall2025')
+  const comments = db.collection('comments')
+
+  if (!Number.isFinite(Number(photoId))) return []
+
+  return await comments
+    .find({ photoId: Number(photoId) })
+    .sort({ createdAt: 1 })
+    .toArray()
 }
 
 module.exports={
@@ -502,6 +521,7 @@ module.exports={
     getUserBySession,
     deleteSession,
     searchPublicPhotos,
-    findUserById
+    findUserById,
+    getCommentsByPhoto  
 }
 
