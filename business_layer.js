@@ -201,9 +201,8 @@ async function addTag(photoId, newTag) {
  */
 async function addPhotoComment(photoId, user, text) {
     if (!user) return null
-    if (typeof text !== 'string') return null
 
-    const cleaned = text.trim()
+    const cleaned = String(text || '').trim()
     if (cleaned.length < 1 || cleaned.length > 500) return null
 
     const photo = await findPhoto(Number(photoId))
@@ -211,22 +210,31 @@ async function addPhotoComment(photoId, user, text) {
 
     const isOwner = Number(photo.ownerId) === Number(user.id)
     const isPublic = (photo.visibility || 'public') === 'public'
+
     if (!isOwner && !isPublic) return null
 
     const comment = await addComment(photo.id, user.id, user.name, cleaned)
 
     if (!isOwner) {
-        const owner = await findUserByEmail(photo.ownerEmail);
+        const owner = await findUserById(photo.ownerId)
+
         if (owner) {
-            const subject = `New Comment on Your Photo`;
-            const body = `Hello ${owner.name},\n\n` +
-                         `${user.name} commented on your photo "${photo.title}":\n\n` +
-                         `"${cleaned}"\n\nRegards,\nPhoto App`;
+            const subject = "New Comment on Your Photo"
+            const body =
+`Hello ${owner.name},
+
+${user.name} commented on your photo "${photo.title}":
+
+"${cleaned}"
+
+Regards,
+Photo App`
+
             sendMail(owner.email, subject, body);
         }
     }
 
-    return comment  
+    return comment;
 }
 
 /**
