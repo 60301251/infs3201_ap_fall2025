@@ -309,7 +309,7 @@ async function getPhotosByAlbum(albumId, userEmail) {
  */
 
 async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
-const db = await connectDatabase();
+const db = await connectDatabase()
 const photosCollection = db.collection('photos')
 const photosDir = path.join(__dirname, 'photos')
 if (!fs.existsSync(photosDir)) fs.mkdirSync(photosDir)
