@@ -33,10 +33,13 @@ async function connectDatabase(){
 
 
 /**
- * Hash a plaintext password with a randomly generated salt using PBKDF2.
- * @param {string} password
- * @returns {Object} { salt, hash }
+ * Generates a salted PBKDF2 hash for a plaintext password.
+ * Creates a random salt and returns both the salt and resulting hash.
+ *
+ * @param {string} password - The plaintext password to hash.
+ * @returns {{ salt: string, hash: string }} The generated salt and hash pair.
  */
+
 function hashPassword(password){
     if(!password || typeof password!=='string'){
         throw new Error("Password must be non-empty string")
@@ -47,12 +50,15 @@ function hashPassword(password){
 }
 
 /**
- * Verify a plaintext password against stored hash and salt.
- * @param {string} password
- * @param {string} salt
- * @param {string} storedHash
- * @returns {boolean}
+ * Verifies a plaintext password by hashing it with the stored salt
+ * and comparing it to the saved password hash.
+ *
+ * @param {string} password - The plaintext password to verify.
+ * @param {string} salt - The salt originally used to hash the password.
+ * @param {string} storedHash - The stored hashed password.
+ * @returns {boolean} True if the password matches, otherwise false.
  */
+
 function verifyPassword(password, salt,storedHash){
     if(!salt || !storedHash){
         return false
@@ -162,11 +168,15 @@ async function loadPhoto(){
 }
 
 /**
- * Upserts a single photo document by id.
+ * Inserts a new photo record into the photos collection.
+ * Constructs a normalized photo document and returns the inserted ID.
+ *
  * @async
- * @param {Object} photo
- * @returns {Promise<void>}
+ * @param {Object} photoData - Photo details including title, description, visibility,
+ *                             ownerId, albumId, and filePath.
+ * @returns {Promise<string>} The ID of the saved photo document.
  */
+
 async function savePhoto(photoData) {
     const db = await connectDatabase()
     const photosCollection = db.collection('photos')
