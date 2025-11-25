@@ -356,11 +356,7 @@ router.get('/album/:id', requireLogin, async (req, res) => {
     if (!album) return res.render('error', { message: "Album not found", layout: undefined })
 
     try {
-<<<<<<< Updated upstream
         const photos = await business.getPhotosByAlbum(albumId, req.user.email)
-=======
-        const photos = await business.getPhotosByAlbum(albumId) // fetch all uploaded photos
->>>>>>> Stashed changes
         res.render('album_gallery', { album, photos, user: req.user, layout: undefined })
     } catch (err) {
         console.error('Error loading photos:', err)
@@ -368,12 +364,6 @@ router.get('/album/:id', requireLogin, async (req, res) => {
     }
 })
 
-
-<<<<<<< Updated upstream
-=======
-
-
->>>>>>> Stashed changes
 /**
  * Performs a search across public photos by title, description, or tags
  * and displays the matching results in a grid.
@@ -525,7 +515,6 @@ router.get('/album/:id/gallery', requireLogin, async (req, res) => {
             layout: undefined
         })
     }
-<<<<<<< Updated upstream
 })
 
 
@@ -598,7 +587,7 @@ router.post('/:albumId/upload', async (req, res) => {
         console.error('Upload error:', err)
         res.render('error', { message: 'Photo upload failed', layout: undefined })
     }
-=======
+
 });
 
 
@@ -699,7 +688,6 @@ router.post('/photo/upload', requireLogin, async (req, res) => {
         console.error("Error uploading photo:", err)
         res.render('error', { message: "Failed to upload photo", layout: undefined })
     }
->>>>>>> Stashed changes
 })
 
 

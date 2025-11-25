@@ -31,8 +31,6 @@ const PORT=8000
 app.use(bodyParser.urlencoded({extended: true}))
 app.use('/photos', express.static(path.join(__dirname,'photos')))
 app.use(express.static(path.join(__dirname, 'public')))
-<<<<<<< Updated upstream
-app.use(fileUpload())
 app.use(fileUpload({
     limits: { fileSize: 50 * 1024 * 1024 }, 
     useTempFiles: true,
@@ -41,13 +39,6 @@ app.use(fileUpload({
     safeFileNames: true
 }))
 
-=======
-app.use(fileUpload({
-    limits: { fileSize: 50 * 1024 * 1024 }, 
-    useTempFiles: true,
-    tempFileDir: '/tmp/'
-}))
->>>>>>> Stashed changes
 
 app.use(cookieParser())
 
@@ -94,23 +85,10 @@ app.use(async (req, res, next) => {
         return next()
     }
     try {
-<<<<<<< Updated upstream
         const user = await getUserBySession(sessionId);
         req.user = user ? { ...user, id: user.id || user.userId } : null
         if (!user) res.clearCookie('sessionId')
     } catch {
-=======
-        const user = await getUserBySession(sessionId)
-        if (user) {
-            req.user = { ...user, id: user.id || user.userId } 
-        } else {
-            res.clearCookie('sessionId')
-            req.user = null
-        }
-    } catch (e) {
-        console.error("Session lookup failed:", e)
-        res.clearCookie('sessionId')
->>>>>>> Stashed changes
         req.user = null
         res.clearCookie('sessionId')
     }
@@ -119,10 +97,6 @@ app.use(async (req, res, next) => {
 
 
 
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 /**
  * Route handler setup
  * @param {express.Router} routes - Imported route handlers

@@ -296,7 +296,7 @@ async function getPhotosByAlbum(albumId, userEmail) {
     return result
 }
 
-<<<<<<< Updated upstream
+
 
 /**
  * Uploads a photo, saves it to the server, and stores its metadata in MongoDB.
@@ -309,29 +309,6 @@ async function getPhotosByAlbum(albumId, userEmail) {
  * @returns {Promise<string>} The ID of the inserted photo record.
  */
 
-async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
-const db = await connectDatabase()
-const photosCollection = db.collection('photos')
-const photosDir = path.join(__dirname, 'photos')
-if (!fs.existsSync(photosDir)) fs.mkdirSync(photosDir)
-
-const fileExt = path.extname(uploadedFile.name)
-const fileName = `${Date.now()}_${userId}${fileExt}`
-const filePath = path.join(photosDir, fileName)
-
-await uploadedFile.mv(filePath)
-
-const photoRecord = {
-    userId,
-    albumId,
-    title: photoData.title,
-    description: photoData.description,
-    visibility: photoData.visibility,
-    ownerEmail: photoData.ownerEmail,
-    fileName,
-    filePath,
-    createdAt: new Date()
-=======
 async function uploadPhoto(userid, albumid, uploadedFile, photoData) {
 
     const dir = path.join(__dirname, '../photos', String(userid), String(albumid));
@@ -391,11 +368,7 @@ async function uploadPhoto(userid, albumid, uploadedFile, photoData) {
     }
 
     return true;
->>>>>>> Stashed changes
-}
 
-const result = await photosCollection.insertOne(photoRecord)
-return result.insertedId
 }
 
 
@@ -415,5 +388,5 @@ module.exports={
     getUserBySession,
     createSession,
     searchPhotos,
-    uploadPhoto
+    uploadPhoto,
 }
