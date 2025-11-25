@@ -511,8 +511,6 @@ router.get('/album/:albumId/upload', requireLogin, async (req, res) => {
   } catch (err) {
     console.error('Error loading upload page:', err)
     res.render('error', { message: 'Failed to load upload page', layout: undefined })
-  }
-})
 
     const albumId = Number(req.params.albumId)
     if (isNaN(albumId)) {
@@ -525,6 +523,7 @@ router.get('/album/:albumId/upload', requireLogin, async (req, res) => {
     }
 
     res.render('upload', { album, user: req.user, layout: undefined })
+}
 })
 
 
