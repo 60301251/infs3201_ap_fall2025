@@ -267,10 +267,13 @@ async function addPhotoComment(photoId, user, text) {
             if (owner && owner.email) {
                 const subject = `New Comment on Your Photo`
                 const body = `Hello ${owner.name},
-                ${user.name} commented on your photo "${photo.title || ''}":
-                "${cleaned}"
-                Regards,
-                Photo App`
+
+${user.name} commented on your photo "${photo.title || ''}":
+
+"${cleaned}"
+
+Regards,
+Photo App`
                 sendMail(owner.email, subject, body)
             } else {
                 console.warn("Owner not found for photoId:", photo.id, "ownerId:", photo.ownerId)
@@ -337,7 +340,49 @@ async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
   const base = path.basename(uploadedFile.name, ext)
   const safeBase = base.replace(/\s+/g, '_')  
 
+
   const fileName = Date.now() + '_' + userIdNum + '_' + albumIdNum + '_' + safeBase + ext
+
+    if (Number(photo.albumId) !== albumIdNum) {
+      continue
+    }
+
+    if (photo.visibility === 'public' || photo.ownerEmail === userEmail) {
+      result.push(photo)
+    }
+  }
+
+  return result
+}
+
+
+/**
+ * Uploads a photo file to the server (./photos folder) and stores its
+ * metadata in MongoDB. Generates a unique filename, saves the file
+ * physically, and calls savePhoto() to assign a numeric photo ID.
+ *
+ * @async
+ * @param {string|number} userId - The ID of the user uploading the photo.
+ * @param {string|number} albumId - The album to which the photo belongs.
+ * @param {Object} uploadedFile - The uploaded file object from express-fileupload.
+ * @param {Object} photoData - Additional form fields (title, description, visibility).
+ *
+ * @param {string} photoData.title - Photo title entered by the user.
+ * @param {string} photoData.description - Photo description entered by the user.
+ * @param {"public"|"private"} photoData.visibility - Visibility setting.
+ *
+ * @returns {Promise<number>} The newly generated numeric photo ID.
+ */
+
+async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
+  const photosDir = path.join(__dirname, 'photos')
+  if (!fs.existsSync(photosDir)) {
+    fs.mkdirSync(photosDir)
+  }
+
+  const fileExt = path.extname(uploadedFile.name)
+  const fileName = `${Date.now()}_${userId}${fileExt}`
+
   const diskPath = path.join(photosDir, fileName)
 
   await new Promise((resolve, reject) => {
