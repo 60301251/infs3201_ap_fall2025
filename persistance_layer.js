@@ -28,11 +28,12 @@ const MONGO_URL = 'mongodb+srv://60301251:12class34@cluster0.j7qvb.mongodb.net/'
 
 async function connectDatabase() {
   if (!client) {
-    client = new MongoClient(MONGO_URL, { useUnifiedTopology: true, useNewUrlParser: true })
+    client = new MongoClient(MONGO_URL)
     await client.connect()
   }
   return client.db('INFS3201_fall2025')
 }
+
 
 
 /**
