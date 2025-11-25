@@ -267,13 +267,10 @@ async function addPhotoComment(photoId, user, text) {
             if (owner && owner.email) {
                 const subject = `New Comment on Your Photo`
                 const body = `Hello ${owner.name},
-
-${user.name} commented on your photo "${photo.title || ''}":
-
-"${cleaned}"
-
-Regards,
-Photo App`
+                ${user.name} commented on your photo "${photo.title || ''}":
+                "${cleaned}"
+                Regards,
+                Photo App`
                 sendMail(owner.email, subject, body)
             } else {
                 console.warn("Owner not found for photoId:", photo.id, "ownerId:", photo.ownerId)
@@ -322,28 +319,43 @@ async function searchPhotos(searchTerm) {
  * @param {string|number} userId       - ID of the uploading user.
  * @param {string|number} albumId      - ID of the target album.
  * @param {Object}        uploadedFile - File object from express-fileupload.
- * @param {Object}        photoData    - Extra fields: title, description, visibility.
+ * @param {Object}        photoData    - Extra fields: title, description, visibility (ignored, we force private).
  * @returns {Promise<number>} Newly generated numeric photo ID.
  */
 async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
+
   const photosDir = path.join(__dirname, 'photos')
+
   if (!fs.existsSync(photosDir)) {
     fs.mkdirSync(photosDir, { recursive: true })
   }
 
-  const fileExt = path.extname(uploadedFile.name)
-  const fileName = `${Date.now()}_${userId}${fileExt}`
+  const userIdNum = Number(userId)
+  const albumIdNum = Number(albumId)
+
+  const ext = path.extname(uploadedFile.name)
+  const base = path.basename(uploadedFile.name, ext)
+  const safeBase = base.replace(/\s+/g, '_')  
+
+  const fileName = Date.now() + '_' + userIdNum + '_' + albumIdNum + '_' + safeBase + ext
   const diskPath = path.join(photosDir, fileName)
 
-  await uploadedFile.mv(diskPath)
+  await new Promise((resolve, reject) => {
+    uploadedFile.mv(diskPath, (err) => {
+      if (err) reject(err)
+      else resolve()
+    })
+  })
+
 
   const record = {
     title: (photoData.title || '').trim(),
     description: (photoData.description || '').trim(),
-    visibility: (photoData.visibility === 'private') ? 'private' : 'public',
-    ownerId: Number(userId),
-    albumId: Number(albumId),
-    filePath: fileName
+    visibility: 'private',            
+    ownerId: userIdNum,
+    albumId: albumIdNum,
+    filePath: fileName,
+    tags: []
   }
 
   const newId = await savePhoto(record)
@@ -365,5 +377,5 @@ module.exports={
     getUserBySession,
     createSession,
     searchPhotos,
-    uploadPhoto,
+    uploadPhoto
 }
