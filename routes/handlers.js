@@ -488,13 +488,13 @@ router.get('/album/:id/gallery', requireLogin, async (req, res) => {
             });
         }
 
-        const photos = await business.getByAlbum(album.name, req.session.userId);
+        const photos = await business.getPhotosByAlbum(album.name, req.userId);
 
         res.render('album_gallery', {
-            album: photos?.album || album,
-            photos: photos?.photos || [],
-            user: req.user,
-            layout: undefined
+            albumName: album.name,
+            albumId: album.id,
+            photos: photos || [],
+            user: req.user
         });
 
     } catch (err) {
@@ -559,41 +559,17 @@ router.get('/album/:albumId/upload', requireLogin, async (req, res) => {
  * @param {express.Response} res - Response used to show errors or redirect after upload.
  * @returns {Promise<void>}
  */
-router.post('/album/:albumId/upload', requireLogin, async (req, res) => {
-  const albumId = getId(req, 'albumId')
-  if (albumId === null) return res.render('error', { message: 'Invalid album ID', layout: undefined })
+router.post('/album/:id/upload', async (req, res) => {
     try {
-  const album = await business.getAlbum(albumId)
-  if (!album) return res.render('error', { message: 'Album not found', layout: undefined })
-    if (!req.files || !req.files.photo)
-        return res.render('error', { message: 'No file uploaded', layout: undefined })
-
-    const uploadedFile = req.files.photo
-    const ext = path.extname(uploadedFile.name)
-    const filename = `${Date.now()}-${Math.floor(Math.random() * 10000)}${ext}`
-    const diskPath = path.join(UPLOADS_DIR, filename)
-
-    await new Promise((resolve, reject) => {
-        uploadedFile.mv(diskPath, (err) => {
-            if (err) reject(err)
-            else resolve()
-        })
-    })
-
-    const photoData = {
-        title: (req.body.title || '').trim(),
-        description: (req.body.description || '').trim(),
-        visibility: (req.body.visibility || 'public').trim(),
-        filename
+        const albumId = Number(req.params.id);
+        const photoData = await business.uploadPhoto(albumId, req);
+        res.redirect(`/album/${albumId}/gallery`);
+    } catch (err) {
+        console.error("Error uploading photo:", err);
+        res.render('error', { message: "Error uploading photo: " + err.message });
     }
-    await business.uploadPhoto(req.user.id, albumId, photoData)
+});
 
-    res.redirect(`/album/${albumId}`)
-} catch (err) {
-    console.error('Error uploading photo:', err)
-    res.render('error', { message: 'Failed to upload photo', layout: undefined })
-}
-})
 
 /**
  * Exports the Express router handling all photo and album routes.

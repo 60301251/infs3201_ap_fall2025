@@ -162,7 +162,6 @@ async function getPhotosByAlbum(albumId, userEmail) {
         if (!photo.albums || !photo.albums.includes(albumId)) continue;
              if (photo.visibility === "public" || photo.ownerEmail === userEmail) {
             result.push(photo)
-            result.push(photo);
         }
     }
 
@@ -312,44 +311,6 @@ async function searchPhotos(searchTerm) {
 
 
 /**
- * Uploads a photo file to the /photos folder and stores its metadata in MongoDB.
- *
- * @async
- * @param {string|number} userId       - ID of the uploading user.
- * @param {string|number} albumId      - ID of the target album.
- * @param {Object}        uploadedFile - File object from express-fileupload.
- * @param {Object}        photoData    - Extra fields: title, description, visibility (ignored, we force private).
- * @returns {Promise<number>} Newly generated numeric photo ID.
- */
-async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
-  const photosDir = path.join(__dirname, 'photos')
-
-  if (!fs.existsSync(photosDir)) {
-    fs.mkdirSync(photosDir, { recursive: true })
-  }
-
-  const userIdNum = Number(userId)
-  const albumIdNum = Number(albumId)
-
-  const ext = path.extname(uploadedFile.name)
-  const base = path.basename(uploadedFile.name, ext)
-  const safeBase = base.replace(/\s+/g, '_')  
-
-
-  const fileName = Date.now() + '_' + userIdNum + '_' + albumIdNum + '_' + safeBase + ext
-
-    if (Number(photo.albumId) !== albumIdNum) {
-      return
-    }
-    if (photo.visibility === 'public' || photo.ownerEmail === userEmail) {
-      result.push(photo)
-    }
-  return result
-  
-}
-
-
-/**
  * Uploads a photo file to the server (./photos folder) and stores its
  * metadata in MongoDB. Generates a unique filename, saves the file
  * physically, and calls savePhoto() to assign a numeric photo ID.
@@ -367,39 +328,51 @@ async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
  * @returns {Promise<number>} The newly generated numeric photo ID.
  */
 
-async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
-  const photosDir = path.join(__dirname, 'photos')
-  if (!fs.existsSync(photosDir)) {
-    fs.mkdirSync(photosDir)
-  }
+async function uploadPhoto(albumId, req) {
+    if (!req.files || !req.files.photo) {
+        throw new Error("No file uploaded")
+    }
 
-  const fileExt = path.extname(uploadedFile.name)
-  const fileName = `${Date.now()}_${userId}${fileExt}`
+    const photo = req.files.photo;
 
-  const diskPath = path.join(photosDir, fileName)
+    // Ensure /photos folder exists
+    const photosDir = path.join(__dirname, 'photos')
+    if (!fs.existsSync(photosDir)) {
+        fs.mkdirSync(photosDir)
+    }
 
-  await new Promise((resolve, reject) => {
-    uploadedFile.mv(diskPath, (err) => {
-      if (err) reject(err)
-      else resolve()
-    })
-  })
+    // Save file to /photos
+    const uploadPath = path.join(photosDir, photo.name)
+    await photo.mv(uploadPath)
 
-
-  const record = {
-    title: (photoData.title || '').trim(),
-    description: (photoData.description || '').trim(),
-    visibility: 'private',            
-    ownerId: userId,
-    albumId: albumId,
-    filePath: fileName,
-    tags: []
-  }
-
-  const newId = await savePhoto(record)
-  return newId
+    // Prepare photo info for DB
+    const photoData = {
+        albumId: albumId,
+        filePath: photo.name, // store only filename
+        title: req.body.title || '',
+        description: req.body.description || '',
+        visibility: req.body.visibility || 'public',
+        uploadedAt: new Date()
+    }
+    return photoData;
 }
 
+
+
+
+
+async function getNextPhotoId() {
+    const db = await connPool;
+    const counters = db.collection("counters");
+
+    const result = await counters.findOneAndUpdate(
+        { name: "photoId" },
+        { $inc: { value: 1 } },
+        { upsert: true, returnDocument: "after" }
+    );
+
+    return result.value.value;
+}
 module.exports={
     signup,
     login,
@@ -416,4 +389,5 @@ module.exports={
     createSession,
     searchPhotos,
     uploadPhoto,
+    getNextPhotoId
 }

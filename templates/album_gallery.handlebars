@@ -12,10 +12,8 @@
 <div class="gallery-grid">
     {{#if photos.length}}
         {{#each photos}}
-            <div class="photo-item">
-                <a href="/photos/{{this.id}}">
-                    <img src="/photos/{{this.filePath}}" alt="{{this.title}}" />
-                </a>
+            <div class="photo-card">
+                    <img src="/photos/{{this.filename}}" alt="{{this.title}}" />
                 <p>{{this.title}}</p>
             </div>
         {{/each}}
@@ -25,7 +23,7 @@
 </div>
 
 {{#if user}}
-<form action="/album/{{albumId}}/upload" method="POST" enctype="multipart/form-data">
+<form action="/album/{{album.id}}/upload" method="POST" enctype="multipart/form-data">
     <label>Photo:</label>
     <input type="file" name="photo" required>
 
