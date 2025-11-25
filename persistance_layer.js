@@ -14,7 +14,6 @@ const{ MongoClient}=require('mongodb')
 const crypto=require('crypto')
 const fs = require('fs').promises
 
-
 let client=null
 
 
@@ -204,6 +203,7 @@ async function savePhoto(photoData) {
     await photosCollection.insertOne(photoDoc)
     return nextId
 }
+
 
     
 /**
@@ -451,6 +451,7 @@ async function getUserBySession(sessionId) {
     if (!session) return null
 
   
+
     const user = await users.findOne({ id: Number(session.userId) })
     if (!user) return null
     return {
@@ -550,6 +551,7 @@ async function findUserById(id) {
     }
     return null
 }
+
 
 
 module.exports={
