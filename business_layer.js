@@ -324,6 +324,7 @@ async function getPhotosByAlbum(albumId, userEmail) {
  *
  * @returns {Promise<number>} The newly generated numeric photo ID.
  */
+<<<<<<< Updated upstream
 
 async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
     // 1. Check album exists
@@ -353,6 +354,8 @@ async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
   return newId
 }
 
+=======
+>>>>>>> Stashed changes
 async function uploadPhoto(userid, albumid, uploadedFile, photoData) {
 
 
@@ -364,6 +367,7 @@ async function uploadPhoto(userid, albumid, uploadedFile, photoData) {
         throw new Error('Failed to create directory: ' + err.message);
     }
 
+<<<<<<< Updated upstream
     // 3. Save uploaded file using a Promise wrapper
     const savePath = path.join(dir, uploadedFile.name);
     await new Promise((resolve, reject) => {
@@ -375,6 +379,45 @@ async function uploadPhoto(userid, albumid, uploadedFile, photoData) {
 
     // 4. Save photo metadata to MongoDB
     const photoDoc = {
+=======
+    const savePath = path.join(dir, uploadedFile.name);
+    try {
+        await uploadedFile.mv(savePath);  
+    } catch (err) {
+        throw new Error('Failed to save file: ' + err.message);
+    }
+
+    const dbPath = path.join(__dirname, '../db.json');
+    let db;
+    try {
+        const data = await fs.readFile(dbPath, 'utf8');
+        db = JSON.parse(data);
+    } catch (err) {
+        throw new Error('Failed to read database: ' + err.message);
+    }
+
+    let user = null;
+    for (let i = 0; i < db.users.length; i++) {
+        if (db.users[i].userid == userid) {
+            user = db.users[i];
+            break;
+        }
+    }
+    if (!user) throw new Error('User not found');
+
+    let album = null;
+    for (let i = 0; i < user.albums.length; i++) {
+        if (user.albums[i].albumid == albumid) {
+            album = user.albums[i];
+            break;
+        }
+    }
+    if (!album) throw new Error('Album not found');
+
+    album.photos.push({
+        id: Date.now(), 
+        filename: uploadedFile.name,
+>>>>>>> Stashed changes
         title: photoData.title || uploadedFile.name,
         description: photoData.description || '',
         visibility: photoData.visibility || 'public',
@@ -386,6 +429,7 @@ async function uploadPhoto(userid, albumid, uploadedFile, photoData) {
     const photoId = await savePhoto(photoDoc);
     return photoId;
 }
+
 
 module.exports={
     signup,
