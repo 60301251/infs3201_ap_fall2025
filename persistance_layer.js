@@ -19,10 +19,12 @@ let client=null
 
 
 /**
- * Connect to MongoDB database if not already connected.
+ * Connects to MongoDB if not already connected and returns the database instance.
+ *
  * @async
- * @returns {Promise<void>}
+ * @returns {Promise<import('mongodb').Db>} The active MongoDB database.
  */
+
 async function connectDatabase(){
     if(!client){
         client=new MongoClient('mongodb+srv://60301251:12class34@cluster0.j7qvb.mongodb.net/',{useUnifiedTopology:true, useNewUrlParser: true})
