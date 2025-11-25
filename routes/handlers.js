@@ -27,14 +27,14 @@ const { getUserBySession } = require('../business_layer')
  * @returns {void}
  */
 async function requireLogin(req, res, next) {
-  const sessionId = req.cookies?.sessionId;
+  const sessionId = req.cookies?.sessionId
   if (!sessionId) {
-    return res.redirect('/login');}
-  const user = await getUserBySession(sessionId);
+    return res.redirect('/login')}
+  const user = await getUserBySession(sessionId)
   if (!user){
      return res.redirect('/login')}
-  req.user = { id: Number(user.id), name: user.name, email: user.email };
-  next();
+  req.user = { id: Number(user.id), name: user.name, email: user.email }
+  next()
 }
 
 /**
@@ -49,12 +49,12 @@ function getId(req) {
 }
 
 /**
+ * Renders the homepage displaying all available albums for the logged-in user.
+ *
  * @route GET /
- * @description Renders the homepage showing a list of all albums.
  * @async
- * @function
- * @param {express.Request} req
- * @param {express.Response} res
+ * @param {express.Request} req - Contains authenticated user information.
+ * @param {express.Response} res - Renders the homepage or an error page.
  * @returns {Promise<void>}
  */
 router.get('/', requireLogin, async (req, res) => {
@@ -66,12 +66,14 @@ router.get('/', requireLogin, async (req, res) => {
   }
 })
 
+
 /**
+ * Renders the login page for existing users.
+ * If a valid session already exists, the user is redirected to the homepage.
+ *
  * @route GET /login
- * @description Renders the login page where existing users can authenticate.
- * @function
- * @param {express.Request} req
- * @param {express.Response} res
+ * @param {express.Request} req - Includes potential session cookies.
+ * @param {express.Response} res - Renders the login view or redirects.
  * @returns {void}
  */
 router.get('/login', async (req, res) => {
@@ -88,13 +90,13 @@ router.get('/login', async (req, res) => {
 
 
 /**
+ * Handles user login: validates input, authenticates the user,
+ * creates a session, sets a session cookie, and redirects to home.
+ *
  * @route POST /login
- * @description Handles user login. Validates email and password, then sets a session cookie.
  * @async
- * @function
- * @param {express.Request} req
- * @param {express.Response} res
- * @returns {Promise<void>}
+ * @param {Object} req - Express request object containing email and password.
+ * @param {Object} res - Express response object used to render views or redirect.
  */
 router.post('/login', async (req, res) => {
   const email = (req.body.email || '').trim()
@@ -171,13 +173,15 @@ router.get('/photo/:id', requireLogin, async (req, res) => {
 
 
 /**
+ * Loads a photo owned by the logged-in user and renders the edit form.
+ * Ensures that only the owner of the photo can access the edit page.
+ *
  * @route GET /photo/:id/edit
- * @description Renders an edit form for a specific photo.
  * @async
- * @param {express.Request} req
- * @param {express.Response} res
- * @returns {Promise<void>}
+ * @param {express.Request} req - Request containing the photo ID and user session.
+ * @param {express.Response} res - Response used to render the edit page.
  */
+
 router.get('/photo/:id/edit', requireLogin, async (req, res) => {
   const photoId = getId(req)
   if (photoId === null) {
@@ -202,13 +206,16 @@ router.get('/photo/:id/edit', requireLogin, async (req, res) => {
 })
 
 /**
+ * Processes the photo edit form and updates the photo’s details.
+ * Only the photo owner can modify the title, description, or visibility.
+ * Redirects back to the photo page on success or shows an error page on failure.
+ *
  * @route POST /photo/:id/edit
- * @description Updates a photo’s title, description, and visibility.
  * @async
- * @param {express.Request} req
- * @param {express.Response} res
- * @returns {Promise<void>}
+ * @param {express.Request} req - Express request containing form data and user info.
+ * @param {express.Response} res - Express response used to render errors or redirect.
  */
+
 router.post('/photo/:id/edit', requireLogin, async (req, res) => {
   const photoId = getId(req)
   if (photoId === null) {
@@ -232,13 +239,15 @@ router.post('/photo/:id/edit', requireLogin, async (req, res) => {
 })
 
 /**
+ * Adds a new tag to a specific photo.
+ * Only the photo owner can add tags, and empty or duplicate tags are rejected.
+ *
  * @route POST /photo/:id/tag
- * @description Add a tag to a photo. Only the owner can tag their photo. Empty tags are rejected.
  * @async
- * @param {express.Request} req - Contains { tag } in body and :id in params.
- * @param {express.Response} res
- * @returns {Promise<void>}
+ * @param {express.Request} req - Contains the tag in the request body.
+ * @param {express.Response} res - Used to render errors or redirect.
  */
+
 router.post('/photo/:id/tag', requireLogin, async (req, res) => {
   const photoId = getId(req)
   if (photoId === null) {
@@ -277,13 +286,15 @@ router.post('/photo/:id/tag', requireLogin, async (req, res) => {
 })
 
 /**
- * @route POST /photo/:id/comment
- * @description Adds a new comment to a photo, ensuring the user is logged in and authorized.
+ * Adds a new tag to a specific photo.
+ * Only the photo owner can add tags, and empty or duplicate tags are rejected.
+ *
+ * @route POST /photo/:id/tag
  * @async
- * @param {express.Request} req
- * @param {express.Response} res
- * @returns {Promise<void>}
+ * @param {express.Request} req - Contains the tag in the request body.
+ * @param {express.Response} res - Used to render errors or redirect.
  */
+
 router.post('/photo/:id/comment', requireLogin, async (req, res) => {
   const photoId = getId(req)
   if (photoId === null) {
@@ -344,16 +355,16 @@ router.get('/album/:id', requireLogin, async (req, res) => {
 })
 
 
-
-
 /**
+ * Performs a search across public photos by title, description, or tags
+ * and displays the matching results in a grid.
+ *
  * @route GET /search
- * @description Search public photos by title, description, or tags and render them in a grid.
  * @async
- * @param {express.Request} req
- * @param {express.Response} res
- * @returns {Promise<void>}
+ * @param {express.Request} req - Contains the search query in req.query.q.
+ * @param {express.Response} res - Renders the search results or an error page.
  */
+
 router.get('/search', requireLogin, async (req, res) => {
   const raw = req.query.q || ''
   const searchTerm = String(raw).trim()
@@ -373,26 +384,27 @@ router.get('/search', requireLogin, async (req, res) => {
 
 
 /**
+ * Renders the signup page where new users can create an account.
+ *
  * @route GET /signup
- * @description Renders the signup page where a new user can register.
- * @function
- * @param {express.Request} req
- * @param {express.Response} res
- * @returns {void}
+ * @param {express.Request} req - Incoming request.
+ * @param {express.Response} res - Used to render the signup view.
  */
+
 router.get('/signup', (req, res) => {
   res.render('signup', { layout: undefined })
 })
 
 /**
+ * Processes user registration by validating input and creating a new account.
+ * Rejects missing fields and prevents signup with an already-registered email.
+ *
  * @route POST /signup
- * @description Handles new user registration. Validates fields and prevents duplicate email registration.
  * @async
- * @function
- * @param {express.Request} req
- * @param {express.Response} res
- * @returns {Promise<void>}
+ * @param {express.Request} req - Contains user details (name, email, password).
+ * @param {express.Response} res - Renders errors or redirects to the login page.
  */
+
 router.post('/signup', async (req, res) => {
   const name = (req.body.name || '').trim()
   const email = (req.body.email || '').trim()
@@ -444,14 +456,19 @@ router.get('/album/name/:name', async (req, res) => {
     })
 })
 
+
 /**
- * GET /album/:id/gallery
- * Renders the gallery for a specific album (requires login).
+ * Displays the gallery view for a specific album.
+ * Validates the album ID, checks that the album exists, and then
+ * loads all photos visible to the logged-in user before rendering the gallery.
  *
+ * @route GET /album/:id/gallery
  * @async
- * @param {Object} req - Express request (params.id, user)
- * @param {Object} res - Express response
+ * @param {express.Request} req - Contains the album ID and authenticated user info.
+ * @param {express.Response} res - Renders the album gallery or an error page.
+ * @returns {Promise<void>}
  */
+
 router.get('/album/:id/gallery', requireLogin, async (req, res) => {
     const albumId = Number(req.params.id);
 
@@ -459,86 +476,109 @@ router.get('/album/:id/gallery', requireLogin, async (req, res) => {
         return res.render('error', { 
             message: "Invalid album ID.",
             layout: undefined
-        });
+        })
     }
 
     try {
-        const album = await business.getAlbum(albumId);
+        const album = await business.getAlbum(albumId)
 
         if (!album) {
             return res.render('error', { 
                 message: "Album not found.",
                 layout: undefined
-            });
+            })
         }
 
-        const photos = await business.getByAlbum(album.name, req.session.userId);
+        const photos = await business.getByAlbum(album.name, req.session.userId)
 
         res.render('album_gallery', {
             album: photos?.album || album,
             photos: photos?.photos || [],
             user: req.user,
             layout: undefined
-        });
+        })
 
     } catch (err) {
-        console.error("Error loading album gallery:", err);
+        console.error("Error loading album gallery:", err)
 
         return res.render('error', { 
             message: "Failed to load album gallery.",
             layout: undefined
-        });
+        })
     }
-});
+})
 
-// GET upload page
+
+/**
+ * Renders the photo upload page for a specific album.
+ * Ensures the album ID is valid and the album exists before showing the form.
+ *
+ * @route GET /album/:albumId/upload
+ * @async
+ * @param {express.Request} req - Contains the album ID and authenticated user info.
+ * @param {express.Response} res - Renders the upload page or an error page.
+ * @returns {Promise<void>}
+ */
+
 router.get('/album/:albumId/upload', requireLogin, async (req, res) => {
     const albumId = Number(req.params.albumId);
     if (isNaN(albumId)) {
-        return res.render('error', { message: "Invalid album ID", layout: undefined });
+        return res.render('error', { message: "Invalid album ID", layout: undefined })
     }
 
-    const album = await business.getAlbum(albumId);
+    const album = await business.getAlbum(albumId)
     if (!album) {
-        return res.render('error', { message: "Album not found", layout: undefined });
+        return res.render('error', { message: "Album not found", layout: undefined })
     }
 
-    res.render('upload', { album, user: req.user, layout: undefined });
-});
+    res.render('upload', { album, user: req.user, layout: undefined })
+})
 
 
-// POST upload photo
+/**
+ * Handles uploading a new photo to a specific album.
+ * Validates the user session, checks for an uploaded file, and then
+ * sends the photo data to the business layer for saving. Redirects
+ * back to the album page on success or displays an error on failure.
+ *
+ * @route POST /:albumId/upload
+ * @async
+ * @param {express.Request} req - Contains the uploaded file, album ID, and form fields.
+ * @param {express.Response} res - Used to render error pages or redirect after upload.
+ * @returns {Promise<void>}
+ */
+
 router.post('/:albumId/upload', async (req, res) => {
     if (!req.session || !req.session.userId) {
-        return res.redirect('/login');
+        return res.redirect('/login')
     }
 
-    const albumId = Number(req.params.albumId);
+    const albumId = Number(req.params.albumId)
 
     if (!req.files || !req.files.photo) {
-        return res.render('error', { message: 'No photo uploaded', layout: undefined });
+        return res.render('error', { message: 'No photo uploaded', layout: undefined })
     }
 
-    const uploadedFile = req.files.photo;
+    const uploadedFile = req.files.photo
 
     try {
-        const userId = req.session.userId;
+        const userId = req.session.userId
 
         const photoData = {
             title: req.body.title || '',
             description: req.body.description || '',
             visibility: req.body.visibility || 'public',
             ownerEmail: req.session.email
-        };
+        }
 
-        await business.uploadPhoto(userId, albumId, uploadedFile, photoData);
+        await business.uploadPhoto(userId, albumId, uploadedFile, photoData)
 
-        res.redirect(`/album/${albumId}`);
+        res.redirect(`/album/${albumId}`)
     } catch (err) {
-        console.error('Upload error:', err);
-        res.render('error', { message: 'Photo upload failed', layout: undefined });
+        console.error('Upload error:', err)
+        res.render('error', { message: 'Photo upload failed', layout: undefined })
     }
-});
+})
 
 
 /**
