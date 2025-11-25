@@ -230,10 +230,13 @@ async function addPhotoComment(photoId, user, text) {
             if (owner && owner.email) {
                 const subject = `New Comment on Your Photo`
                 const body = `Hello ${owner.name},
-                ${user.name} commented on your photo "${photo.title || ''}":
-                "${cleaned}"
-                Regards,
-                Photo App`
+
+${user.name} commented on your photo "${photo.title || ''}":
+
+"${cleaned}"
+
+Regards,
+Photo App`
                 sendMail(owner.email, subject, body)
             } else {
                 console.warn("Owner not found for photoId:", photo.id, "ownerId:", photo.ownerId)
@@ -324,14 +327,10 @@ async function getPhotosByAlbum(albumId, userEmail) {
  *
  * @returns {Promise<number>} The newly generated numeric photo ID.
  */
-<<<<<<< Updated upstream
 
 async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
-    // 1. Check album exists
-    const album = await findAlbum(Number(albumId));
-    if (!album) throw new Error('Album not found');
-    const photosDir = path.join(__dirname, 'photos')
-    if (!fs.existsSync(photosDir)) {
+  const photosDir = path.join(__dirname, 'photos')
+  if (!fs.existsSync(photosDir)) {
     fs.mkdirSync(photosDir)
   }
 
@@ -354,39 +353,22 @@ async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
   return newId
 }
 
-=======
->>>>>>> Stashed changes
 async function uploadPhoto(userid, albumid, uploadedFile, photoData) {
 
-
-    // 2. Create folder for user/album if not exists
-    const dir = path.join(__dirname, '../photos', String(userId), String(albumId));
+    const dir = path.join(__dirname, '../photos', String(userid), String(albumid));
     try {
         await fs.mkdir(dir, { recursive: true });
     } catch (err) {
         throw new Error('Failed to create directory: ' + err.message);
     }
 
-<<<<<<< Updated upstream
-    // 3. Save uploaded file using a Promise wrapper
-    const savePath = path.join(dir, uploadedFile.name);
-    await new Promise((resolve, reject) => {
-        uploadedFile.mv(savePath, (err) => {
-            if (err) reject(err);
-            else resolve();
-        });
-    });
 
-    // 4. Save photo metadata to MongoDB
-    const photoDoc = {
-=======
     const savePath = path.join(dir, uploadedFile.name);
     try {
         await uploadedFile.mv(savePath);  
     } catch (err) {
         throw new Error('Failed to save file: ' + err.message);
     }
-
     const dbPath = path.join(__dirname, '../db.json');
     let db;
     try {
@@ -405,6 +387,7 @@ async function uploadPhoto(userid, albumid, uploadedFile, photoData) {
     }
     if (!user) throw new Error('User not found');
 
+
     let album = null;
     for (let i = 0; i < user.albums.length; i++) {
         if (user.albums[i].albumid == albumid) {
@@ -417,19 +400,20 @@ async function uploadPhoto(userid, albumid, uploadedFile, photoData) {
     album.photos.push({
         id: Date.now(), 
         filename: uploadedFile.name,
->>>>>>> Stashed changes
         title: photoData.title || uploadedFile.name,
         description: photoData.description || '',
-        visibility: photoData.visibility || 'public',
-        ownerId: Number(userId),
-        albumId: Number(albumId),
-        filePath: path.join('photos', String(userId), String(albumId), uploadedFile.name)
-    };
+        uploadedAt: new Date().toISOString(),
+        visibility: photoData.visibility || 'public'
+    });
+    try {
+        await fs.writeFile(dbPath, JSON.stringify(db, null, 2), 'utf8');
+    } catch (err) {
+        throw new Error('Failed to save database: ' + err.message);
+    }
 
-    const photoId = await savePhoto(photoDoc);
-    return photoId;
+    return true;
+
 }
-
 
 module.exports={
     signup,
