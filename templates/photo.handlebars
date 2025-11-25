@@ -1,6 +1,6 @@
 <h1>{{photo.title}}</h1>
 <link rel="stylesheet" href="/styles/gallery.css">
-<img src="/photos/{{photo.filename}}" style="max-width:400px;"><br>
+<img src="/photos/{{photo.fileName}}" style="max-width:400px;"><br>
 <p>{{photo.description}}</p>
 
 <p>Visibility: {{photo.visibility}}</p>
@@ -30,7 +30,6 @@
   <p><a href="/login">Log in</a> to add a comment.</p>
 {{/if}}
 
-{{#if photo.albums.[0]}}
-  <a href="/album/{{photo.albums.[0]}}">Back to Album</a>
+{{#if photo.albumId}}
+  <a href="/album/{{photo.albumId}}">Back to Album</a>
 {{/if}}
-

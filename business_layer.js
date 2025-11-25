@@ -353,6 +353,5 @@ module.exports={
     getUserBySession,
     createSession,
     searchPhotos,
-    uploadPhoto,
-    getPhotosByAlbum,
+    uploadPhoto
 }
