@@ -27,7 +27,7 @@ const { getUserBySession } = require('../business_layer')
  * @returns {void}
  */
 async function requireLogin(req, res, next) {
-<<<<<<< Updated upstream
+
   const sessionId = req.cookies?.sessionId
   if (!sessionId) {
     return res.redirect('/login')}
@@ -36,15 +36,6 @@ async function requireLogin(req, res, next) {
      return res.redirect('/login')}
   req.user = { id: Number(user.id), name: user.name, email: user.email }
   next()
-=======
-const sessionId = req.cookies?.sessionId;
-if (!sessionId) return res.redirect('/login');
-const user = await getUserBySession(sessionId);
-if (!user) return res.redirect('/login');
-
-req.user = { id: Number(user.id), name: user.name, email: user.email };
-next();
->>>>>>> Stashed changes
 }
 
 /**
