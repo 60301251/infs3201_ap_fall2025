@@ -271,6 +271,31 @@ async function findPhoto(id){
 }
 
 /**
+ * Retrieves all photos that belong to a specific album.
+ * 
+ * Loads all photo documents where albumId matches the provided albumId.
+ * Returns an empty array if the albumId is invalid.
+ *
+ * @async
+ * @param {number|string} albumId - The album ID to search for.
+ * @returns {Promise<Object[]>} Array of photo documents in that album.
+ */
+async function findPhotosByAlbum(albumId) {
+    await connectDatabase()
+    const db = client.db('INFS3201_fall2025')
+    const photos = db.collection('photos')
+
+    const albumIdNum = Number(albumId)
+    if (!Number.isFinite(albumIdNum)) {
+        return []
+    }
+
+    const cursor = await photos.find({ albumId: albumIdNum })
+    return await cursor.toArray()
+}
+
+
+/**
  * Update an existing photo document by ID and ownerId (so only the owner can update).
  * @async
  * @param {number|string} photoId - The ID of the photo to update.
@@ -552,8 +577,6 @@ async function findUserById(id) {
     return null
 }
 
-
-
 module.exports={
     connectDatabase,
     registerUser,
@@ -564,6 +587,7 @@ module.exports={
     savePhoto,
     findUserByEmail,
     findPhoto,
+    findPhotosByAlbum,
     updatePhotoDB,
     findAlbum,
     findAlbumbyName,

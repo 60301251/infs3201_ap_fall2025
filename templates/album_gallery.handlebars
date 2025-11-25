@@ -20,11 +20,12 @@
             </div>
         {{/each}}
     {{else}}
-        <p>No photos in this album yet.</p>
+        <p class="no-photos">No photos in this album yet.</p>
     {{/if}}
+</div>
 
-    {{#if user}}
-<form action="/album/{{album.id}}/upload" method="POST" enctype="multipart/form-data">
+{{#if user}}
+<form action="/album/{{albumId}}/upload" method="POST" enctype="multipart/form-data">
     <label>Photo:</label>
     <input type="file" name="photo" required>
 
@@ -34,13 +35,14 @@
     <label>Description (optional):</label>
     <input type="text" name="description">
 
+    <label>Visibility:</label>
+    <select name="visibility">
+        <option value="public">Public</option>
+        <option value="private">Private</option>
+    </select>
+
     <button type="submit">Upload Photo</button>
 </form>
 {{/if}}
 
-</div>
-
 <a class="back-link" href="/">Back to Albums</a>
-
-</body>
-</html>

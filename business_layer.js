@@ -24,6 +24,7 @@ const{
     deleteSession,
     searchPublicPhotos,
     findUserById,
+    findPhotosByAlbum
 } = require('./persistance_layer')
 const { sendMail } = require("./email")
 const path = require('path')
@@ -134,6 +135,42 @@ async function getByAlbum(albumName, currentUserId) {
   }
 
   return { album, photos: visiblePhotos }
+}
+
+/**
+ * Retrieves all photos in an album that the user is allowed to see.
+ * Public photos are visible to everyone.
+ * Private photos are visible only to their owner.
+ *
+ * @async
+ * @param {number|string} albumId - Album ID
+ * @param {number|string} userId  - Logged-in user ID
+ * @returns {Promise<Array<Object>>}
+ */
+async function getPhotosByAlbum(albumId, userId) {
+  const albumIdNum = Number(albumId)
+  const userIdNum = Number(userId)
+
+  if (!Number.isFinite(albumIdNum) || !Number.isFinite(userIdNum)) {
+    return []
+  }
+
+  // Get all photos for that album from MongoDB
+  const photos = await findPhotosByAlbum(albumIdNum)
+  const result = []
+
+  for (let i = 0; i < photos.length; i++) {
+    const photo = photos[i]
+
+    const isPublic = (photo.visibility || 'public') === 'public'
+    const isOwner = Number(photo.ownerId) === userIdNum
+
+    if (isPublic || isOwner) {
+      result.push(photo)
+    }
+  }
+
+  return result
 }
 
 
@@ -279,59 +316,19 @@ async function searchPhotos(searchTerm) {
 
 
 /**
- * Retrieves all photos that belong to a specific album and are visible to the user.
+ * Uploads a photo file to the /photos folder and stores its metadata in MongoDB.
  *
  * @async
- * @param {string} albumId - The ID of the album to filter photos by
- * @param {string} userEmail - The email of the current user to check for private photo access
- * @returns {Promise<Array<Object>>} A promise that resolves to an array of photo objects 
- *   that belong to the album and are either public or owned by the user
+ * @param {string|number} userId       - ID of the uploading user.
+ * @param {string|number} albumId      - ID of the target album.
+ * @param {Object}        uploadedFile - File object from express-fileupload.
+ * @param {Object}        photoData    - Extra fields: title, description, visibility.
+ * @returns {Promise<number>} Newly generated numeric photo ID.
  */
-
-async function getPhotosByAlbum(albumId, userEmail) {
-  const photos = await loadPhoto()
-  const result = []
-  const albumIdNum = Number(albumId)
-
-  for (let i = 0; i < photos.length; i++) {
-    const photo = photos[i]
-
-    if (Number(photo.albumId) !== albumIdNum) {
-      continue
-    }
-
-    if (photo.visibility === 'public' || photo.ownerEmail === userEmail) {
-      result.push(photo)
-    }
-  }
-
-  return result
-}
-
-
-
-/**
- * Uploads a photo file to the server (./photos folder) and stores its
- * metadata in MongoDB. Generates a unique filename, saves the file
- * physically, and calls savePhoto() to assign a numeric photo ID.
- *
- * @async
- * @param {string|number} userId - The ID of the user uploading the photo.
- * @param {string|number} albumId - The album to which the photo belongs.
- * @param {Object} uploadedFile - The uploaded file object from express-fileupload.
- * @param {Object} photoData - Additional form fields (title, description, visibility).
- *
- * @param {string} photoData.title - Photo title entered by the user.
- * @param {string} photoData.description - Photo description entered by the user.
- * @param {"public"|"private"} photoData.visibility - Visibility setting.
- *
- * @returns {Promise<number>} The newly generated numeric photo ID.
- */
-
 async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
   const photosDir = path.join(__dirname, 'photos')
   if (!fs.existsSync(photosDir)) {
-    fs.mkdirSync(photosDir)
+    fs.mkdirSync(photosDir, { recursive: true })
   }
 
   const fileExt = path.extname(uploadedFile.name)
@@ -353,68 +350,6 @@ async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
   return newId
 }
 
-async function uploadPhoto(userid, albumid, uploadedFile, photoData) {
-
-    const dir = path.join(__dirname, '../photos', String(userid), String(albumid));
-    try {
-        await fs.mkdir(dir, { recursive: true });
-    } catch (err) {
-        throw new Error('Failed to create directory: ' + err.message);
-    }
-
-
-    const savePath = path.join(dir, uploadedFile.name);
-    try {
-        await uploadedFile.mv(savePath);  
-    } catch (err) {
-        throw new Error('Failed to save file: ' + err.message);
-    }
-    const dbPath = path.join(__dirname, '../db.json');
-    let db;
-    try {
-        const data = await fs.readFile(dbPath, 'utf8');
-        db = JSON.parse(data);
-    } catch (err) {
-        throw new Error('Failed to read database: ' + err.message);
-    }
-
-    let user = null;
-    for (let i = 0; i < db.users.length; i++) {
-        if (db.users[i].userid == userid) {
-            user = db.users[i];
-            break;
-        }
-    }
-    if (!user) throw new Error('User not found');
-
-
-    let album = null;
-    for (let i = 0; i < user.albums.length; i++) {
-        if (user.albums[i].albumid == albumid) {
-            album = user.albums[i];
-            break;
-        }
-    }
-    if (!album) throw new Error('Album not found');
-
-    album.photos.push({
-        id: Date.now(), 
-        filename: uploadedFile.name,
-        title: photoData.title || uploadedFile.name,
-        description: photoData.description || '',
-        uploadedAt: new Date().toISOString(),
-        visibility: photoData.visibility || 'public'
-    });
-    try {
-        await fs.writeFile(dbPath, JSON.stringify(db, null, 2), 'utf8');
-    } catch (err) {
-        throw new Error('Failed to save database: ' + err.message);
-    }
-
-    return true;
-
-}
-
 module.exports={
     signup,
     login,
@@ -426,7 +361,6 @@ module.exports={
     addPhotoComment,
     getPhotosByAlbum,
     listPhotoComments,
-    loginUser,
     logout,
     getUserBySession,
     createSession,
