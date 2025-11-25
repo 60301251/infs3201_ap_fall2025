@@ -13,9 +13,7 @@ const{
     registerUser,
     loginUser,
     loadPhoto,
-    loadAlbum,
     savePhoto,
-    saveAlbum,
     findPhoto,
     findAlbum,
     findAlbumbyName,
@@ -27,7 +25,6 @@ const{
     deleteSession,
     searchPublicPhotos,
     findUserById,
-    findUserByEmail,
 } = require('./persistance_layer')
 const { sendMail } = require("./email")
 const path = require('path')
@@ -289,10 +286,8 @@ async function getPhotosByAlbum(albumId, userEmail) {
     const result = []
 
     for (const photo of photos) {
-        // Skip photos not in this album
         if (!photo.albums || !photo.albums.includes(albumId)) continue;
 
-        // Include photo if it's public or owned by the current user
         if (photo.visibility === "public" || photo.ownerEmail === userEmail) {
             result.push(photo)
         }
