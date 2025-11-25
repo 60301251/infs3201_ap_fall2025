@@ -19,18 +19,20 @@ let client=null
 
 
 /**
- * Connects to MongoDB if not already connected and returns the database instance.
+ * Connects to MongoDB if not already connected and returns
+ * the active database instance (INFS3201_fall2025).
  *
  * @async
- * @returns {Promise<import('mongodb').Db>} The active MongoDB database.
+ * @returns {Promise<import('mongodb').Db>} Active MongoDB database.
  */
+const MONGO_URL = 'mongodb+srv://60301251:12class34@cluster0.j7qvb.mongodb.net/'
 
-async function connectDatabase(){
-    if(!client){
-        client=new MongoClient('mongodb+srv://60301251:12class34@cluster0.j7qvb.mongodb.net/',{useUnifiedTopology:true, useNewUrlParser: true})
-        await client.connect()
-    }
-    return client.db('INFS3201_fall2025') 
+async function connectDatabase() {
+  if (!client) {
+    client = new MongoClient(MONGO_URL, { useUnifiedTopology: true, useNewUrlParser: true })
+    await client.connect()
+  }
+  return client.db('INFS3201_fall2025')
 }
 
 
