@@ -184,28 +184,25 @@ async function loadPhoto(){
 async function savePhoto(photoData) {
     const db = await connectDatabase()
     const photosCollection = db.collection('photos')
-
     const last = await photosCollection.find({}, { projection: { id: 1 } })
         .sort({ id: -1 }).limit(1).toArray()
 
     const nextId = (last[0]?.id || 0) + 1
 
-    const doc = {
+    const photoDoc = {
         id: nextId,
-        title: "",
-        description: "",
-        tags: [],
-        visibility: "private",
+        title: photoData.title || '',
+        description: photoData.description || '',
+        visibility: photoData.visibility || 'public',
         ownerId: Number(photoData.ownerId),
         albumId: Number(photoData.albumId),
         filePath: photoData.filePath,
         uploadedAt: new Date()
     }
 
-    await photosCollection.insertOne(doc)
+    await photosCollection.insertOne(photoDoc)
     return nextId
 }
-
 
 
     
