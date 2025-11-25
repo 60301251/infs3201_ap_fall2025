@@ -452,7 +452,7 @@ async function getUserBySession(sessionId) {
  * @returns {Promise<void>}
  */
 async function deleteSession(sessionId) {
-    await connectDatabase();
+    await connectDatabase()
     const db = client.db('INFS3201_fall2025')
     const sessions = db.collection('sessions')
     await sessions.deleteOne({ sessionId })
