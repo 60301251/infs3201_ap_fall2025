@@ -185,13 +185,8 @@ async function loadPhoto(){
 async function savePhoto(photoData) {
     const db = await connectDatabase()
     const photosCollection = db.collection('photos')
-    const last = await photosCollection.find({}, { projection: { id: 1 } })
-        .sort({ id: -1 }).limit(1).toArray()
-
-    const nextId = (last[0]?.id || 0) + 1
 
     const photoDoc = {
-        id: nextId,
         title: photoData.title || '',
         description: photoData.description || '',
         visibility: photoData.visibility || 'public',
@@ -200,9 +195,8 @@ async function savePhoto(photoData) {
         filePath: photoData.filePath,
         uploadedAt: new Date()
     }
-
-    await photosCollection.insertOne(photoDoc)
-    return nextId
+     const result = await photosCollection.insertOne(photoDoc);
+    return result.insertedId;
 }
 
 
@@ -271,39 +265,39 @@ async function findPhoto(id){
     return photo
 }
 
-/**
- * Retrieves all photos that belong to a specific album.
- * 
- * Loads all photo documents where albumId matches the provided albumId.
- * Returns an empty array if the albumId is invalid.
- *
- * @async
- * @param {number|string} albumId - The album ID to search for.
- * @returns {Promise<Object[]>} Array of photo documents in that album.
- */
-async function findPhotosByAlbum(albumId) {
-  try {
-    await connectDatabase()
-    const db = client.db('INFS3201_fall2025')
-    const photosCollection = db.collection('photos')
+// /**
+//  * Retrieves all photos that belong to a specific album.
+//  * 
+//  * Loads all photo documents where albumId matches the provided albumId.
+//  * Returns an empty array if the albumId is invalid.
+//  *
+//  * @async
+//  * @param {number|string} albumId - The album ID to search for.
+//  * @returns {Promise<Object[]>} Array of photo documents in that album.
+//  */
+// async function findPhotosByAlbum(albumId) {
+//   try {
+//     await connectDatabase()
+//     const db = client.db('INFS3201_fall2025')
+//     const photosCollection = db.collection('photos')
 
-    if (!albumId) return []
-    const albumIdNum = Number(albumId)
-    const albumIdStr = albumId.toString()
-    const cursor = photosCollection.find({
-      $or: [
-        { albumId: albumIdNum },
-        { albumId: albumIdStr }
-      ]
-    })
+//     if (!albumId) return []
+//     const albumIdNum = Number(albumId)
+//     const albumIdStr = albumId.toString()
+//     const cursor = photosCollection.find({
+//       $or: [
+//         { albumId: albumIdNum },
+//         { albumId: albumIdStr }
+//       ]
+//     })
 
-    const photos = await cursor.toArray()
-    return photos || []
-  } catch (err) {
-    console.error('Error fetching photos from DB:', err)
-    return []
-  }
-}
+//     const photos = await cursor.toArray()
+//     return photos || []
+//   } catch (err) {
+//     console.error('Error fetching photos from DB:', err)
+//     return []
+//   }
+// }
 
 
 
@@ -600,7 +594,6 @@ module.exports={
     savePhoto,
     findUserByEmail,
     findPhoto,
-    findPhotosByAlbum,
     updatePhotoDB,
     findAlbum,
     findAlbumbyName,

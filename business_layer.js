@@ -124,9 +124,18 @@ async function getByAlbum(albumName, currentUserId) {
 
   for (let i = 0; i < photos.length; i++) {
     const p = photos[i]
-    if (Number(p.albumId) !== Number(album.id)) {
-      continue
+
+    let inAlbum = false
+    const al = p.albums || []
+    for (let j = 0; j < al.length; j++) {
+      if (al[j] === album.id) { 
+        inAlbum = true
+        break
+      }
     }
+
+    if (!inAlbum) continue
+
 
     const vis = p.visibility || 'public'
     if (vis === 'public' || Number(p.ownerId) === Number(currentUserId)) {
@@ -136,7 +145,6 @@ async function getByAlbum(albumName, currentUserId) {
 
   return { album, photos: visiblePhotos }
 }
-
 /**
  * Retrieves all photos in an album that the user is allowed to see.
  * Public photos are visible to everyone.
@@ -147,32 +155,19 @@ async function getByAlbum(albumName, currentUserId) {
  * @param {number|string} userId  - Logged-in user ID
  * @returns {Promise<Array<Object>>}
  */
-async function getPhotosByAlbum(albumId, userId) {
-  const albumIdNum = Number(albumId)
-  const userIdNum = Number(userId)
-  if (!Number.isFinite(albumIdNum) || !Number.isFinite(userIdNum)) {
-    return []
-  }
+async function getPhotosByAlbum(albumId, userEmail) {
+    const photos = await loadPhoto(); 
+    const result = [];
+     for (const photo of photos) {
+        if (!photo.albums || !photo.albums.includes(albumId)) continue;
+             if (photo.visibility === "public" || photo.ownerEmail === userEmail) {
+            result.push(photo)
+            result.push(photo);
+        }
+    }
 
-  try {
-
-    const photos = await findPhotosByAlbum(albumIdNum)
-    if (!Array.isArray(photos)) return []
-
-  
-    const visiblePhotos = photos.filter(photo => {
-      const isPublic = (photo.visibility || 'public') === 'public'
-      const isOwner = Number(photo.ownerId) === userIdNum
-      return isPublic || isOwner
-    })
-
-    return visiblePhotos
-  } catch (err) {
-    console.error('Error fetching photos by album:', err)
-    return []
-  }
+    return result
 }
-
 
 
 /**
