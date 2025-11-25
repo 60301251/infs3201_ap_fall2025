@@ -346,7 +346,7 @@ router.get('/album/:id', requireLogin, async (req, res) => {
     if (!album) return res.render('error', { message: "Album not found", layout: undefined })
 
     try {
-        const photos = await business.getPhotosByAlbum(albumId, req.user.email) // fetch all uploaded photos
+        const photos = await business.getPhotosByAlbum(albumId, req.user.email)
         res.render('album_gallery', { album, photos, user: req.user, layout: undefined })
     } catch (err) {
         console.error('Error loading photos:', err)
@@ -470,7 +470,7 @@ router.get('/album/name/:name', async (req, res) => {
  */
 
 router.get('/album/:id/gallery', requireLogin, async (req, res) => {
-    const albumId = Number(req.params.id);
+    const albumId = Number(req.params.id)
 
     if (isNaN(albumId)) {
         return res.render('error', { 
@@ -521,7 +521,7 @@ router.get('/album/:id/gallery', requireLogin, async (req, res) => {
  */
 
 router.get('/album/:albumId/upload', requireLogin, async (req, res) => {
-    const albumId = Number(req.params.albumId);
+    const albumId = Number(req.params.albumId)
     if (isNaN(albumId)) {
         return res.render('error', { message: "Invalid album ID", layout: undefined })
     }
