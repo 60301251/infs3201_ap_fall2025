@@ -28,7 +28,7 @@ async function connectDatabase(){
         client=new MongoClient('mongodb+srv://60301251:12class34@cluster0.j7qvb.mongodb.net/',{useUnifiedTopology:true, useNewUrlParser: true})
         await client.connect()
     }
-    return client.db('myDB') 
+    return client.db('INFS3201_fall2025') 
 }
 
 
@@ -169,19 +169,25 @@ async function loadPhoto(){
 
 /**
  * Inserts a new photo record into the photos collection.
- * Constructs a normalized photo document and returns the inserted ID.
+ * Automatically generates a numeric incremental photo ID,
+ * builds a normalized photo document, and stores it in MongoDB.
  *
  * @async
- * @param {Object} photoData - Photo details including title, description, visibility,
+ * @param {Object} photoData - Raw photo details including title, description, visibility,
  *                             ownerId, albumId, and filePath.
- * @returns {Promise<string>} The ID of the saved photo document.
+ * @returns {Promise<number>} The newly generated numeric photo ID.
  */
 
 async function savePhoto(photoData) {
     const db = await connectDatabase()
     const photosCollection = db.collection('photos')
+    const last = await photosCollection.find({}, { projection: { id: 1 } })
+        .sort({ id: -1 }).limit(1).toArray()
+
+    const nextId = (last[0]?.id || 0) + 1
 
     const photoDoc = {
+        id: nextId,
         title: photoData.title || '',
         description: photoData.description || '',
         visibility: photoData.visibility || 'public',
@@ -191,9 +197,10 @@ async function savePhoto(photoData) {
         uploadedAt: new Date()
     }
 
-    const result = await photosCollection.insertOne(photoDoc)
-    return result.insertedId
+    await photosCollection.insertOne(photoDoc)
+    return nextId
 }
+
     
 /**
  * To load albums from the file
@@ -374,18 +381,23 @@ async function addComment(photoId, userId, username, text) {
   return doc
 }
 
+
 /**
- * Retrieves all comments for a photo, sorted by creation time.
+ * Retrieves all comments belonging to a specific photo, sorted by creation time.
+ * Returns an empty array if the photo ID is invalid.
+ *
  * @async
- * @param {number|string} photoId - Photo ID.
- * @returns {Promise<Object[]>} Array of comment documents.
+ * @param {number|string} photoId - ID of the photo whose comments are requested.
+ * @returns {Promise<Array<Object>>} List of comment documents.
  */
+
 async function getCommentsByPhoto(photoId) {
   await connectDatabase()
   await ensureCommentIndexes()
 
   const db = client.db('INFS3201_fall2025')
   const comments = db.collection('comments')
+
 
   if (!Number.isFinite(Number(photoId))) return []
 
@@ -513,31 +525,6 @@ async function findUserById(id) {
 }
 
 
-/**
- * Retrieves all comments belonging to a specific photo, sorted by creation time.
- * Returns an empty array if the photo ID is invalid.
- *
- * @async
- * @param {number|string} photoId - ID of the photo whose comments are requested.
- * @returns {Promise<Array<Object>>} List of comment documents.
- */
-
-async function getCommentsByPhoto(photoId) {
-  await connectDatabase()
-  await ensureCommentIndexes()
-
-  const db = client.db('INFS3201_fall2025')
-  const comments = db.collection('comments')
-
-
-  if (!Number.isFinite(Number(photoId))) return []
-
-  return await comments
-    .find({ photoId: Number(photoId) })
-    .sort({ createdAt: 1 })
-    .toArray()
-}
-
 module.exports={
     connectDatabase,
     registerUser,
@@ -557,6 +544,5 @@ module.exports={
     getUserBySession,
     deleteSession,
     searchPublicPhotos,
-    findUserById,
-    getCommentsByPhoto,
+    findUserById
 }
