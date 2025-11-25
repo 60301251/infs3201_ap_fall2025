@@ -12,7 +12,7 @@
 const path = require('path')
 const{ MongoClient}=require('mongodb')
 const crypto=require('crypto')
-const fs = require('fs').promises;
+const fs = require('fs').promises
 
 
 let client=null
@@ -28,7 +28,7 @@ async function connectDatabase(){
         client=new MongoClient('mongodb+srv://60301251:12class34@cluster0.j7qvb.mongodb.net/',{useUnifiedTopology:true, useNewUrlParser: true})
         await client.connect()
     }
-    return client.db('myDB'); 
+    return client.db('myDB') 
 }
 
 
@@ -62,11 +62,13 @@ function verifyPassword(password, salt,storedHash){
 }
 
 /**
- * Load all documents from a MongoDB collection.
+ * Retrieves all documents from the specified MongoDB collection.
+ *
  * @async
- * @param {string} collectionName
- * @returns {Promise<Object[]>}
+ * @param {string} collectionName - Name of the collection to load.
+ * @returns {Promise<Object[]>} An array of all documents in the collection.
  */
+
 async function loadAll(collectionName) {
     await connectDatabase()
     const db= client.db('INFS3201_fall2025')
@@ -77,11 +79,14 @@ async function loadAll(collectionName) {
 }
 
 /**
- * Save a document to a MongoDB collection.
+ * Inserts a single document into the specified MongoDB collection.
+ *
  * @async
- * @param {string} collectionName
- * @param {Object} doc
+ * @param {string} collectionName - Name of the collection to insert into.
+ * @param {Object} doc - The document to be saved.
+ * @returns {Promise<void>}
  */
+
 async function saveDoc(collectionName, doc) {
     await connectDatabase()
     const db= client.db('INFS3201_fall2025')
@@ -90,13 +95,17 @@ async function saveDoc(collectionName, doc) {
 }
 
 /**
- * Register a new user.
+ * Registers a new user by validating the email, hashing the password,
+ * and storing the user record. Rejects registration if the email
+ * already exists.
+ *
  * @async
- * @param {string} name
- * @param {string} email
- * @param {string} password
- * @returns {Promise<Object|string>} New user or 'exists'
+ * @param {string} name - Full name of the user.
+ * @param {string} email - User’s email address.
+ * @param {string} password - Plain text password to be hashed and stored.
+ * @returns {Promise<Object|string>} The newly created user object, or 'exists' if duplicate.
  */
+
 async function registerUser(name, email, password) {
     const users = await loadAll('users')
     for (let u of users) {
@@ -159,8 +168,8 @@ async function loadPhoto(){
  * @returns {Promise<void>}
  */
 async function savePhoto(photoData) {
-    const db = await connectDatabase();
-    const photosCollection = db.collection('photos');
+    const db = await connectDatabase()
+    const photosCollection = db.collection('photos')
 
     const photoDoc = {
         title: photoData.title || '',
@@ -170,10 +179,10 @@ async function savePhoto(photoData) {
         albumId: Number(photoData.albumId),
         filePath: photoData.filePath,
         uploadedAt: new Date()
-    };
+    }
 
-    const result = await photosCollection.insertOne(photoDoc);
-    return result.insertedId;
+    const result = await photosCollection.insertOne(photoDoc)
+    return result.insertedId
 }
     
 /**
@@ -256,7 +265,7 @@ async function updatePhotoDB(photoId, update, userId) {
     const result = await photos.updateOne(
         { id: Number(photoId), ownerId: Number(userId) },
         { $set: update }
-    );
+    )
 
     if (result.matchedCount === 0) return null
 
@@ -278,12 +287,13 @@ async function findAlbum(id){
 }
 
 /**
- * Find album using album name
+ * Searches for an album by its name (case-insensitive) and returns it if found.
+ *
  * @async
- * @param {string} albumName - Name of the album.
- * @returns {Promise<Object|null>} Album object if found, otherwise null.
+ * @param {string} albumName - The exact album name to search for.
+ * @returns {Promise<Object|null>} The matching album document, or null if not found.
+ */
 
-*/
 async function findAlbumbyName(albumName){
     await connectDatabase()
     let db=client.db('INFS3201_fall2025')
@@ -295,9 +305,13 @@ async function findAlbumbyName(albumName){
 } 
 
 /**
- * Ensures required indexes for the comments collection.
+ * Ensures that the comments collection has the required indexes.
+ * Creates a unique index for comment IDs and an index for photoId + createdAt.
+ *
  * @async
+ * @returns {Promise<void>}
  */
+
 async function ensureCommentIndexes() {
   await connectDatabase()
   const db = client.db('INFS3201_fall2025')
@@ -379,20 +393,20 @@ async function getCommentsByPhoto(photoId) {
  * @returns {Promise<string>} The generated session ID.
  */
 async function createSession(userId) {
-    await connectDatabase();
-    const db = client.db('INFS3201_fall2025');
-    const sessions = db.collection('sessions');
+    await connectDatabase()
+    const db = client.db('INFS3201_fall2025')
+    const sessions = db.collection('sessions')
 
 
-    const sessionId = crypto.randomBytes(16).toString('hex');
+    const sessionId = crypto.randomBytes(16).toString('hex')
     const sessionDoc = {
         sessionId,
         userId,
         createdAt: new Date()
-    };
+    }
 
-    await sessions.insertOne(sessionDoc);
-    return sessionId;
+    await sessions.insertOne(sessionDoc)
+    return sessionId
 }
 
 /**
@@ -402,45 +416,48 @@ async function createSession(userId) {
  * @returns {Promise<Object|null>} User object if found, otherwise null.
  */
 async function getUserBySession(sessionId) {
-    await connectDatabase();
-    const db = client.db('INFS3201_fall2025');
-    const sessions = db.collection('sessions');
-    const users = db.collection('users');
+    await connectDatabase()
+    const db = client.db('INFS3201_fall2025')
+    const sessions = db.collection('sessions')
+    const users = db.collection('users')
 
-    const session = await sessions.findOne({ sessionId });
-    if (!session) return null;
+    const session = await sessions.findOne({ sessionId })
+    if (!session) return null
 
   
-    const user = await users.findOne({ id: Number(session.userId) });
-    if (!user) return null;
+    const user = await users.findOne({ id: Number(session.userId) })
+    if (!user) return null
     return {
         ...user,
         id: Number(user.id || user.userId) 
-    };
+    }
 }
 
 
-
 /**
- * Deletes a user session (logout).
+ * Removes a user session from the database, effectively logging the user out.
+ *
  * @async
- * @param {string} sessionId - Session identifier to remove.
+ * @param {string} sessionId - The session ID to be deleted.
  * @returns {Promise<void>}
  */
 async function deleteSession(sessionId) {
     await connectDatabase();
-    const db = client.db('INFS3201_fall2025');
-    const sessions = db.collection('sessions');
-    await sessions.deleteOne({ sessionId });
+    const db = client.db('INFS3201_fall2025')
+    const sessions = db.collection('sessions')
+    await sessions.deleteOne({ sessionId })
 }
 
 
 /**
- * Search public photos by title, description, or tags.
+ * Searches all public photos using a text index over title, description, and tags.
+ * Returns only photos marked as public and matching the search term.
+ *
  * @async
- * @param {string} searchTerm - Text to search for.
- * @returns {Promise<Object[]>} Matching public photos.
+ * @param {string} searchTerm - The keyword used for text search.
+ * @returns {Promise<Object[]>} Array of matching public photo documents.
  */
+
 async function searchPublicPhotos(searchTerm) {
     await connectDatabase()
     const db = client.db('INFS3201_fall2025')
@@ -448,7 +465,7 @@ async function searchPublicPhotos(searchTerm) {
 
     const term = String(searchTerm || '').trim()
     if (!term) {
-        return [];
+        return []
     }
 
     const query = {
@@ -461,6 +478,15 @@ async function searchPublicPhotos(searchTerm) {
 
 }
 
+/**
+ * Finds and returns a user by their numeric ID.
+ * Loads the users collection, iterates through documents manually,
+ * and returns the matching user or null if not found.
+ *
+ * @async
+ * @param {number|string} id - The user ID to search for.
+ * @returns {Promise<Object|null>} The matching user document or null.
+ */
 
 async function findUserById(id) {
     await connectDatabase()
@@ -475,6 +501,16 @@ async function findUserById(id) {
     }
     return null
 }
+
+
+/**
+ * Retrieves all comments belonging to a specific photo, sorted by creation time.
+ * Returns an empty array if the photo ID is invalid.
+ *
+ * @async
+ * @param {number|string} photoId - ID of the photo whose comments are requested.
+ * @returns {Promise<Array<Object>>} List of comment documents.
+ */
 
 async function getCommentsByPhoto(photoId) {
   await connectDatabase()
@@ -514,4 +550,3 @@ module.exports={
     findUserById,
     getCommentsByPhoto,
 }
-
