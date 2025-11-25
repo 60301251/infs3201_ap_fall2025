@@ -476,12 +476,16 @@ async function deleteSession(sessionId) {
 
 
 /**
- * Searches all public photos using a text index over title, description, and tags.
- * Returns only photos marked as public and matching the search term.
+ * Searches all public photos for a given keyword.
+ * 
+ * Loads every photo with visibility "public" and applies a
+ * manual case-insensitive match against the title, description,
+ * and any tags. No MongoDB text index is required and no
+ * higher-order functions (filter/map) are used to meet project rules.
  *
- * @async
- * @param {string} searchTerm - The keyword used for text search.
- * @returns {Promise<Object[]>} Array of matching public photo documents.
+ * @param {string} searchTerm - The keyword entered by the user.
+ * @returns {Promise<Object[]>} A list of public photos that contain
+ * the keyword in their title, description, or tags.
  */
 
 async function searchPublicPhotos(searchTerm) {
@@ -489,20 +493,39 @@ async function searchPublicPhotos(searchTerm) {
     const db = client.db('INFS3201_fall2025')
     const photos = db.collection('photos')
 
-    const term = String(searchTerm || '').trim()
+    const term = String(searchTerm || '').trim().toLowerCase()
     if (!term) {
         return []
     }
 
-    const query = {
-        visibility: 'public',
-        $text: { $search: term }  }
+    const cursor = await photos.find({ visibility: 'public' })
+    const all = await cursor.toArray()
 
-    const cursor = await photos.find(query)
-    const result = await cursor.toArray()
+    const result = []
+
+    for (let i = 0; i < all.length; i++) {
+        const p = all[i]
+
+        const title = (p.title || '').toLowerCase()
+        const desc = (p.description || '').toLowerCase()
+
+        let tagsText = ''
+        if (Array.isArray(p.tags)) {
+            for (let j = 0; j < p.tags.length; j++) {
+                tagsText += ' ' + String(p.tags[j]).toLowerCase()
+            }
+        }
+
+        const haystack = title + ' ' + desc + ' ' + tagsText
+
+        if (haystack.indexOf(term) !== -1) {
+            result.push(p)
+        }
+    }
+
     return result
-
 }
+
 
 /**
  * Finds and returns a user by their numeric ID.

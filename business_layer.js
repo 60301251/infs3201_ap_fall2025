@@ -9,7 +9,6 @@
 */
 
 const{
-    connectDatabase,
     registerUser,
     loginUser,
     loadPhoto,
@@ -100,12 +99,21 @@ async function getAlbum(albumId){
 }
 
 /**
- * Get an album by name and return only photos visible to the current user.
+ * Retrieves an album by its name and returns only the photos that belong
+ * to that album AND are visible to the current user.  
  *
- * @param {string} albumName - Name of the album to search for.
- * @param {string|number} currentUserId - ID of the user requesting the photos.
- * @returns {Promise<{album: Object, photos: Object[] } | null>} Album and filtered photos, or null if album not found.
+ * Visibility rules:
+ * - Public photos are always visible.
+ * - Private photos are visible only to their owner.
+ *
+ * @async
+ * @param {string} albumName - Exact name of the album (case-insensitive).
+ * @param {number|string} currentUserId - ID of the user requesting access.
+ * @returns {Promise<{album: Object, photos: Object[]} | null>}
+ *   Returns an object containing the album and its visible photos,
+ *   or null if the album does not exist.
  */
+
 async function getByAlbum(albumName, currentUserId) {
   const album = await findAlbumbyName(albumName)
   if (!album) return null
@@ -115,19 +123,10 @@ async function getByAlbum(albumName, currentUserId) {
 
   for (let i = 0; i < photos.length; i++) {
     const p = photos[i]
-
-    let inAlbum = false
-    const al = p.albums || []
-    for (let j = 0; j < al.length; j++) {
-      if (al[j] === album.id) { 
-        inAlbum = true
-        break
-      }
+    if (Number(p.albumId) !== Number(album.id)) {
+      continue
     }
 
-    if (!inAlbum) continue
-
-   
     const vis = p.visibility || 'public'
     if (vis === 'public' || Number(p.ownerId) === Number(currentUserId)) {
       visiblePhotos.push(p)
@@ -136,6 +135,7 @@ async function getByAlbum(albumName, currentUserId) {
 
   return { album, photos: visiblePhotos }
 }
+
 
 /**
  * Update details of a photo.
@@ -177,21 +177,28 @@ async function updatePhoto(photoId, userId, newTitle, newDes, newVisibility) {
  * @returns {Promise<Object|"duplicate"|null>} Updated photo, "duplicate" if tag exists, or null if not found
  */
 async function addTag(photoId, newTag) {
-    const photo = await findPhoto(Number(photoId))
-    if (!photo) return null
+  const photo = await findPhoto(Number(photoId))
+  if (!photo) return null
 
-    photo.tags = photo.tags || []
+  photo.tags = photo.tags || []
 
-    let exists = false
-    for (let i = 0; i < photo.tags.length; i++) {
-        if (photo.tags[i] === newTag) { exists = true; break }
-    }
-    if (exists) return 'duplicate'
+  let exists = false
+  for (let i = 0; i < photo.tags.length; i++) {
+    if (photo.tags[i] === newTag) { exists = true; break }
+  }
+  if (exists) return 'duplicate'
 
-    photo.tags.push(newTag)
-    await savePhoto(photo)
-    return photo
+  photo.tags.push(newTag)
+
+  const updated = await updatePhotoDB(
+    Number(photoId),
+    { tags: photo.tags },
+    Number(photo.ownerId)
+  )
+
+  return updated
 }
+
 
 /**
  * Create a new comment for a photo.
@@ -282,60 +289,68 @@ async function searchPhotos(searchTerm) {
  */
 
 async function getPhotosByAlbum(albumId, userEmail) {
-    const photos = await loadPhoto()
-    const result = []
+  const photos = await loadPhoto()
+  const result = []
+  const albumIdNum = Number(albumId)
 
-    for (const photo of photos) {
-        if (!photo.albums || !photo.albums.includes(albumId)) continue;
+  for (let i = 0; i < photos.length; i++) {
+    const photo = photos[i]
 
-        if (photo.visibility === "public" || photo.ownerEmail === userEmail) {
-            result.push(photo)
-        }
+    if (Number(photo.albumId) !== albumIdNum) {
+      continue
     }
 
-    return result
+    if (photo.visibility === 'public' || photo.ownerEmail === userEmail) {
+      result.push(photo)
+    }
+  }
+
+  return result
 }
 
 
 /**
- * Uploads a photo, saves it to the server, and stores its metadata in MongoDB.
+ * Uploads a photo file to the server (./photos folder) and stores its
+ * metadata in MongoDB. Generates a unique filename, saves the file
+ * physically, and calls savePhoto() to assign a numeric photo ID.
  *
  * @async
  * @param {string|number} userId - The ID of the user uploading the photo.
  * @param {string|number} albumId - The album to which the photo belongs.
- * @param {Object} uploadedFile - The uploaded file object.
- * @param {Object} photoData - Additional photo details (title, description, visibility, ownerEmail).
- * @returns {Promise<string>} The ID of the inserted photo record.
+ * @param {Object} uploadedFile - The uploaded file object from express-fileupload.
+ * @param {Object} photoData - Additional form fields (title, description, visibility).
+ *
+ * @param {string} photoData.title - Photo title entered by the user.
+ * @param {string} photoData.description - Photo description entered by the user.
+ * @param {"public"|"private"} photoData.visibility - Visibility setting.
+ *
+ * @returns {Promise<number>} The newly generated numeric photo ID.
  */
 
 async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
-const db = await connectDatabase()
-const photosCollection = db.collection('photos')
-const photosDir = path.join(__dirname, 'photos')
-if (!fs.existsSync(photosDir)) fs.mkdirSync(photosDir)
+  const photosDir = path.join(__dirname, 'photos')
+  if (!fs.existsSync(photosDir)) {
+    fs.mkdirSync(photosDir)
+  }
 
-const fileExt = path.extname(uploadedFile.name)
-const fileName = `${Date.now()}_${userId}${fileExt}`
-const filePath = path.join(photosDir, fileName)
+  const fileExt = path.extname(uploadedFile.name)
+  const fileName = `${Date.now()}_${userId}${fileExt}`
+  const diskPath = path.join(photosDir, fileName)
 
-await uploadedFile.mv(filePath)
+  await uploadedFile.mv(diskPath)
 
-const photoRecord = {
-    userId,
-    albumId,
-    title: photoData.title,
-    description: photoData.description,
-    visibility: photoData.visibility,
-    ownerEmail: photoData.ownerEmail,
-    fileName,
-    filePath,
-    createdAt: new Date()
+  const record = {
+    title: (photoData.title || '').trim(),
+    description: (photoData.description || '').trim(),
+    visibility: (photoData.visibility === 'private') ? 'private' : 'public',
+    ownerId: Number(userId),
+    albumId: Number(albumId),
+    filePath: fileName
+  }
+
+  const newId = await savePhoto(record)
+  return newId
 }
-
-const result = await photosCollection.insertOne(photoRecord)
-return result.insertedId
-}
-
 
 module.exports={
     signup,
