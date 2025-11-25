@@ -12,12 +12,7 @@
 const path = require('path')
 const{ MongoClient}=require('mongodb')
 const crypto=require('crypto')
-<<<<<<< Updated upstream
 const fs = require('fs').promises
-=======
-const fs = require('fs').promises;
->>>>>>> Stashed changes
-
 
 let client=null
 
@@ -186,7 +181,6 @@ async function loadPhoto(){
  * @returns {Promise<number>} The newly generated numeric photo ID.
  */
 
-<<<<<<< Updated upstream
 async function savePhoto(photoData) {
     const db = await connectDatabase()
     const photosCollection = db.collection('photos')
@@ -208,51 +202,6 @@ async function savePhoto(photoData) {
 
     await photosCollection.insertOne(photoDoc)
     return nextId
-=======
-async function savePhoto(userid, albumid, photo, uploadedFile) {
-    // 1️⃣ Ensure upload directory exists
-    const dir = path.join(__dirname, '../photos', String(userid), String(albumid));
-    try {
-        await fs.mkdir(dir, { recursive: true });
-    } catch (err) {
-        throw new Error("Failed to create upload directory: " + err.message);
-    }
-
-    // 2️⃣ Save the file to disk
-    const savePath = path.join(dir, uploadedFile.name);
-    try {
-        await fs.writeFile(savePath, uploadedFile.data);
-    } catch (err) {
-        throw new Error("Failed to save photo: " + err.message);
-    }
-
-    // 3️⃣ Load the database
-    const db = loadDB();
-
-    // 4️⃣ Find the user
-    const user = db.users.find(u => u.userid == userid);
-    if (!user) throw new Error("User not found");
-
-    // 5️⃣ Find the album
-    const album = user.albums.find(a => a.albumid == albumid);
-    if (!album) throw new Error("Album not found");
-
-    // 6️⃣ Assign a new photo ID
-    const lastId = album.photos.length > 0 ? album.photos[album.photos.length - 1].id : 0;
-    photo.id = lastId + 1;
-
-    // 7️⃣ Add filename and timestamp to photo metadata
-    photo.filename = uploadedFile.name;
-    photo.uploadedAt = new Date().toISOString();
-
-    // 8️⃣ Push the photo to the album
-    album.photos.push(photo);
-
-    // 9️⃣ Save the database back
-    await saveDB(db);
-
-    return photo; // return saved photo object if needed
->>>>>>> Stashed changes
 }
 
 
@@ -502,7 +451,7 @@ async function getUserBySession(sessionId) {
     if (!session) return null
 
   
-<<<<<<< Updated upstream
+
     const user = await users.findOne({ id: Number(session.userId) })
     if (!user) return null
     return {
@@ -512,18 +461,6 @@ async function getUserBySession(sessionId) {
 }
 
 
-=======
-    const user = await users.findOne({ id: Number(session.userId) });
-    if (!user) return null;
-    return {
-        ...user,
-        id: Number(user.id || user.userId) 
-    };
-}
-
-
-
->>>>>>> Stashed changes
 /**
  * Removes a user session from the database, effectively logging the user out.
  *
@@ -568,7 +505,6 @@ async function searchPublicPhotos(searchTerm) {
 
 }
 
-<<<<<<< Updated upstream
 /**
  * Finds and returns a user by their numeric ID.
  * Loads the users collection, iterates through documents manually,
@@ -592,9 +528,7 @@ async function findUserById(id) {
     }
     return null
 }
-=======
- 
->>>>>>> Stashed changes
+
 
 
 module.exports={
