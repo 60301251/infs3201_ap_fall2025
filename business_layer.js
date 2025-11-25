@@ -315,6 +315,43 @@ async function searchPhotos(searchTerm) {
 }
 
 
+/**
+ * Uploads a photo file to the /photos folder and stores its metadata in MongoDB.
+ *
+ * @async
+ * @param {string|number} userId       - ID of the uploading user.
+ * @param {string|number} albumId      - ID of the target album.
+ * @param {Object}        uploadedFile - File object from express-fileupload.
+ * @param {Object}        photoData    - Extra fields: title, description, visibility (ignored, we force private).
+ * @returns {Promise<number>} Newly generated numeric photo ID.
+ */
+async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
+  const photosDir = path.join(__dirname, 'photos')
+
+  if (!fs.existsSync(photosDir)) {
+    fs.mkdirSync(photosDir, { recursive: true })
+  }
+
+  const userIdNum = Number(userId)
+  const albumIdNum = Number(albumId)
+
+  const ext = path.extname(uploadedFile.name)
+  const base = path.basename(uploadedFile.name, ext)
+  const safeBase = base.replace(/\s+/g, '_')  
+
+
+  const fileName = Date.now() + '_' + userIdNum + '_' + albumIdNum + '_' + safeBase + ext
+
+    if (Number(photo.albumId) !== albumIdNum) {
+      return
+    }
+    if (photo.visibility === 'public' || photo.ownerEmail === userEmail) {
+      result.push(photo)
+    }
+  return result
+  
+}
+
 
 /**
  * Uploads a photo file to the server (./photos folder) and stores its
