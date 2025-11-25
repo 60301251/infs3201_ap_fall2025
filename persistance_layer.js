@@ -281,18 +281,30 @@ async function findPhoto(id){
  * @returns {Promise<Object[]>} Array of photo documents in that album.
  */
 async function findPhotosByAlbum(albumId) {
+  try {
     await connectDatabase()
     const db = client.db('INFS3201_fall2025')
-    const photos = db.collection('photos')
+    const photosCollection = db.collection('photos')
 
+    if (!albumId) return []
     const albumIdNum = Number(albumId)
-    if (!Number.isFinite(albumIdNum)) {
-        return []
-    }
+    const albumIdStr = albumId.toString()
+    const cursor = photosCollection.find({
+      $or: [
+        { albumId: albumIdNum },
+        { albumId: albumIdStr }
+      ]
+    })
 
-    const cursor = await photos.find({ albumId: albumIdNum })
-    return await cursor.toArray()
+    const photos = await cursor.toArray()
+    return photos || []
+  } catch (err) {
+    console.error('Error fetching photos from DB:', err)
+    return []
+  }
 }
+
+
 
 
 /**

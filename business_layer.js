@@ -150,28 +150,29 @@ async function getByAlbum(albumName, currentUserId) {
 async function getPhotosByAlbum(albumId, userId) {
   const albumIdNum = Number(albumId)
   const userIdNum = Number(userId)
-
   if (!Number.isFinite(albumIdNum) || !Number.isFinite(userIdNum)) {
     return []
   }
 
-  // Get all photos for that album from MongoDB
-  const photos = await findPhotosByAlbum(albumIdNum)
-  const result = []
+  try {
 
-  for (let i = 0; i < photos.length; i++) {
-    const photo = photos[i]
+    const photos = await findPhotosByAlbum(albumIdNum)
+    if (!Array.isArray(photos)) return []
 
-    const isPublic = (photo.visibility || 'public') === 'public'
-    const isOwner = Number(photo.ownerId) === userIdNum
+  
+    const visiblePhotos = photos.filter(photo => {
+      const isPublic = (photo.visibility || 'public') === 'public'
+      const isOwner = Number(photo.ownerId) === userIdNum
+      return isPublic || isOwner
+    })
 
-    if (isPublic || isOwner) {
-      result.push(photo)
-    }
+    return visiblePhotos
+  } catch (err) {
+    console.error('Error fetching photos by album:', err)
+    return []
   }
-
-  return result
 }
+
 
 
 /**
@@ -419,5 +420,5 @@ module.exports={
     getUserBySession,
     createSession,
     searchPhotos,
-    uploadPhoto
+    uploadPhoto,
 }

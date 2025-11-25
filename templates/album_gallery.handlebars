@@ -12,8 +12,8 @@
 <div class="gallery-grid">
     {{#if photos.length}}
         {{#each photos}}
-            <div class="photo-card">
-                <a href="/photo/{{this.id}}">
+            <div class="photo-item">
+                <a href="/photos/{{this.id}}">
                     <img src="/photos/{{this.filePath}}" alt="{{this.title}}" />
                 </a>
                 <p>{{this.title}}</p>
