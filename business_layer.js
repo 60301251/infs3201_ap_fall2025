@@ -223,13 +223,10 @@ async function addPhotoComment(photoId, user, text) {
             if (owner && owner.email) {
                 const subject = `New Comment on Your Photo`
                 const body = `Hello ${owner.name},
-
-${user.name} commented on your photo "${photo.title || ''}":
-
-"${cleaned}"
-
-Regards,
-Photo App`
+                ${user.name} commented on your photo "${photo.title || ''}":
+                "${cleaned}"
+                Regards,
+                Photo App`
                 sendMail(owner.email, subject, body)
             } else {
                 console.warn("Owner not found for photoId:", photo.id, "ownerId:", photo.ownerId)
@@ -309,66 +306,40 @@ async function getPhotosByAlbum(albumId, userEmail) {
  * @returns {Promise<string>} The ID of the inserted photo record.
  */
 
-async function uploadPhoto(userid, albumid, uploadedFile, photoData) {
+async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
+    // 1. Check album exists
+    const album = await findAlbum(Number(albumId));
+    if (!album) throw new Error('Album not found');
 
-    const dir = path.join(__dirname, '../photos', String(userid), String(albumid));
+    // 2. Create folder for user/album if not exists
+    const dir = path.join(__dirname, '../photos', String(userId), String(albumId));
     try {
         await fs.mkdir(dir, { recursive: true });
     } catch (err) {
         throw new Error('Failed to create directory: ' + err.message);
     }
 
-
+    // 3. Save uploaded file using a Promise wrapper
     const savePath = path.join(dir, uploadedFile.name);
-    try {
-        await uploadedFile.mv(savePath);  
-    } catch (err) {
-        throw new Error('Failed to save file: ' + err.message);
-    }
-    const dbPath = path.join(__dirname, '../db.json');
-    let db;
-    try {
-        const data = await fs.readFile(dbPath, 'utf8');
-        db = JSON.parse(data);
-    } catch (err) {
-        throw new Error('Failed to read database: ' + err.message);
-    }
+    await new Promise((resolve, reject) => {
+        uploadedFile.mv(savePath, (err) => {
+            if (err) reject(err);
+            else resolve();
+        });
+    });
 
-    let user = null;
-    for (let i = 0; i < db.users.length; i++) {
-        if (db.users[i].userid == userid) {
-            user = db.users[i];
-            break;
-        }
-    }
-    if (!user) throw new Error('User not found');
-
-
-    let album = null;
-    for (let i = 0; i < user.albums.length; i++) {
-        if (user.albums[i].albumid == albumid) {
-            album = user.albums[i];
-            break;
-        }
-    }
-    if (!album) throw new Error('Album not found');
-
-    album.photos.push({
-        id: Date.now(), 
-        filename: uploadedFile.name,
+    // 4. Save photo metadata to MongoDB
+    const photoDoc = {
         title: photoData.title || uploadedFile.name,
         description: photoData.description || '',
-        uploadedAt: new Date().toISOString(),
-        visibility: photoData.visibility || 'public'
-    });
-    try {
-        await fs.writeFile(dbPath, JSON.stringify(db, null, 2), 'utf8');
-    } catch (err) {
-        throw new Error('Failed to save database: ' + err.message);
-    }
+        visibility: photoData.visibility || 'public',
+        ownerId: Number(userId),
+        albumId: Number(albumId),
+        filePath: path.join('photos', String(userId), String(albumId), uploadedFile.name)
+    };
 
-    return true;
-
+    const photoId = await savePhoto(photoDoc);
+    return photoId;
 }
 
 

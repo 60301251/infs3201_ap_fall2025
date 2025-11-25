@@ -519,20 +519,14 @@ router.get('/album/:id/gallery', requireLogin, async (req, res) => {
  * @param {express.Response} res - Renders the upload page or an error page.
  * @returns {Promise<void>}
  */
-
 router.get('/album/:albumId/upload', requireLogin, async (req, res) => {
-    const albumId = Number(req.params.albumId)
-    if (isNaN(albumId)) {
-        return res.render('error', { message: "Invalid album ID", layout: undefined })
-    }
+    const albumId = Number(req.params.albumId);
+    const album = await persistance.findAlbum(albumId);
+    if (!album) return res.render('error', { message: 'Album not found' });
 
-    const album = await business.getAlbum(albumId)
-    if (!album) {
-        return res.render('error', { message: "Album not found", layout: undefined })
-    }
-
-    res.render('upload', { album, user: req.user, layout: undefined })
+    res.render('upload', { album });
 })
+
 
 
 /**
@@ -548,140 +542,30 @@ router.get('/album/:albumId/upload', requireLogin, async (req, res) => {
  * @returns {Promise<void>}
  */
 
-router.post('/:albumId/upload', async (req, res) => {
-    if (!req.session || !req.session.userId) {
-        return res.redirect('/login')
-    }
-
-    const albumId = Number(req.params.albumId)
-
-    if (!req.files || !req.files.photo) {
-        return res.render('error', { message: 'No photo uploaded', layout: undefined })
-    }
-
-    const uploadedFile = req.files.photo
-
-    try {
-        const userId = req.session.userId
-
-        const photoData = {
-            title: req.body.title || '',
-            description: req.body.description || '',
-            visibility: req.body.visibility || 'public',
-            ownerEmail: req.session.email
-        }
-
-        await business.uploadPhoto(userId, albumId, uploadedFile, photoData)
-
-        res.redirect(`/album/${albumId}`)
-    } catch (err) {
-        console.error('Upload error:', err)
-        res.render('error', { message: 'Photo upload failed', layout: undefined })
-    }
-
-});
-
-
-// GET album upload page
-router.get('/album/:albumId/upload', requireLogin, async (req, res) => {
-    const albumId = Number(req.params.albumId);
-    if (isNaN(albumId)) return res.render('error', { message: "Invalid album ID", layout: undefined });
-
-    try {
-        const album = await business.getAlbum(albumId);
-        if (!album) return res.render('error', { message: "Album not found", layout: undefined });
-
-        if (Number(album.ownerId) !== req.user.id) {
-            return res.render('error', { message: "You cannot upload to this album", layout: undefined });
-        }
-
-        res.render('upload', { album, user: req.user, layout: undefined });
-    } catch (err) {
-        console.error("Error loading upload page:", err);
-        res.render('error', { message: "Failed to load upload page", layout: undefined });
-    }
-})
-// POST upload photo
-// POST album upload
 router.post('/album/:albumId/upload', requireLogin, async (req, res) => {
     const albumId = Number(req.params.albumId);
-    if (isNaN(albumId)) return res.render('error', { message: "Invalid album ID", layout: undefined });
+
+    if (!req.files || !req.files.photo) {
+        return res.render('error', { message: 'No file uploaded' });
+    }
 
     try {
-        const album = await business.getAlbum(albumId);
-        if (!album) return res.render('error', { message: "Album not found", layout: undefined });
-
-        if (Number(album.ownerId) !== req.user.id) {
-            return res.render('error', { message: "You cannot upload to this album", layout: undefined });
-        }
-
-        if (!req.files || !req.files.photo) {
-            return res.render('error', { message: "No file uploaded", layout: undefined });
-        }
-
-        const uploadedFile = req.files.photo;
-
-        const photoData = {
-          title: (req.body.title || '').trim(),
-            description: (req.body.description || '').trim(),
-            visibility: (req.body.visibility || 'public').trim()
-        };
-
-        await business.uploadPhoto(req.user.id, albumId, uploadedFile, photoData);
-
+        const photoId = await business.uploadPhoto(
+            req.user.id,
+            albumId,
+            req.files.photo,
+            {
+                title: req.body.title,
+                description: req.body.description,
+                visibility: req.body.visibility
+            }
+        );
         res.redirect(`/album/${albumId}`);
     } catch (err) {
-        console.error("Error uploading photo:", err);
-        res.render('error', { message: "Failed to upload photo", layout: undefined });
-    }
-})
-
-
-// POST /photo/upload
-// Handles uploading a photo to an album
-router.post('/photo/upload', requireLogin, async (req, res) => {
-    const albumId = Number(req.body.albumId)
-    if (isNaN(albumId)) return res.render('error', { message: "Invalid album ID", layout: undefined })
-
-    try {
-        const album = await business.getAlbum(albumId)
-        if (!album) return res.render('error', { message: "Album not found", layout: undefined })
-
-        // Normalize ownerId to number
-        album.ownerId = Number(album.ownerId)
-
-        // Only album owner can upload
-        if (album.ownerId !== req.user.id){
-            console.log("Debug: userId", req.user.id, "album ownerId", album.ownerId)
-            return res.render('error', { message: "You cannot upload to this album", layout: undefined })
-        }
-
-        // Check uploaded file
-        if (!req.files || !req.files.photo) {
-            return res.render('error', { message: "No file uploaded", layout: undefined })
-        }
-
-        const uploadedFile = req.files.photo
-
-        // Collect metadata
-        const photoData = {
-            title: (req.body.photoName || '').trim(),
-            description: (req.body.description || '').trim(),
-            visibility: (req.body.visibility || '').trim()
-        }
-
-        // Upload the photo via business layer
-        await business.uploadPhoto(req.user.id, albumId, uploadedFile, photoData)
-
-        // Redirect to album gallery after success
-        res.redirect(`/album/${albumId}`)
-    } catch (err) {
-        console.error("Error uploading photo:", err)
-        res.render('error', { message: "Failed to upload photo", layout: undefined })
-    }
-})
-
-
+        console.error(err);
+        res.render('error', { message: 'Photo upload failed: ' + err.message });
+            }
+});
 /**
  * @exports router
  * @description Exports the Express router handling all photo and album routes.
