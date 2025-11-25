@@ -349,7 +349,7 @@ async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
       result.push(photo)
     }
   return result
-
+  
 }
 
 
@@ -371,34 +371,39 @@ async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
  * @returns {Promise<number>} The newly generated numeric photo ID.
  */
 
-async function uploadPhoto(userId, albumId, uploadedFile) {
-    const photosDir = path.join(__dirname, 'photos')
+async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
+  const photosDir = path.join(__dirname, 'photos')
+  if (!fs.existsSync(photosDir)) {
+    fs.mkdirSync(photosDir)
+  }
 
-    if (!fs.existsSync(photosDir)) {
-        fs.mkdirSync(photosDir)
-    }
+  const fileExt = path.extname(uploadedFile.name)
+  const fileName = `${Date.now()}_${userId}${fileExt}`
 
-    const fileExt = path.extname(uploadedFile.name)
-    const fileName = `${Date.now()}_${userId}${fileExt}`
-    const diskPath = path.join(photosDir, fileName)
+  const diskPath = path.join(photosDir, fileName)
 
-    // move file to /photos
-    await uploadedFile.mv(diskPath)
+  await new Promise((resolve, reject) => {
+    uploadedFile.mv(diskPath, (err) => {
+      if (err) reject(err)
+      else resolve()
+    })
+  })
 
-    // IMPORTANT: Option A strict requirements
-    const record = {
-        title: "",
-        description: "",
-        tags: [],
-        visibility: "private",
-        ownerId: Number(userId),
-        albumId: Number(albumId),
-        filePath: fileName
-    }
 
-    const newId = await savePhoto(record)
-    return newId
+  const record = {
+    title: (photoData.title || '').trim(),
+    description: (photoData.description || '').trim(),
+    visibility: 'private',            
+    ownerId: userIdNum,
+    albumId: albumIdNum,
+    filePath: fileName,
+    tags: []
+  }
+
+  const newId = await savePhoto(record)
+  return newId
 }
+
 module.exports={
     signup,
     login,
