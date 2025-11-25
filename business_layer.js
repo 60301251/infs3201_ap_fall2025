@@ -36,10 +36,10 @@ const fs = require('fs')
 /**
  * Register a new user.
  *
- * @param {string} name - User's full name.
- * @param {string} email - User's email address.
- * @param {string} password - Plain text password to register.
- * @returns {Promise<Object>} Newly created user record.
+ * @param {string} name - User's full name
+ * @param {string} email - User's email address
+ * @param {string} password - Plain text password to register
+ * @returns {Promise<Object>} Newly created user record
  */
 async function signup(name, email, password) {
     return await registerUser(name, email, password)
@@ -49,16 +49,16 @@ async function signup(name, email, password) {
 /**
  * Authenticate a user and create a session.
  *
- * @param {string} email - User's email.
- * @param {string} password - User's password.
- * @returns {Promise<{user: Object, sessionId: string} | null>} Authenticated user and session ID, or null if invalid login.
+ * @param {string} email - User's email
+ * @param {string} password - User's password
+ * @returns {Promise<{user: Object, sessionId: string} | null>} Authenticated user and session ID, or null if invalid login
  */
 async function login(email, password) {
-    const user = await loginUser(email, password);
-    if (!user) return null;
+    const user = await loginUser(email, password)
+    if (!user) return null
 
-    const sessionId = await createSession(user.id);
-    return { user, sessionId };
+    const sessionId = await createSession(user.id)
+    return { user, sessionId }
 }
 
 
@@ -143,12 +143,12 @@ async function getByAlbum(albumName, currentUserId) {
 /**
  * Update details of a photo.
  * @async
- * @param {number|string} photoId - ID of the photo to update.
- * @param {number|string} userId - ID of the user performing the update (must own the photo).
- * @param {string} [newTitle] - New title (optional).
- * @param {string} [newDes] - New description (optional).
- * @param {"public"|"private"} [newVisibility] - New visibility (optional).
- * @returns {Promise<Object|null>} Updated photo object, or null if not found or nothing to update.
+ * @param {number|string} photoId - ID of the photo to update
+ * @param {number|string} userId - ID of the user performing the update (must own the photo)
+ * @param {string} [newTitle] - New title
+ * @param {string} [newDes] - New description
+ * @param {"public"|"private"} [newVisibility] - New visibility
+ * @returns {Promise<Object|null>} Updated photo object, or null if not found or nothing to update
  */
 async function updatePhoto(photoId, userId, newTitle, newDes, newVisibility) {
     const update = {}
@@ -175,9 +175,9 @@ async function updatePhoto(photoId, userId, newTitle, newDes, newVisibility) {
 /**
  * Add a tag to a photo.
  * @async
- * @param {number|string} photoId - ID of the photo.
- * @param {string} newTag - Tag to add.
- * @returns {Promise<Object|"duplicate"|null>} Updated photo, "duplicate" if tag exists, or null if not found.
+ * @param {number|string} photoId - ID of the photo
+ * @param {string} newTag - Tag to add
+ * @returns {Promise<Object|"duplicate"|null>} Updated photo, "duplicate" if tag exists, or null if not found
  */
 async function addTag(photoId, newTag) {
     const photo = await findPhoto(Number(photoId))
@@ -198,7 +198,7 @@ async function addTag(photoId, newTag) {
 
 /**
  * Create a new comment for a photo.
- * Allowed only if user is logged in AND (photo is public OR user owns the photo).
+ * Allowed only if user is logged in AND (photo is public OR user owns the photo)
  * @param {number|string} photoId
  * @param {Object} user - logged-in user object
  * @param {string} text - comment text
@@ -278,14 +278,15 @@ async function searchPhotos(searchTerm) {
  * Retrieves all photos that belong to a specific album and are visible to the user.
  *
  * @async
- * @param {string} albumId - The ID of the album to filter photos by.
- * @param {string} userEmail - The email of the current user to check for private photo access.
+ * @param {string} albumId - The ID of the album to filter photos by
+ * @param {string} userEmail - The email of the current user to check for private photo access
  * @returns {Promise<Array<Object>>} A promise that resolves to an array of photo objects 
- *   that belong to the album and are either public or owned by the user.
+ *   that belong to the album and are either public or owned by the user
  */
+
 async function getPhotosByAlbum(albumId, userEmail) {
-    const photos = await loadPhoto(); // Load all photos
-    const result = [];
+    const photos = await loadPhoto()
+    const result = []
 
     for (const photo of photos) {
         // Skip photos not in this album
@@ -293,30 +294,37 @@ async function getPhotosByAlbum(albumId, userEmail) {
 
         // Include photo if it's public or owned by the current user
         if (photo.visibility === "public" || photo.ownerEmail === userEmail) {
-            result.push(photo);
+            result.push(photo)
         }
     }
 
-    return result;
+    return result
 }
 
 
+/**
+ * Uploads a photo, saves it to the server, and stores its metadata in MongoDB.
+ *
+ * @async
+ * @param {string|number} userId - The ID of the user uploading the photo.
+ * @param {string|number} albumId - The album to which the photo belongs.
+ * @param {Object} uploadedFile - The uploaded file object.
+ * @param {Object} photoData - Additional photo details (title, description, visibility, ownerEmail).
+ * @returns {Promise<string>} The ID of the inserted photo record.
+ */
 
 async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
 const db = await connectDatabase();
-const photosCollection = db.collection('photos');
-// Make sure photos folder exists
-const photosDir = path.join(__dirname, 'photos');
-if (!fs.existsSync(photosDir)) fs.mkdirSync(photosDir);
+const photosCollection = db.collection('photos')
+const photosDir = path.join(__dirname, 'photos')
+if (!fs.existsSync(photosDir)) fs.mkdirSync(photosDir)
 
-// Save the file with unique name
-const fileExt = path.extname(uploadedFile.name);
-const fileName = `${Date.now()}_${userId}${fileExt}`;
-const filePath = path.join(photosDir, fileName);
+const fileExt = path.extname(uploadedFile.name)
+const fileName = `${Date.now()}_${userId}${fileExt}`
+const filePath = path.join(photosDir, fileName)
 
-await uploadedFile.mv(filePath); // move file from temp to photos/
+await uploadedFile.mv(filePath)
 
-// Insert into MongoDB
 const photoRecord = {
     userId,
     albumId,
@@ -327,12 +335,11 @@ const photoRecord = {
     fileName,
     filePath,
     createdAt: new Date()
-};
-
-const result = await photosCollection.insertOne(photoRecord);
-return result.insertedId;
 }
 
+const result = await photosCollection.insertOne(photoRecord)
+return result.insertedId
+}
 
 
 module.exports={
