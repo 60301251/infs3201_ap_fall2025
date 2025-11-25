@@ -395,8 +395,8 @@ async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
     title: (photoData.title || '').trim(),
     description: (photoData.description || '').trim(),
     visibility: 'private',            
-    ownerId: userIdNum,
-    albumId: albumIdNum,
+    ownerId: userId,
+    albumId: albumId,
     filePath: fileName,
     tags: []
   }

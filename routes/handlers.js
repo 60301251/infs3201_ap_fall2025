@@ -444,6 +444,7 @@ router.get('/album/name/:name', requireLogin, async (req, res) => {
   }
 })
 
+
 // router.get('/album/:albumId/gallery', requireLogin, async (req, res) => {
 //   const albumId = getId(req, 'albumId')
 //   if (albumId === null) {
