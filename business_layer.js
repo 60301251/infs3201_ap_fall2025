@@ -326,7 +326,6 @@ async function searchPhotos(searchTerm) {
  * @returns {Promise<number>} Newly generated numeric photo ID.
  */
 async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
-
   const photosDir = path.join(__dirname, 'photos')
 
   if (!fs.existsSync(photosDir)) {
@@ -344,15 +343,13 @@ async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
   const fileName = Date.now() + '_' + userIdNum + '_' + albumIdNum + '_' + safeBase + ext
 
     if (Number(photo.albumId) !== albumIdNum) {
-      continue
+      return
     }
-
     if (photo.visibility === 'public' || photo.ownerEmail === userEmail) {
       result.push(photo)
     }
-  }
-
   return result
+  
 }
 
 
