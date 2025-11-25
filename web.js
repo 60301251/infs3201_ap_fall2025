@@ -45,7 +45,9 @@ app.use(cookieParser())
 
 
 /**
- * Set Handlebars as the view engine
+ * Configures Handlebars as the application's view engine.
+ * Disables the default layout and registers helper functions
+ * such as `eq` for template comparisons.
  */
 
 const hbs = handlebars.create({
