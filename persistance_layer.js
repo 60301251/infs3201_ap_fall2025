@@ -188,7 +188,7 @@ async function savePhoto(photoData) {
     const photosCollection = db.collection('photos')
     const counters = db.collection('counters')
 
-    // get next numeric id
+    // Generate numeric id
     const result = await counters.findOneAndUpdate(
         { name: "photoId" },
         { $inc: { value: 1 } },
@@ -196,18 +196,21 @@ async function savePhoto(photoData) {
     )
     const nextId = result.value.value
 
+    // Build document to match your existing format (Option B)
     const photoDoc = {
-        id: Number(nextId),                       // numeric id so rest of app works
+        id: Number(nextId),                             // numeric id (used in URLs)
+        filename: photoData.filename || photoData.filePath || '',
         title: photoData.title || '',
         description: photoData.description || '',
-        visibility: photoData.visibility || 'public',
-        ownerId: Number(photoData.ownerId),
-        ownerEmail: photoData.ownerEmail || '',
-        albumId: Number(photoData.albumId),
-        filePath: photoData.filePath,
+        resolution: photoData.resolution || '',
+        albums: Array.isArray(photoData.albums) ? photoData.albums : (photoData.albumId ? [Number(photoData.albumId)] : []),
         tags: Array.isArray(photoData.tags) ? photoData.tags : [],
-        uploadedAt: new Date()
+        visibility: photoData.visibility || 'private',
+        ownerId: Number(photoData.ownerId || 0),
+        ownerEmail: photoData.ownerEmail || '',
+        date: photoData.date || new Date().toISOString()
     }
+
     await photosCollection.insertOne(photoDoc)
     return photoDoc.id
 }
@@ -296,14 +299,8 @@ async function findPhotosByAlbum(albumId) {
 
     if (!albumId) return []
     const albumIdNum = Number(albumId)
-    const albumIdStr = albumId.toString()
-    const cursor = photosCollection.find({
-      $or: [
-        { albumId: albumIdNum },
-        { albumId: albumIdStr }
-      ]
-    })
-
+    // Find documents where albums array contains albumIdNum
+    const cursor = photosCollection.find({ albums: albumIdNum })
     const photos = await cursor.toArray()
     return photos || []
   } catch (err) {
@@ -311,9 +308,6 @@ async function findPhotosByAlbum(albumId) {
     return []
   }
 }
-
-
-
 
 /**
  * Update an existing photo document by ID and ownerId (so only the owner can update).
