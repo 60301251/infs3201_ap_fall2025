@@ -25,11 +25,25 @@
 </div>
 
 {{#if user}}
-<form action="/album/{{album.id}}/upload" method="POST" enctype="multipart/form-data">
+{{!-- <form action="/album/{{album.id}}/upload" method="POST" enctype="multipart/form-data">
     <label>Photo:</label>
     <input type="file" name="photo" required>
     <button type="submit">Upload Photo</button>
-</form>
+</form> --}}
+<h2>Upload Photo</h2>
+
+<form action="/album/{{albumId}}/upload" method="POST" enctype="multipart/form-data">
+
+
+    <label>Photo:</label>
+    <input type="file" name="photo" required />
+
+    <label>Title:</label>
+    <input type="text" name="title" />
+
+   
+
+    <button type="submit">Upload</button>
 {{/if}}
 
 <a class="back-link" href="/">Back to Albums</a>

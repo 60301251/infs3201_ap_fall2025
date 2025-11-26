@@ -520,6 +520,9 @@ router.get('/album/:albumId/upload', requireLogin, async (req, res) => {
   }
 })
 
+
+
+
 router.post('/album/:albumId/upload', requireLogin, async (req, res) => {
   try {
     const albumId = Number(req.params.albumId)
@@ -555,25 +558,25 @@ router.post('/album/:albumId/upload', requireLogin, async (req, res) => {
  * @param {express.Response} res - Response used to show errors or redirect after upload.
  * @returns {Promise<void>}
  */
-router.post('/album/:id/upload', requireLogin, async (req, res) => {
-    try {
-        const albumId = Number(req.params.id);
+// router.post('/album/:id/upload', requireLogin, async (req, res) => {
+//     try {
+//         const albumId = Number(req.params.id);
 
-        if (!req.files || !req.files.photo) {
-            return res.render('error', { message: "No photo uploaded", layout: undefined });
-        }
+//         if (!req.files || !req.files.photo) {
+//             return res.render('error', { message: "No photo uploaded", layout: undefined });
+//         }
 
-        const uploadedFile = req.files.photo;
+//         const uploadedFile = req.files.photo;
 
-        // Correct call
-        await business.uploadPhoto(req.user.id, albumId, uploadedFile);
+//         // Correct call
+//         await business.uploadPhoto(albumId,req);
 
-        res.redirect(`/album/${albumId}`);
-    } catch (err) {
-        console.error("Upload error:", err);
-        res.render('error', { message: "Upload failed: " + err.message, layout: undefined });
-    }
-})
+//         res.redirect(`/album/${albumId}`);
+//     } catch (err) {
+//         console.error("Upload error:", err);
+//         res.render('error', { message: "Upload failed: " + err.message, layout: undefined });
+//     }
+// })
 
 /**
  * Exports the Express router handling all photo and album routes.

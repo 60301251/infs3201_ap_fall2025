@@ -215,7 +215,6 @@ async function savePhoto(photoData) {
     return photoDoc.id
 }
 
-
     
 /**
  * To load albums from the file
@@ -611,5 +610,6 @@ module.exports={
     deleteSession,
     searchPublicPhotos,
     findUserById,
-    findPhotosByAlbum
+    findPhotosByAlbum,
+   
 }

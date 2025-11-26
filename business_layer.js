@@ -24,7 +24,7 @@ const{
     deleteSession,
     searchPublicPhotos,
     findUserById,
-    findPhotosByAlbum
+    findPhotosByAlbum,
 } = require('./persistance_layer')
 const { sendMail } = require("./email")
 const path = require('path')

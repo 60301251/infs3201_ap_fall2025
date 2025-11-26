@@ -1,4 +1,4 @@
-<h2>Upload Photo</h2>
+{{!-- <h2>Upload Photo</h2>
 
 {{#if photoId}}
     <p>Photo uploaded successfully!</p>
@@ -10,8 +10,24 @@
     <label>Photo:</label>
     <input type="file" name="photo" required />
 
-    <!-- fields hidden/ignored by upload logic per assignment — shown only if you want -->
+   
     <button type="submit">Upload</button>
 </form>
 
-<p><a href="/album/{{album.id}}">Back to Album</a></p>
+<p><a href="/album/{{album.id}}">Back to Album</a></p> --}}
+<h2>Upload Photo</h2>
+<link rel="stylesheet" href="/styles/gallery.css">
+
+<form action="/album/{{albumId}}/upload" method="POST" enctype="multipart/form-data">
+
+    <label>Description:</label>
+    <textarea name="description"></textarea>
+
+    <label>Visibility:</label>
+    <select name="visibility">
+        <option value="public">Public</option>
+        <option value="private">Private</option>
+    </select>
+
+    <button type="submit">Upload</button>
+    <a class="back-link" href="/">Back to Albums</a>
