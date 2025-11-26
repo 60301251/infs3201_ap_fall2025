@@ -353,8 +353,9 @@ router.get('/album/:id', requireLogin, async (req, res) => {
     const album = await business.getAlbum(albumId)
     if (!album) return res.render('error', { message: "Album not found", layout: undefined })
 
-    try { 
-        const photos = await business.getPhotosByAlbum(albumId, req.user.email) 
+    try {
+        // use business.getPhotosByAlbum(albumId, userEmail)
+        const photos = await business.getPhotosByAlbum(albumId, req.user.email)
         res.render('album_gallery', { album, photos, user: req.user, layout: undefined })
     } catch (err) {
         console.error('Error loading photos:', err)
@@ -540,7 +541,29 @@ router.get('/album/:albumId/upload', requireLogin, async (req, res) => {
 }
 })
 
+router.post('/album/:albumId/upload', requireLogin, async (req, res) => {
+    try {
+        const albumId = Number(req.params.albumId)
+        if (isNaN(albumId)) {
+            return res.render('error', { message: 'Invalid album ID', layout: undefined })
+        }
 
+        // Ensure album exists and user owns it
+        const album = await business.getAlbum(albumId)
+        if (!album) return res.render('error', { message: 'Album not found', layout: undefined })
+        if (Number(album.ownerId) !== Number(req.user.id) && String(album.ownerEmail || '') !== String(req.user.email)) {
+            return res.render('error', { message: 'You can only upload to your own album', layout: undefined })
+        }
+
+        const newPhotoId = await business.uploadPhoto(albumId, req)
+
+        // Redirect to edit page so the user can fill details after upload (you asked to let user fill details)
+        res.redirect(`/photo/${newPhotoId}/edit`)
+    } catch (err) {
+        console.error("Error uploading photo:", err)
+        res.render('error', { message: "Error uploading photo: " + err.message })
+    }
+})
 
 /**
  * Handles uploading a new photo into a specific album.
