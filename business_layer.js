@@ -166,8 +166,9 @@ async function getPhotosByAlbum(albumId, userEmail) {
     }
 
     return result
-
 }
+
+
 /**
  * Update details of a photo.
  * @async
@@ -326,39 +327,38 @@ async function searchPhotos(searchTerm) {
  *
  * @returns {Promise<number>} The newly generated numeric photo ID.
  */
-async function uploadPhoto(userId, albumId, uploadedFile) {
 
-    if (!uploadedFile) {
+async function uploadPhoto(albumId, req) {
+    if (!req.files || !req.files.photo) {
         throw new Error("No file uploaded")
     }
 
-    const photosDir = path.join(__dirname, "photos")
+    const photo = req.files.photo;
+
+    // Ensure /photos folder exists
+    const photosDir = path.join(__dirname, 'photos')
     if (!fs.existsSync(photosDir)) {
-        fs.mkdirSync(photosDir, { recursive: true })
+        fs.mkdirSync(photosDir)
     }
 
-    const ext = path.extname(uploadedFile.name)
-    const base = path.basename(uploadedFile.name, ext)
-    const uniqueName = base + "_" + Date.now() + ext
+    // Save file to /photos
+    const uploadPath = path.join(photosDir, photo.name)
+    await photo.mv(uploadPath)
 
-    const savePath = path.join(photosDir, uniqueName)
-    await uploadedFile.mv(savePath)
-
+    // Prepare photo info for DB
     const photoData = {
-        title: "",
-        description: "",
-        tags: [],
-        visibility: "private",
-        ownerId: Number(userId),
-        albumId: Number(albumId),
-        filePath: uniqueName,
+        albumId: albumId,
+        filePath: photo.name, // store only filename
+        title: req.body.title || '',
+        description: req.body.description || '',
+        visibility: req.body.visibility || 'public',
         uploadedAt: new Date()
     }
-
-    const insertedId = await savePhoto(photoData)
-
-    return insertedId
+    return photoData;
 }
+
+
+
 
 
 async function getNextPhotoId() {
