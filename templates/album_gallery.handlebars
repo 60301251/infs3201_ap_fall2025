@@ -2,18 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{albumName}} - Album Gallery</title>
+    <title>{{album.name}} - Album Gallery</title>
     <link rel="stylesheet" href="/styles/gallery.css">
 </head>
 <body>
 
-<h1>{{albumName}}</h1>
+<h1>{{album.name}}</h1>
 
 <div class="gallery-grid">
     {{#if photos.length}}
         {{#each photos}}
             <div class="photo-card">
-                    <img src="/photos/{{this.filename}}" alt="{{this.title}}" />
+                <a href="/photo/{{this.id}}">
+                    <img src="/photos/{{this.filename}}" alt="{{this.title}}" style="max-width:200px;max-height:150px;" />
+                </a>
                 <p>{{this.title}}</p>
             </div>
         {{/each}}
@@ -26,21 +28,10 @@
 <form action="/album/{{album.id}}/upload" method="POST" enctype="multipart/form-data">
     <label>Photo:</label>
     <input type="file" name="photo" required>
-
-    <label>Title:</label>
-    <input type="text" name="title" required>
-
-    <label>Description (optional):</label>
-    <input type="text" name="description">
-
-    <label>Visibility:</label>
-    <select name="visibility">
-        <option value="public">Public</option>
-        <option value="private">Private</option>
-    </select>
-
     <button type="submit">Upload Photo</button>
 </form>
 {{/if}}
 
 <a class="back-link" href="/">Back to Albums</a>
+</body>
+</html>
