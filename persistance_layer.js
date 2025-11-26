@@ -183,20 +183,33 @@ async function loadPhoto(){
  */
 
 async function savePhoto(photoData) {
-    const db = await connectDatabase()
+    await connectDatabase()
+    const db = client.db('INFS3201_fall2025')
     const photosCollection = db.collection('photos')
+    const counters = db.collection('counters')
+
+    // get next numeric id
+    const result = await counters.findOneAndUpdate(
+        { name: "photoId" },
+        { $inc: { value: 1 } },
+        { upsert: true, returnDocument: "after" }
+    )
+    const nextId = result.value.value
 
     const photoDoc = {
+        id: Number(nextId),                       // numeric id so rest of app works
         title: photoData.title || '',
         description: photoData.description || '',
         visibility: photoData.visibility || 'public',
         ownerId: Number(photoData.ownerId),
+        ownerEmail: photoData.ownerEmail || '',
         albumId: Number(photoData.albumId),
         filePath: photoData.filePath,
+        tags: Array.isArray(photoData.tags) ? photoData.tags : [],
         uploadedAt: new Date()
     }
-     const result = await photosCollection.insertOne(photoDoc);
-    return result.insertedId;
+    await photosCollection.insertOne(photoDoc)
+    return photoDoc.id
 }
 
 
