@@ -29,7 +29,7 @@ const PORT=8000
  * @property {boolean} saveUninitialized - Avoids saving empty sessions.
  */
 app.use(bodyParser.urlencoded({extended: true}))
-app.use('/photos', express.static(path.join(__dirname,'public','photos')))
+app.use('/photos', express.static(path.join(__dirname,'photos')))
 app.use(express.static(path.join(__dirname, 'public')))
 
 app.use(fileUpload({
