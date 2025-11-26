@@ -346,17 +346,20 @@ router.post('/photo/:id/comment', requireLogin, async (req, res) => {
  */
 router.get('/album/:id', requireLogin, async (req, res) => {
     const albumId = Number(req.params.id)
+    if (isNaN(albumId)) {
+        return res.render('error', { message: "Invalid album ID.", layout: undefined })
+    }
 
     const album = await business.getAlbum(albumId)
-    const photos = await business.getPhotosByAlbum(albumId, req.user.id)
+    if (!album) return res.render('error', { message: "Album not found", layout: undefined })
 
-    res.render('album_gallery', {
-        album,
-        albumName: album.name,
-        photos,
-        user: req.user,
-        layout: undefined
-    })
+    try { 
+        const photos = await business.getPhotosByAlbum(albumId, req.user.email) 
+        res.render('album_gallery', { album, photos, user: req.user, layout: undefined })
+    } catch (err) {
+        console.error('Error loading photos:', err)
+        res.render('error', { message: "Failed to load album.", layout: undefined })
+    }
 })
 
 /**
