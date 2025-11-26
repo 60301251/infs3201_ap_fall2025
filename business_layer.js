@@ -327,6 +327,9 @@ async function searchPhotos(searchTerm) {
  *
  * @returns {Promise<number>} The newly generated numeric photo ID.
  */
+const path = require('path')
+const fs = require('fs')
+
 async function uploadPhoto(albumId, req) {
     if (!req.files || !req.files.photo) {
         throw new Error("No file uploaded")
@@ -337,52 +340,41 @@ async function uploadPhoto(albumId, req) {
 
     const photoFile = req.files.photo
 
-    // Save into project public/photos to match static serving
-    const photosDir = path.join(__dirname, 'public', 'photos')
+    // Save into ./photos (project root)
+    const photosDir = path.join(__dirname, 'photos')
     if (!fs.existsSync(photosDir)) {
         fs.mkdirSync(photosDir, { recursive: true })
     }
 
-    // generate unique filename: timestamp-random-ext
+    // create a safe unique filename
     const originalName = String(photoFile.name || 'upload')
     const ext = path.extname(originalName)
     const base = path.basename(originalName, ext).replace(/[^a-z0-9_\-]/ig, '_')
     const uniqueName = `${Date.now()}-${Math.floor(Math.random()*10000)}-${base}${ext}`
     const uploadPath = path.join(photosDir, uniqueName)
 
-    // move file to public/photos
+    // move file
     await photoFile.mv(uploadPath)
 
-    // Prepare photo info for DB — enforce blanks & private visibility per instructions
+    // Build photo metadata to match Option B
     const photoData = {
-        albumId: Number(albumId),
-        filePath: uniqueName, // store filename used in /photos/<filename>
-        title: '',            // blank as required
-        description: '',      // blank
-        visibility: 'private',// newly uploaded photos must be private
-        tags: [],             // blank tags
+        filename: uniqueName,
+        title: '',                  // blank per requirements
+        description: '',            // blank
+        resolution: '',             // optional; left blank
+        albums: [Number(albumId)],
+        tags: [],
+        visibility: 'private',      // force private
         ownerId: Number(req.user.id),
-        ownerEmail: req.user.email || ''
+        ownerEmail: req.user.email || '',
+        date: new Date().toISOString()
     }
 
-    // persist using persistance.savePhoto
+    // save to DB and get numeric id
     const insertedId = await savePhoto(photoData)
-
     return insertedId
 }
 
-async function getNextPhotoId() {
-    const db = await connPool;
-    const counters = db.collection("counters");
-
-    const result = await counters.findOneAndUpdate(
-        { name: "photoId" },
-        { $inc: { value: 1 } },
-        { upsert: true, returnDocument: "after" }
-    );
-
-    return result.value.value;
-}
 module.exports={
     signup,
     login,
@@ -399,5 +391,5 @@ module.exports={
     createSession,
     searchPhotos,
     uploadPhoto,
-    getNextPhotoId
+    
 }
