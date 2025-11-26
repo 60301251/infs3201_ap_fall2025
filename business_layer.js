@@ -327,47 +327,49 @@ async function searchPhotos(searchTerm) {
  *
  * @returns {Promise<number>} The newly generated numeric photo ID.
  */
-async function uploadPhoto(userId, albumId, uploadedFile) {
-
-    if (!uploadedFile) {
-        throw new Error("No file uploaded");
+async function uploadPhoto(albumId, req) {
+    if (!req.files || !req.files.photo) {
+        throw new Error("No file uploaded")
+    }
+    if (!req.user || !req.user.id) {
+        throw new Error("User not authenticated")
     }
 
-    // Ensure /photos exists
-    const photosDir = path.join(__dirname, "photos");
+    const photoFile = req.files.photo
+
+    // Save into project public/photos to match static serving
+    const photosDir = path.join(__dirname, 'public', 'photos')
     if (!fs.existsSync(photosDir)) {
-        fs.mkdirSync(photosDir, { recursive: true });
+        fs.mkdirSync(photosDir, { recursive: true })
     }
 
-    // UNIQUE filename
-    const ext = path.extname(uploadedFile.name);
-    const base = path.basename(uploadedFile.name, ext);
-    const uniqueName = base + "_" + Date.now() + ext;
+    // generate unique filename: timestamp-random-ext
+    const originalName = String(photoFile.name || 'upload')
+    const ext = path.extname(originalName)
+    const base = path.basename(originalName, ext).replace(/[^a-z0-9_\-]/ig, '_')
+    const uniqueName = `${Date.now()}-${Math.floor(Math.random()*10000)}-${base}${ext}`
+    const uploadPath = path.join(photosDir, uniqueName)
 
-    const savePath = path.join(photosDir, uniqueName);
-    await uploadedFile.mv(savePath);
+    // move file to public/photos
+    await photoFile.mv(uploadPath)
 
-    // FIX: Uploaded photos MUST HAVE BLANK FIELDS + PRIVATE VISIBILITY
+    // Prepare photo info for DB — enforce blanks & private visibility per instructions
     const photoData = {
-        title: "",
-        description: "",
-        tags: [],
-        visibility: "private",       // FIXED
-        ownerId: Number(userId),     // FIXED
         albumId: Number(albumId),
-        filePath: uniqueName,        // FIXED
-        uploadedAt: new Date()
-    };
+        filePath: uniqueName, // store filename used in /photos/<filename>
+        title: '',            // blank as required
+        description: '',      // blank
+        visibility: 'private',// newly uploaded photos must be private
+        tags: [],             // blank tags
+        ownerId: Number(req.user.id),
+        ownerEmail: req.user.email || ''
+    }
 
-    // FIX: Actually save to database
-    const insertedId = await savePhoto(photoData);
+    // persist using persistance.savePhoto
+    const insertedId = await savePhoto(photoData)
 
-    return insertedId;
+    return insertedId
 }
-
-
-
-
 
 async function getNextPhotoId() {
     const db = await connPool;
