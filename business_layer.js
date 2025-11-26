@@ -155,17 +155,21 @@ async function getByAlbum(albumName, currentUserId) {
  * @param {number|string} userId  - Logged-in user ID
  * @returns {Promise<Array<Object>>}
  */
-async function getPhotosByAlbum(albumId, userEmail) {
-    const photos = await loadPhoto(); 
-    const result = [];
-     for (const photo of photos) {
-        if (!photo.albums || !photo.albums.includes(albumId)) continue;
-             if (photo.visibility === "public" || photo.ownerEmail === userEmail) {
-            result.push(photo)
+async function getPhotosByAlbum(albumId, userId) {
+    const all = await loadPhoto()
+    const list = []
+
+    for (let i = 0; i < all.length; i++) {
+        const p = all[i]
+
+        if (Number(p.albumId) !== Number(albumId)) continue
+
+        if (p.visibility === "public" || Number(p.ownerId) === Number(userId)) {
+            list.push(p)
         }
     }
 
-    return result
+    return list
 }
 
 
@@ -327,38 +331,39 @@ async function searchPhotos(searchTerm) {
  *
  * @returns {Promise<number>} The newly generated numeric photo ID.
  */
+async function uploadPhoto(userId, albumId, uploadedFile) {
 
-async function uploadPhoto(albumId, req) {
-    if (!req.files || !req.files.photo) {
+    if (!uploadedFile) {
         throw new Error("No file uploaded")
     }
 
-    const photo = req.files.photo;
-
-    // Ensure /photos folder exists
-    const photosDir = path.join(__dirname, 'photos')
+    const photosDir = path.join(__dirname, "photos")
     if (!fs.existsSync(photosDir)) {
-        fs.mkdirSync(photosDir)
+        fs.mkdirSync(photosDir, { recursive: true })
     }
 
-    // Save file to /photos
-    const uploadPath = path.join(photosDir, photo.name)
-    await photo.mv(uploadPath)
+    const ext = path.extname(uploadedFile.name)
+    const base = path.basename(uploadedFile.name, ext)
+    const uniqueName = base + "_" + Date.now() + ext
 
-    // Prepare photo info for DB
+    const savePath = path.join(photosDir, uniqueName)
+    await uploadedFile.mv(savePath)
+
     const photoData = {
-        albumId: albumId,
-        filePath: photo.name, // store only filename
-        title: req.body.title || '',
-        description: req.body.description || '',
-        visibility: req.body.visibility || 'public',
+        title: "",
+        description: "",
+        tags: [],
+        visibility: "private",
+        ownerId: Number(userId),
+        albumId: Number(albumId),
+        filePath: uniqueName,
         uploadedAt: new Date()
     }
-    return photoData;
+
+    const insertedId = await savePhoto(photoData)
+
+    return insertedId
 }
-
-
-
 
 
 async function getNextPhotoId() {
