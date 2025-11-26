@@ -155,24 +155,19 @@ async function getByAlbum(albumName, currentUserId) {
  * @param {number|string} userId  - Logged-in user ID
  * @returns {Promise<Array<Object>>}
  */
-async function getPhotosByAlbum(albumId, userId) {
-    const all = await loadPhoto()
-    const list = []
-
-    for (let i = 0; i < all.length; i++) {
-        const p = all[i]
-
-        if (Number(p.albumId) !== Number(albumId)) continue
-
-        if (p.visibility === "public" || Number(p.ownerId) === Number(userId)) {
-            list.push(p)
+async function getPhotosByAlbum(albumId, userEmail) {
+    const photos = await loadPhoto(); 
+    const result = [];
+     for (const photo of photos) {
+        if (!photo.albums || !photo.albums.includes(albumId)) continue;
+             if (photo.visibility === "public" || photo.ownerEmail === userEmail) {
+            result.push(photo)
         }
     }
 
-    return list
+    return result
+
 }
-
-
 /**
  * Update details of a photo.
  * @async
