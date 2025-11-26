@@ -11,12 +11,12 @@
 const express = require('express')
 const router = express.Router()
 const business = require('../business_layer')
-const fileUpload = require('express-fileupload')
+// const fileUpload = require('express-fileupload')
 const persistance = require('../persistance_layer')
 const { getUserBySession } = require('../business_layer')
 const path = require('path')
 const fs = require('fs')
-const UPLOADS_DIR = path.join(__dirname, '..', 'public', 'photos')
+const UPLOADS_DIR = path.join(__dirname, '..', 'photos')
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true })
 
 
@@ -86,7 +86,6 @@ router.get('/', requireLogin, async (req, res) => {
  * @returns {void}
  */
 router.get('/login', async (req, res) => {
-
   const sessionId = req.cookies?.sessionId
   if (sessionId) {
     const user = await getUserBySession(sessionId)
@@ -157,29 +156,23 @@ router.get('/logout', async (req, res) => {
  */
 router.get('/photo/:id', requireLogin, async (req, res) => {
   const photoId = getId(req)
-  if (photoId === null) {
-    return res.render('error', { message: 'Invalid photo ID.', layout: undefined })
-  }
-
+  if (photoId === null) return res.render('error', { message: 'Invalid photo ID.', layout: undefined })
   try {
     const photo = await business.getPhoto(photoId)
-    if (!photo) {
-      return res.render('error', { message: 'Photo not found', layout: undefined })
-    }
+    if (!photo) return res.render('error', { message: 'Photo not found', layout: undefined })
 
-    if (
-      photo.visibility === 'private' &&
-      (!req.user || Number(req.user.id) !== Number(photo.ownerId))
-    ) {
+    if (photo.visibility === 'private' && Number(req.user.id) !== Number(photo.ownerId)) {
       return res.render('error', { message: 'This photo is private', layout: undefined })
     }
 
     const comments = await business.listPhotoComments(photo.id)
     res.render('photo', { photo, comments, user: req.user, layout: undefined })
-  } catch {
+  } catch (err) {
+    console.error(err)
     res.render('error', { message: 'Failed to load photo.', layout: undefined })
   }
 })
+
 
 /**
  * Loads a photo owned by the logged-in user and renders the edit form.
@@ -193,23 +186,15 @@ router.get('/photo/:id', requireLogin, async (req, res) => {
  */
 router.get('/photo/:id/edit', requireLogin, async (req, res) => {
   const photoId = getId(req)
-  if (photoId === null) {
-    return res.render('error', { message: 'Invalid photo ID.', layout: undefined })
-  }
-
+  if (photoId === null) return res.render('error', { message: 'Invalid photo ID.', layout: undefined })
   try {
     const photo = await business.getPhoto(photoId)
     if (!photo || Number(photo.ownerId) !== Number(req.user.id)) {
       return res.render('error', { message: 'You can only edit your own photos.', layout: undefined })
     }
-
-    const visibilityOptions = [
-      { value: 'public', selected: photo.visibility === 'public' ? 'selected' : '' },
-      { value: 'private', selected: photo.visibility === 'private' ? 'selected' : '' }
-    ]
-
-    res.render('edit', { photo, visibilityOptions, layout: undefined })
-  } catch {
+    res.render('edit', { photo, layout: undefined })
+  } catch (err) {
+    console.error(err)
     res.render('error', { message: 'Failed to load edit form.', layout: undefined })
   }
 })
@@ -227,22 +212,16 @@ router.get('/photo/:id/edit', requireLogin, async (req, res) => {
  */
 router.post('/photo/:id/edit', requireLogin, async (req, res) => {
   const photoId = getId(req)
-  if (photoId === null) {
-    return res.render('error', { message: 'Invalid photo ID.', layout: undefined })
-  }
-
+  if (photoId === null) return res.render('error', { message: 'Invalid photo ID.', layout: undefined })
   try {
     const title = (req.body.title || '').trim()
     const description = (req.body.description || '').trim()
     const visibility = (req.body.visibility || '').trim()
-
     const updatedPhoto = await business.updatePhoto(photoId, req.user.id, title, description, visibility)
-    if (!updatedPhoto) {
-      return res.render('error', { message: 'Failed to update photo', layout: undefined })
-    }
+    if (!updatedPhoto) return res.render('error', { message: 'Failed to update photo', layout: undefined })
     res.redirect(`/photo/${photoId}`)
-  } catch (error) {
-    console.error('Error updating photo:', error)
+  } catch (err) {
+    console.error(err)
     res.render('error', { message: 'An error occurred while updating the photo', layout: undefined })
   }
 })
@@ -345,24 +324,21 @@ router.post('/photo/:id/comment', requireLogin, async (req, res) => {
  * @returns {void}
  */
 router.get('/album/:id', requireLogin, async (req, res) => {
-    const albumId = Number(req.params.id)
-    if (isNaN(albumId)) {
-        return res.render('error', { message: "Invalid album ID.", layout: undefined })
-    }
+  const albumId = Number(req.params.id)
+  if (isNaN(albumId)) return res.render('error', { message: "Invalid album ID.", layout: undefined })
 
-    const album = await business.getAlbum(albumId)
-    if (!album) return res.render('error', { message: "Album not found", layout: undefined })
+  const album = await business.getAlbum(albumId)
+  if (!album) return res.render('error', { message: "Album not found", layout: undefined })
 
-    try {
-        // use business.getPhotosByAlbum(albumId, userEmail)
-        const photos = await business.getPhotosByAlbum(albumId, req.user.email)
-        res.render('album_gallery', { album, photos, user: req.user, layout: undefined })
-    } catch (err) {
-        console.error('Error loading photos:', err)
-        res.render('error', { message: "Failed to load album.", layout: undefined })
-    }
+  try {
+    // business.getPhotosByAlbum expects albumId and userEmail
+    const photos = await business.getPhotosByAlbum(albumId, req.user.email)
+    res.render('album_gallery', { album, photos, user: req.user, layout: undefined })
+  } catch (err) {
+    console.error('Error loading photos:', err)
+    res.render('error', { message: "Failed to load album.", layout: undefined })
+  }
 })
-
 /**
  * Performs a search across public photos by title, description, or tags
  * and displays the matching results in a grid.
@@ -528,43 +504,40 @@ router.get('/album/:id/gallery', requireLogin, async (req, res) => {
  */
 
 router.get('/album/:albumId/upload', requireLogin, async (req, res) => {
-  const albumId = getId(req, 'albumId')
-  if (albumId === null) return res.render('error', { message: 'Invalid album ID', layout: undefined })
-    try {
-      const album = await business.getAlbum(albumId)
-      if (!album) return res.render('error', { message: 'Album not found', layout: undefined })
+  const albumId = Number(req.params.albumId)
+  if (isNaN(albumId)) return res.render('error', { message: 'Invalid album ID', layout: undefined })
 
-        res.render('upload', { album, user: req.user, layout: undefined })
-}   catch (err) {
-  console.error('Error loading upload page:', err)
-  res.render('error', { message: 'Failed to load upload page', layout: undefined })
-}
+  try {
+    const album = await business.getAlbum(albumId)
+    if (!album) return res.render('error', { message: 'Album not found', layout: undefined })
+
+    // pass through optional photoId query when redirecting back after upload
+    const photoId = req.query.photoId || null
+    res.render('upload', { album, user: req.user, photoId, layout: undefined })
+  } catch (err) {
+    console.error('Error loading upload page:', err)
+    res.render('error', { message: 'Failed to load upload page', layout: undefined })
+  }
 })
 
 router.post('/album/:albumId/upload', requireLogin, async (req, res) => {
-    try {
-        const albumId = Number(req.params.albumId)
-        if (isNaN(albumId)) {
-            return res.render('error', { message: 'Invalid album ID', layout: undefined })
-        }
+  try {
+    const albumId = Number(req.params.albumId)
+    if (isNaN(albumId)) return res.render('error', { message: 'Invalid album ID' })
 
-        // Ensure album exists and user owns it
-        const album = await business.getAlbum(albumId)
-        if (!album) return res.render('error', { message: 'Album not found', layout: undefined })
-        if (Number(album.ownerId) !== Number(req.user.id) && String(album.ownerEmail || '') !== String(req.user.email)) {
-            return res.render('error', { message: 'You can only upload to your own album', layout: undefined })
-        }
+    const album = await business.getAlbum(albumId)
+    if (!album) return res.render('error', { message: 'Album not found' })
 
-        const newPhotoId = await business.uploadPhoto(albumId, req)
+    // uploadPhoto in business layer will use req.user as owner
+    const newPhotoId = await business.uploadPhoto(albumId, req)
 
-        // Redirect to edit page so the user can fill details after upload (you asked to let user fill details)
-        res.redirect(`/photo/${newPhotoId}/edit`)
-    } catch (err) {
-        console.error("Error uploading photo:", err)
-        res.render('error', { message: "Error uploading photo: " + err.message })
-    }
+    // Redirect back to upload page with the new photoId so user can click to edit metadata
+    res.redirect(`/album/${albumId}/upload?photoId=${newPhotoId}`)
+  } catch (err) {
+    console.error('Error uploading photo:', err)
+    res.render('error', { message: 'Error uploading photo: ' + (err.message || err), layout: undefined })
+  }
 })
-
 /**
  * Handles uploading a new photo into a specific album.
  * Validates:
