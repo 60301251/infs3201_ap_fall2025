@@ -327,9 +327,6 @@ async function searchPhotos(searchTerm) {
  *
  * @returns {Promise<number>} The newly generated numeric photo ID.
  */
-const path = require('path')
-const fs = require('fs')
-
 async function uploadPhoto(albumId, req) {
     if (!req.files || !req.files.photo) {
         throw new Error("No file uploaded")
