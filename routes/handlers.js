@@ -502,6 +502,7 @@ router.get('/album/:id/gallery', requireLogin, async (req, res) => {
  * @param {express.Response} res - Response used to render the upload page or errors.
  * @returns {Promise<void>}
  */
+
 router.get('/album/:albumId/upload', requireLogin, async (req, res) => {
   const albumId = Number(req.params.albumId)
   if (isNaN(albumId)) return res.render('error', { message: 'Invalid album ID', layout: undefined })
@@ -510,37 +511,14 @@ router.get('/album/:albumId/upload', requireLogin, async (req, res) => {
     const album = await business.getAlbum(albumId)
     if (!album) return res.render('error', { message: 'Album not found', layout: undefined })
 
+    // pass through optional photoId query when redirecting back after upload
     const photoId = req.query.photoId || null
-   res.render('upload', { 
-    album, 
-    albumId,      // <<< THIS FIXES THE BUG
-    user: req.user, 
-    photoId, 
-    layout: undefined 
-})
+    res.render('upload', { album, user: req.user, photoId, layout: undefined })
   } catch (err) {
     console.error('Error loading upload page:', err)
     res.render('error', { message: 'Failed to load upload page', layout: undefined })
   }
 })
-
-
-// router.get('/album/:albumId/upload', requireLogin, async (req, res) => {
-//   const albumId = Number(req.params.albumId)
-//   if (isNaN(albumId)) return res.render('error', { message: 'Invalid album ID', layout: undefined })
-
-//   try {
-//     const album = await business.getAlbum(albumId)
-//     if (!album) return res.render('error', { message: 'Album not found', layout: undefined })
-
-//     // pass through optional photoId query when redirecting back after upload
-//     const photoId = req.query.photoId || null
-//     res.render('upload', { album, user: req.user, photoId, layout: undefined })
-//   } catch (err) {
-//     console.error('Error loading upload page:', err)
-//     res.render('error', { message: 'Failed to load upload page', layout: undefined })
-//   }
-// })
 
 
 

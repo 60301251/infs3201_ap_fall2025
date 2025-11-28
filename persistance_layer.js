@@ -34,7 +34,10 @@ async function connectDatabase() {
   return client.db('INFS3201_fall2025')
 }
 
-
+function getCollection(name) {
+  if (!db) throw new Error('Database not initialized. Call connectDB first.');
+  return db.collection(name);
+}
 
 /**
  * Generates a salted PBKDF2 hash for a plaintext password.
@@ -182,37 +185,50 @@ async function loadPhoto(){
  * @returns {Promise<number>} The newly generated numeric photo ID.
  */
 
-async function savePhoto(photoData) {
-    await connectDatabase()
-    const db = client.db('INFS3201_fall2025')
-    const photosCollection = db.collection('photos')
-    const counters = db.collection('counters')
+// async function savePhoto(photoData) {
+//     await connectDatabase()
+//     const db = client.db('INFS3201_fall2025')
+//     const photosCollection = db.collection('photos')
+//     const counters = db.collection('counters')
 
-    // Generate numeric id
-    const result = await counters.findOneAndUpdate(
-        { name: "photoId" },
-        { $inc: { value: 1 } },
-        { upsert: true, returnDocument: "after" }
-    )
-    const nextId = result.value.value
+//     // Generate numeric id
+//     const result = await counters.findOneAndUpdate(
+//         { name: "photoId" },
+//         { $inc: { value: 1 } },
+//         { upsert: true, returnDocument: "after" }
+//     )
+//     const nextId = result.value.value
 
-    // Build document to match your existing format (Option B)
-    const photoDoc = {
-        id: Number(nextId),                             // numeric id (used in URLs)
-        filename: photoData.filename || photoData.filePath || '',
-        title: photoData.title || '',
-        description: photoData.description || '',
-        resolution: photoData.resolution || '',
-        albums: Array.isArray(photoData.albums) ? photoData.albums : (photoData.albumId ? [Number(photoData.albumId)] : []),
-        tags: Array.isArray(photoData.tags) ? photoData.tags : [],
-        visibility: photoData.visibility || 'private',
-        ownerId: Number(photoData.ownerId || 0),
-        ownerEmail: photoData.ownerEmail || '',
-        date: photoData.date || new Date().toISOString()
-    }
+//     // Build document to match your existing format (Option B)
+//     const photoDoc = {
+//         id: Number(nextId),                             // numeric id (used in URLs)
+//         filename: photoData.filename || photoData.filePath || '',
+//         title: photoData.title || '',
+//         description: photoData.description || '',
+//         resolution: photoData.resolution || '',
+//         albums: Array.isArray(photoData.albums) ? photoData.albums : (photoData.albumId ? [Number(photoData.albumId)] : []),
+//         tags: Array.isArray(photoData.tags) ? photoData.tags : [],
+//         visibility: photoData.visibility || 'private',
+//         ownerId: Number(photoData.ownerId || 0),
+//         ownerEmail: photoData.ownerEmail || '',
+//         date: photoData.date || new Date().toISOString()
+//     }
 
-    await photosCollection.insertOne(photoDoc)
-    return photoDoc.id
+//     await photosCollection.insertOne(photoDoc)
+//     return photoDoc.id
+// }
+
+const photosDir = path.join(__dirname, 'photos');
+
+function savePhoto(file) {
+    return new Promise((resolve, reject) => {
+        const uploadPath = path.join(photosDir, file.name);
+
+        file.mv(uploadPath, (err) => {
+            if (err) return reject(err);
+            resolve(uploadPath); // returns the full path of saved photo
+        });
+    });
 }
 
     
@@ -611,5 +627,6 @@ module.exports={
     searchPublicPhotos,
     findUserById,
     findPhotosByAlbum,
+    getCollection
    
 }

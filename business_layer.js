@@ -24,7 +24,7 @@ const{
     deleteSession,
     searchPublicPhotos,
     findUserById,
-    findPhotosByAlbum,
+    findPhotosByAlbum
 } = require('./persistance_layer')
 const { sendMail } = require("./email")
 const path = require('path')
@@ -166,9 +166,8 @@ async function getPhotosByAlbum(albumId, userEmail) {
     }
 
     return result
+
 }
-
-
 /**
  * Update details of a photo.
  * @async
@@ -327,51 +326,53 @@ async function searchPhotos(searchTerm) {
  *
  * @returns {Promise<number>} The newly generated numeric photo ID.
  */
-async function uploadPhoto(albumId, req) {
-    if (!req.files || !req.files.photo) {
+async function uploadPhoto(userId, albumId, uploadedFile) {
+
+    if (!uploadedFile) {
         throw new Error("No file uploaded")
     }
-    if (!req.user || !req.user.id) {
-        throw new Error("User not authenticated")
-    }
 
-    const photoFile = req.files.photo
-
-    // Save into ./photos (project root)
-    const photosDir = path.join(__dirname, 'photos')
+    const photosDir = path.join(__dirname, "photos")
     if (!fs.existsSync(photosDir)) {
         fs.mkdirSync(photosDir, { recursive: true })
     }
 
-    // create a safe unique filename
-    const originalName = String(photoFile.name || 'upload')
-    const ext = path.extname(originalName)
-    const base = path.basename(originalName, ext).replace(/[^a-z0-9_\-]/ig, '_')
-    const uniqueName = `${Date.now()}-${Math.floor(Math.random()*10000)}-${base}${ext}`
-    const uploadPath = path.join(photosDir, uniqueName)
+    const ext = path.extname(uploadedFile.name)
+    const base = path.basename(uploadedFile.name, ext)
+    const uniqueName = base + "_" + Date.now() + ext
 
-    // move file
-    await photoFile.mv(uploadPath)
+    const savePath = path.join(photosDir, uniqueName)
+    await uploadedFile.mv(savePath)
 
-    // Build photo metadata to match Option B
     const photoData = {
-        filename: uniqueName,
-        title: '',                  // blank per requirements
-        description: '',            // blank
-        resolution: '',             // optional; left blank
-        albums: [Number(albumId)],
+        title: "",
+        description: "",
         tags: [],
-        visibility: 'private',      // force private
-        ownerId: Number(req.user.id),
-        ownerEmail: req.user.email || '',
-        date: new Date().toISOString()
+        visibility: "private",
+        ownerId: Number(userId),
+        albumId: Number(albumId),
+        filePath: uniqueName,
+        uploadedAt: new Date()
     }
 
-    // save to DB and get numeric id
     const insertedId = await savePhoto(photoData)
+
     return insertedId
 }
 
+
+async function getNextPhotoId() {
+    const db = await connPool;
+    const counters = db.collection("counters");
+
+    const result = await counters.findOneAndUpdate(
+        { name: "photoId" },
+        { $inc: { value: 1 } },
+        { upsert: true, returnDocument: "after" }
+    );
+
+    return result.value.value;
+}
 module.exports={
     signup,
     login,
@@ -388,5 +389,5 @@ module.exports={
     createSession,
     searchPhotos,
     uploadPhoto,
-    
+    getNextPhotoId
 }
