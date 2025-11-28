@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{{!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -30,7 +30,7 @@
     <input type="file" name="photo" required>
     <button type="submit">Upload Photo</button>
 </form> --}}
-<h2>Upload Photo</h2>
+{{!-- <h2>Upload Photo</h2>
 
 <form action="/album/{{albumId}}/upload" method="POST" enctype="multipart/form-data">
 
@@ -47,5 +47,47 @@
 {{/if}}
 
 <a class="back-link" href="/">Back to Albums</a>
+</body>
+</html>  --}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{album.name}} - Album Gallery</title>
+    <link rel="stylesheet" href="/styles/gallery.css">
+</head>
+<body>
+    <h1>{{album.name}}</h1>
+
+    <div class="gallery-grid">
+        {{#if photos.length}}
+            {{#each photos}}
+                <div class="photo-card">
+                    <a href="/photo/{{this.id}}">
+                        <img src="/photos/{{this.filename}}" alt="{{this.title}}" style="max-width:200px;max-height:150px;" />
+                    </a>
+                    <p>{{this.title}}</p>
+                </div>
+            {{/each}}
+        {{else}}
+            <p>No photos in this album yet.</p>
+        {{/if}}
+    </div>
+
+    {{#if user}}
+    <h2>Upload Photo to {{album.name}}</h2>
+
+<form action="/album/{{album.id}}/upload" method="POST" enctype="multipart/form-data">
+    <label>Photo:</label>
+    <input type="file" name="photo" required>
+
+    <label>Title:</label>
+    <input type="text" name="title">
+
+    <button type="submit">Upload</button>
+</form>
+    {{/if}}
+
+    <a class="back-link" href="/albums">Back to Albums</a>
 </body>
 </html>

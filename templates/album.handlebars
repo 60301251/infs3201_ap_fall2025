@@ -1,22 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <h1>{{album.name}}</h1>
     <link rel="stylesheet" href="/styles/gallery.css">
 </head>
-
-<p>Photos in this album:</p>
-
-{{#if photos.length}}
-<ul>
-    {{#each photos}}
-        <li><a href="/photo/{{this.id}}">{{this.title}}</a></li>
+<body>
+    <h1>Your Albums</h1>
+    <ul>
+    {{#each albums}}
+        <li>
+            <strong>{{this.name}}</strong> - {{this.description}}
+            <a href="/album/{{this.id}}/upload">Upload Photo</a>
+        </li>
     {{/each}}
-</ul>
-{{else}}
-<p>No photos in this album yet.</p>
-{{/if}}
+    </ul>
 
-<a href="/">Back to Albums</a>
+    <p>
+        Logged in as: {{user.name}} | <a href="/logout">Logout</a>
+    </p>
+</body>
+</html>
 
-<p>
-    Logged in as: {{user.name}} | <a href="/logout">Logout</a>
-</p>
+
+
+

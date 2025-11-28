@@ -32,11 +32,7 @@ app.use(bodyParser.urlencoded({extended: true}))
 app.use('/photos', express.static(path.join(__dirname,'photos')))
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(fileUpload({
-    limits: { fileSize: 50 * 1024 * 1024 }, 
-    useTempFiles: true,
-    tempFileDir: '/tmp/',
     createParentPath: true,
-    safeFileNames: true
 }))
 
 
