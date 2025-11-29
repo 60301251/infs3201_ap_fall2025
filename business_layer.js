@@ -156,17 +156,6 @@ async function getByAlbum(albumName, currentUserId) {
  * @param {number|string} userId  - Logged-in user ID
  * @returns {Promise<Array<Object>>}
  */
-// async function getPhotosByAlbum(albumId, userId) {
-//     const photos = await loadPhoto(); 
-//     const result = [];
-//     for (const photo of photos) {
-//         if (!photo.albums || !photo.albums.includes(Number(albumId))) continue;
-//         if (photo.visibility === "public" || Number(photo.ownerId) === Number(userId)) {
-//             result.push(photo)
-//         }
-//     }
-//     return result;
-// }
 async function getPhotosByAlbum(albumId, userEmail) {
     const photos = await loadPhoto(); // load all photos
     const result = [];
@@ -341,163 +330,6 @@ async function searchPhotos(searchTerm) {
  *
  * @returns {Promise<number>} The newly generated numeric photo ID.
  */
-// async function uploadPhoto(userId, albumId, uploadedFile) {
-
-//     if (!uploadedFile) {
-//         throw new Error("No file uploaded")
-//     }
-
-//     const photosDir = path.join(__dirname, "photos")
-//     if (!fs.existsSync(photosDir)) {
-//         fs.mkdirSync(photosDir, { recursive: true })
-//     }
-
-//     const ext = path.extname(uploadedFile.name)
-//     const base = path.basename(uploadedFile.name, ext)
-//     const uniqueName = base + "_" + Date.now() + ext
-
-//     const savePath = path.join(photosDir, uniqueName)
-//     await uploadedFile.mv(savePath)
-
-//     const photoData = {
-//         title: "",
-//         description: "",
-//         tags: [],
-//         visibility: "private",
-//         ownerId: Number(userId),
-//         albums: [Number(albumId)], // <-- changed from albumId
-//         filePath: uniqueName,
-//         uploadedAt: new Date()
-// }
-
-//     const insertedId = await savePhoto(photoData)
-
-//     return insertedId
-// }
-
-
-// async function getNextPhotoId() {
-//     const db = await connPool;
-//     const counters = db.collection("counters");
-
-//     const result = await counters.findOneAndUpdate(
-//         { name: "photoId" },
-//         { $inc: { value: 1 } },
-//         { upsert: true, returnDocument: "after" }
-//     );
-
-//     return result.value.value;
-// }
-
-// async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
-//     if (!uploadedFile) {
-//         throw new Error("No file uploaded");
-//     }
-
-//     // Ensure ./photos directory exists
-//     const photosDir = path.join(__dirname, "photos");
-//     if (!fs.existsSync(photosDir)) {
-//         fs.mkdirSync(photosDir, { recursive: true });
-//     }
-
-//     // Generate unique filename
-//     const ext = path.extname(uploadedFile.name);
-//     const base = path.basename(uploadedFile.name, ext);
-//     const uniqueName = base + "_" + Date.now() + ext;
-//     const savePath = path.join(photosDir, uniqueName);
-
-//     // Move file physically
-//     await uploadedFile.mv(savePath);
-
-//     // Connect to MongoDB
-//     const db = await connectDatabase();
-//     const photosCollection = db.collection('photos');
-//     const countersCollection = db.collection('counters');
-
-//     // Generate numeric photo ID
-//     const result = await countersCollection.findOneAndUpdate(
-//         { name: "photoId" },
-//         { $inc: { value: 1 } },
-//         { upsert: true, returnDocument: "after" }
-//     );
-//     const nextId = result.value.value;
-
-//     // Build photo document
-//     const photoDoc = {
-//         id: Number(nextId),
-//         filename: uniqueName,
-//         title: photoData.title || '',
-//         description: photoData.description || '',
-//         albums: [Number(albumId)],
-//         tags: [],
-//         visibility: photoData.visibility || 'private',
-//         ownerId: Number(userId),
-//         uploadedAt: new Date()
-//     };
-
-//     // Save photo in MongoDB
-//     await photosCollection.insertOne(photoDoc);
-
-//     return photoDoc.id; // Return numeric photo ID
-// }
-
-
-// async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
-//     if (!uploadedFile) throw new Error("No file uploaded");
-
-//     // Ensure photos folder exists
-//     const photosDir = path.join(__dirname, 'photos');
-//     if (!fs.existsSync(photosDir)) fs.mkdirSync(photosDir, { recursive: true });
-
-//     // Generate unique filename
-//     const ext = path.extname(uploadedFile.name);
-//     const base = path.basename(uploadedFile.name, ext);
-//     const uniqueName = `${base}_${Date.now()}${ext}`;
-//     const savePath = path.join(photosDir, uniqueName);
-
-//     // Move file physically
-//     await uploadedFile.mv(savePath);
-
-//     // Connect to MongoDB
-//     const db = await connectDatabase();
-//     const photosCollection = db.collection('photos');
-//     const countersCollection = db.collection('counters');
-
-//     // Ensure counter exists
-//     const counter = await countersCollection.findOne({ name: "photoId" });
-//     if (!counter) {
-//         await countersCollection.insertOne({ name: "photoId", value: 1000 });
-//     }
-
-//     // Generate numeric photo ID
-//     const result = await countersCollection.findOneAndUpdate(
-//         { name: "photoId" },
-//         { $inc: { value: 1 } },
-//         { returnDocument: "after" }
-//     );
-
-//     if (!result.value) throw new Error("Failed to generate photo ID");
-
-//     const nextId = result.value.value;
-
-//     // Build photo document
-//     const photoDoc = {
-//         id: nextId,
-//         filename: uniqueName,
-//         title: photoData.title || '',
-//         description: photoData.description || '',
-//         albums: [albumId],
-//         tags: [],
-//         visibility: photoData.visibility || 'private',
-//         ownerId: userId,
-//         uploadedAt: new Date(),
-//     };
-
-//     await photosCollection.insertOne(photoDoc);
-
-//     return photoDoc.id;
-// }
-
 async function uploadPhoto(userId, albumId, uploadedFile) {
     if (!uploadedFile) throw new Error("No file uploaded");
 
@@ -548,9 +380,6 @@ async function uploadPhoto(userId, albumId, uploadedFile) {
 
     return photoDoc.id;
 }
-
-
-
 
 module.exports={
     signup,
