@@ -310,18 +310,6 @@ router.post('/photo/:id/comment', requireLogin, async (req, res) => {
   }
 })
 
-router.get('/albums', requireLogin, async (req, res) => {
-    try {
-        const albums = await persistance.loadAlbum();
-        res.render('index', { albums, user: req.user, layout: undefined });
-    } catch (err) {
-        console.error(err);
-        res.render('error', { message: 'Failed to load albums', layout: undefined });
-    }
-});
-
-
-
 /**
  * Render a specific album and its photos.
  * 
@@ -330,35 +318,20 @@ router.get('/albums', requireLogin, async (req, res) => {
  * @param {Response} res - Express response to render the album page.
  * @returns {void}
  */
-// router.get('/album/:id', requireLogin, async (req, res) => {
-//   const albumId = Number(req.params.id)
-//   if (isNaN(albumId)) return res.render('error', { message: "Invalid album ID.", layout: undefined })
 
-//   const album = await business.getAlbum(albumId)
-//   if (!album) return res.render('error', { message: "Album not found", layout: undefined })
-
-//   try {
-//     // business.getPhotosByAlbum expects albumId and userEmail
-//     const photos = await business.getPhotosByAlbum(albumId, req.user.email)
-//     res.render('album_gallery', { album, photos, user: req.user, layout: undefined })
-//   } catch (err) {
-//     console.error('Error loading photos:', err)
-//     res.render('error', { message: "Failed to load album.", layout: undefined })
-//   }
-// })
 router.get('/album/:albumId', requireLogin, async (req, res) => {
-    const albumId = Number(req.params.albumId);
-    const album = await business.getAlbum(albumId);
-    if (!album) return res.render('error', { message: 'Album not found' });
+    const albumId = Number(req.params.albumId)
+    const album = await business.getAlbum(albumId)
+    if (!album) return res.render('error', { message: 'Album not found' })
 
-    const photos = await business.getPhotosByAlbum(albumId, req.user.id);
+    const photos = await business.getPhotosByAlbum(albumId, req.user.id)
 
     res.render('album_gallery', {
         album,
         photos,
         user: req.user
-    });
-});
+    })
+})
 
 /**
  * Performs a search across public photos by title, description, or tags
@@ -467,43 +440,43 @@ router.get('/album/name/:name', async (req, res) => {
  * @param {Object} res - Express response
  */
 router.get('/album/:id/gallery', requireLogin, async (req, res) => {
-    const albumId = Number(req.params.id);
+    const albumId = Number(req.params.id)
 
     if (isNaN(albumId)) {
         return res.render('error', { 
             message: "Invalid album ID.",
             layout: undefined
-        });
+        })
     }
 
     try {
-        const album = await business.getAlbum(albumId);
+        const album = await business.getAlbum(albumId)
 
         if (!album) {
             return res.render('error', { 
                 message: "Album not found.",
                 layout: undefined
-            });
+            })
         }
 
-        const photos = await business.getPhotosByAlbum(album.name, req.userId);
+        const photos = await business.getPhotosByAlbum(album.name, req.userId)
 
         res.render('album_gallery', {
             albumName: album.name,
             albumId: album.id,
             photos: photos || [],
             user: req.user
-        });
+        })
 
     } catch (err) {
-        console.error("Error loading album gallery:", err);
+        console.error("Error loading album gallery:", err)
 
         return res.render('error', { 
             message: "Failed to load album gallery.",
             layout: undefined
-        });
+        })
     }
-});
+})
 
 /**
  * Renders the upload page for a specific album.
@@ -522,12 +495,12 @@ router.get('/album/:id/gallery', requireLogin, async (req, res) => {
  */
 
 router.get('/album/:albumId/upload', requireLogin, async (req, res) => {
-    const albumId = Number(req.params.albumId);
-    if (isNaN(albumId)) return res.render('error', { message: 'Invalid album ID' });
+    const albumId = Number(req.params.albumId)
+    if (isNaN(albumId)) return res.render('error', { message: 'Invalid album ID' })
 
-    const album = await business.getAlbum(albumId);
-    if (!album) return res.render('error', { message: 'Album not found' });
-    const photos = await business.getPhotosByAlbum(albumId, req.user.email);
+    const album = await business.getAlbum(albumId)
+    if (!album) return res.render('error', { message: 'Album not found' })
+    const photos = await business.getPhotosByAlbum(albumId, req.user.email)
 
     res.render('upload', {
         album,
@@ -535,7 +508,7 @@ router.get('/album/:albumId/upload', requireLogin, async (req, res) => {
         photos,
         user: req.user,
         layout: undefined
-    });
+    })
 })
 
 
@@ -558,33 +531,33 @@ router.get('/album/:albumId/upload', requireLogin, async (req, res) => {
   */
 router.post('/album/:albumId/upload', requireLogin, async (req, res) => {
     try {
-        const albumId = Number(req.params.albumId);
+        const albumId = Number(req.params.albumId)
         if (!Number.isFinite(albumId)) {
-            return res.render('error', { message: 'Invalid album ID' });
+            return res.render('error', { message: 'Invalid album ID' })
         }
 
         const album = await business.getAlbum(albumId);
         if (!album) {
-            return res.render('error', { message: 'Album not found' });
+            return res.render('error', { message: 'Album not found' })
         }
 
         if (!req.files || !req.files.photo) {
-            return res.render('error', { message: 'No file uploaded' });
+            return res.render('error', { message: 'No file uploaded' })
         }
 
-        const uploadedFile = req.files.photo;
+        const uploadedFile = req.files.photo
         const newId = await business.uploadPhoto(
             req.user.id,
             albumId,
             uploadedFile
-        );
+        )
 
-        res.redirect(`/album/${albumId}`);
+        res.redirect(`/album/${albumId}`)
     } catch (err) {
-        console.error("Upload error:", err);
-        res.render('error', { message: "Upload failed: " + err.message });
+        console.error("Upload error:", err)
+        res.render('error', { message: "Upload failed: " + err.message })
     }
-});
+})
 
 
 /**

@@ -12,7 +12,6 @@ const{
     registerUser,
     loginUser,
     loadPhoto,
-    savePhoto,
     findPhoto,
     findAlbum,
     findAlbumbyName,
@@ -24,7 +23,6 @@ const{
     deleteSession,
     searchPublicPhotos,
     findUserById,
-    findPhotosByAlbum,
     connectDatabase
 } = require('./persistance_layer')
 const { sendMail } = require("./email")
@@ -158,17 +156,17 @@ async function getByAlbum(albumName, currentUserId) {
  */
 
 async function getPhotosByAlbum(albumId, userId) {
-    const db = await connectDatabase();
-    const photosCol = db.collection('photos');
+    const db = await connectDatabase()
+    const photosCol = db.collection('photos')
     const photos = await photosCol.find({
         albums: albumId,
         $or: [
             { visibility: "public" },
             { ownerId: userId }    
         ]
-    }).toArray();
+    }).toArray()
 
-    return photos;
+    return photos
 }
 
 /**
@@ -331,37 +329,37 @@ async function searchPhotos(searchTerm) {
  */
 
 async function uploadPhoto(userId, albumId, uploadedFile) {
-    if (!uploadedFile) throw new Error("No file uploaded");
+    if (!uploadedFile) throw new Error("No file uploaded")
 
-    const photosDir = path.join(__dirname, '..', 'infs3201_ap_fall2025','photos');
+    const photosDir = path.join(__dirname, '..', 'infs3201_ap_fall2025','photos')
 
     if (!fs.existsSync(photosDir)) {
-        fs.mkdirSync(photosDir, { recursive: true });
+        fs.mkdirSync(photosDir, { recursive: true })
     }
 
-    const ext = path.extname(uploadedFile.name);
-    const base = path.basename(uploadedFile.name, ext);
+    const ext = path.extname(uploadedFile.name)
+    const base = path.basename(uploadedFile.name, ext)
     const unique = Date.now();
-    const filename = `${base}_${unique}${ext}`;
-    const savePath = path.join(photosDir, filename);
+    const filename = `${base}_${unique}${ext}`
+    const savePath = path.join(photosDir, filename)
    
-    await uploadedFile.mv(savePath);
+    await uploadedFile.mv(savePath)
    
-    const db = await connectDatabase();
-    const photosCol = db.collection('photos');
-    const counters = db.collection('counters');
+    const db = await connectDatabase()
+    const photosCol = db.collection('photos')
+    const counters = db.collection('counters')
     let counter = await counters.findOne({ name: "photoId" });
     if (!counter) {
-        await counters.insertOne({ name: "photoId", value: 1000 });
+        await counters.insertOne({ name: "photoId", value: 1000 })
     }
 
     const result = await counters.findOneAndUpdate(
         { name: "photoId" },
         { $inc: { value: 1 } },
         { returnDocument: "after" }
-    );
+    )
 
-    const nextId = result.value.value;
+    const nextId = result.value.value
 
     const photoDoc = {
         id: nextId,
@@ -373,15 +371,13 @@ async function uploadPhoto(userId, albumId, uploadedFile) {
         visibility: "private",
         ownerId: userId,
         uploadedAt: new Date()
-    };
+    }
 
-    await photosCol.insertOne(photoDoc);
+    await photosCol.insertOne(photoDoc)
 
 
-    return { id: photoDoc.id, filename: photoDoc.filename };
+    return { id: photoDoc.id, filename: photoDoc.filename }
 }
-
-module.exports = { uploadPhoto };
 
 
 module.exports={

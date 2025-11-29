@@ -184,8 +184,6 @@ async function loadPhoto(){
  *                             ownerId, albumId, and filePath.
  * @returns {Promise<number>} The newly generated numeric photo ID.
  */
-const photosDir = path.join(__dirname, 'photos');
-
 function savePhoto(file) {
     return new Promise((resolve, reject) => {
         const uploadPath = path.join(photosDir, file.name);
@@ -280,7 +278,7 @@ async function findPhotosByAlbum(albumId) {
 
     if (!albumId) return []
     const albumIdNum = Number(albumId)
-    // Find documents where albums array contains albumIdNum
+    
     const cursor = photosCollection.find({ albums: albumIdNum })
     const photos = await cursor.toArray()
     return photos || []

@@ -39,17 +39,38 @@ HOW TO TEST:
     -Edit only works on your photos
   
     -Comments only by logged-in users
+
+    -Upload photos by logged in users only
+
+    -Send email notifications to owner of photos when other users comments 
+
+    -Search photos
   
 
 INSTRUCTIONS TO USE:
-* Open server
-* Login to mufeeda@gmail.com, with password abcd
+* Open server using node web.js in your vscode terminal 
+* If shows modules not found use npm install
+* Open the server
+* Login to "mufeeda@gmail.com", with password "abcd"
 * This user is the owner for the photos and can access/edit all the photos in the album
 * The edit visibility and photo should be only accessible only from this account
 * In album beach vacations, sunny beach is private and can be only accessed through this account
+
+FURTHER INSTRUCTIONS IF NEEDED:
+* You could use the account "eva@gmail.com" with password "1234"
+* This can be used to see and use the upload function and make sure the uploaded photos are private visibility
  
 SECURITY AND DATA HANDLING:
 * Passwords hashed using PBKDF2 + salt
 * No plaintext password storage
 * Custom cookie-based session system (no express-session)
 * No external libraries beyond course scope
+
+PROJECT FILE STRUCTURE:
+/business_layer.js
+/persistance_layer.js
+/routes/handlers.js
+/templates/*.handlebars
+/public/styles/css/*
+/web.js
+/photos/
