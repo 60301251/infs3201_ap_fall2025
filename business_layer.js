@@ -156,22 +156,21 @@ async function getByAlbum(albumName, currentUserId) {
  * @param {number|string} userId  - Logged-in user ID
  * @returns {Promise<Array<Object>>}
  */
-async function getPhotosByAlbum(albumId, userEmail) {
-    const photos = await loadPhoto(); // load all photos
-    const result = [];
 
-    for (const photo of photos) {
-        // Skip if photo does not belong to this album
-        if (!photo.albums || !photo.albums.includes(Number(albumId))) continue;
+async function getPhotosByAlbum(albumId, userId) {
+    const db = await connectDatabase();
+    const photosCol = db.collection('photos');
+    const photos = await photosCol.find({
+        albums: albumId,
+        $or: [
+            { visibility: "public" },
+            { ownerId: userId }    
+        ]
+    }).toArray();
 
-        // Include photo if public OR owned by current user
-        if (photo.visibility === "public" || photo.ownerEmail === userEmail) {
-            result.push(photo);
-        }
-    }
-
-    return result;
+    return photos;
 }
+
 /**
  * Update details of a photo.
  * @async
@@ -330,27 +329,27 @@ async function searchPhotos(searchTerm) {
  *
  * @returns {Promise<number>} The newly generated numeric photo ID.
  */
+
 async function uploadPhoto(userId, albumId, uploadedFile) {
     if (!uploadedFile) throw new Error("No file uploaded");
 
-    const photosDir = path.join(__dirname, 'photos');
-    if (!fs.existsSync(photosDir)) fs.mkdirSync(photosDir, { recursive: true });
+    const photosDir = path.join(__dirname, '..', 'infs3201_ap_fall2025','photos');
+
+    if (!fs.existsSync(photosDir)) {
+        fs.mkdirSync(photosDir, { recursive: true });
+    }
 
     const ext = path.extname(uploadedFile.name);
     const base = path.basename(uploadedFile.name, ext);
-
-    // Generate safe filename
     const unique = Date.now();
     const filename = `${base}_${unique}${ext}`;
     const savePath = path.join(photosDir, filename);
-
+   
     await uploadedFile.mv(savePath);
-
+   
     const db = await connectDatabase();
     const photosCol = db.collection('photos');
     const counters = db.collection('counters');
-
-    // Ensure counter exists
     let counter = await counters.findOne({ name: "photoId" });
     if (!counter) {
         await counters.insertOne({ name: "photoId", value: 1000 });
@@ -366,20 +365,24 @@ async function uploadPhoto(userId, albumId, uploadedFile) {
 
     const photoDoc = {
         id: nextId,
-        filename: filename,
-        title: "",
+        filename: filename,    
+        title: "",               
         description: "",
         albums: [albumId],
         tags: [],
-        visibility: "private",     // REQUIRED
+        visibility: "private",
         ownerId: userId,
         uploadedAt: new Date()
     };
 
     await photosCol.insertOne(photoDoc);
 
-    return photoDoc.id;
+
+    return { id: photoDoc.id, filename: photoDoc.filename };
 }
+
+module.exports = { uploadPhoto };
+
 
 module.exports={
     signup,

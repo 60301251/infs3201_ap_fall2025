@@ -11,14 +11,8 @@
 const express = require('express')
 const router = express.Router()
 const business = require('../business_layer')
-const fileUpload = require('express-fileupload')
 const persistance = require('../persistance_layer')
 const { getUserBySession } = require('../business_layer')
-const path = require('path')
-const fs = require('fs')
-const UPLOADS_DIR = path.join(__dirname, '..', 'photos')
-if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true })
-
 
 /**
  * Middleware to ensure the user is logged in.
@@ -336,22 +330,36 @@ router.get('/albums', requireLogin, async (req, res) => {
  * @param {Response} res - Express response to render the album page.
  * @returns {void}
  */
-router.get('/album/:id', requireLogin, async (req, res) => {
-  const albumId = Number(req.params.id)
-  if (isNaN(albumId)) return res.render('error', { message: "Invalid album ID.", layout: undefined })
+// router.get('/album/:id', requireLogin, async (req, res) => {
+//   const albumId = Number(req.params.id)
+//   if (isNaN(albumId)) return res.render('error', { message: "Invalid album ID.", layout: undefined })
 
-  const album = await business.getAlbum(albumId)
-  if (!album) return res.render('error', { message: "Album not found", layout: undefined })
+//   const album = await business.getAlbum(albumId)
+//   if (!album) return res.render('error', { message: "Album not found", layout: undefined })
 
-  try {
-    // business.getPhotosByAlbum expects albumId and userEmail
-    const photos = await business.getPhotosByAlbum(albumId, req.user.email)
-    res.render('album_gallery', { album, photos, user: req.user, layout: undefined })
-  } catch (err) {
-    console.error('Error loading photos:', err)
-    res.render('error', { message: "Failed to load album.", layout: undefined })
-  }
-})
+//   try {
+//     // business.getPhotosByAlbum expects albumId and userEmail
+//     const photos = await business.getPhotosByAlbum(albumId, req.user.email)
+//     res.render('album_gallery', { album, photos, user: req.user, layout: undefined })
+//   } catch (err) {
+//     console.error('Error loading photos:', err)
+//     res.render('error', { message: "Failed to load album.", layout: undefined })
+//   }
+// })
+router.get('/album/:albumId', requireLogin, async (req, res) => {
+    const albumId = Number(req.params.albumId);
+    const album = await business.getAlbum(albumId);
+    if (!album) return res.render('error', { message: 'Album not found' });
+
+    const photos = await business.getPhotosByAlbum(albumId, req.user.id);
+
+    res.render('album_gallery', {
+        album,
+        photos,
+        user: req.user
+    });
+});
+
 /**
  * Performs a search across public photos by title, description, or tags
  * and displays the matching results in a grid.
@@ -497,17 +505,6 @@ router.get('/album/:id/gallery', requireLogin, async (req, res) => {
     }
 });
 
-
-router.get('/albums', requireLogin, async (req, res) => {
-    try {
-        const albums = await business.loadAlbum(); // get all albums
-        res.render('albums', { albums, user: req.user, layout: undefined });
-    } catch (err) {
-        console.error(err);
-        res.render('error', { message: 'Failed to load albums', layout: undefined });
-    }
-})
-
 /**
  * Renders the upload page for a specific album.
  * Validates that:
@@ -530,8 +527,6 @@ router.get('/album/:albumId/upload', requireLogin, async (req, res) => {
 
     const album = await business.getAlbum(albumId);
     if (!album) return res.render('error', { message: 'Album not found' });
-
-    // Load existing photos in this album
     const photos = await business.getPhotosByAlbum(albumId, req.user.email);
 
     res.render('upload', {
@@ -578,8 +573,6 @@ router.post('/album/:albumId/upload', requireLogin, async (req, res) => {
         }
 
         const uploadedFile = req.files.photo;
-
-        // Upload using business layer — NO titles, NO description, ALWAYS private
         const newId = await business.uploadPhoto(
             req.user.id,
             albumId,
