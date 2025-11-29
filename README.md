@@ -15,7 +15,7 @@ PHASE 1- Implements User Registrantion and  Authentication, Photo Visibility, Co
 
 MONGODB LINK:
 
-mongodb+srv://60301251:<db_password>@cluster0.j7qvb.mongodb.net/
+mongodb+srv://60301251:12class34@cluster0.j7qvb.mongodb.net/
 
 Account:60301251@udst.edu.qa
 
