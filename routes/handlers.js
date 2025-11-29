@@ -11,7 +11,7 @@
 const express = require('express')
 const router = express.Router()
 const business = require('../business_layer')
-// const fileUpload = require('express-fileupload')
+const fileUpload = require('express-fileupload')
 const persistance = require('../persistance_layer')
 const { getUserBySession } = require('../business_layer')
 const path = require('path')
@@ -316,15 +316,16 @@ router.post('/photo/:id/comment', requireLogin, async (req, res) => {
   }
 })
 
-// router.get('/albums', requireLogin, async (req, res) => {
-//     try {
-//         const albums = await persistance.loadAlbum();
-//         res.render('album', { albums, user: req.user, layout: undefined });
-//     } catch (err) {
-//         console.error(err);
-//         res.render('error', { message: 'Failed to load albums', layout: undefined });
-//     }
-// });
+router.get('/albums', requireLogin, async (req, res) => {
+    try {
+        const albums = await persistance.loadAlbum();
+        res.render('index', { albums, user: req.user, layout: undefined });
+    } catch (err) {
+        console.error(err);
+        res.render('error', { message: 'Failed to load albums', layout: undefined });
+    }
+});
+
 
 
 /**
