@@ -511,7 +511,6 @@ router.get('/albums', requireLogin, async (req, res) => {
  * @returns {Promise<void>}
  */
 
-
 router.get('/album/:albumId/upload', requireLogin, async (req, res) => {
     const albumId = Number(req.params.albumId);
     if (isNaN(albumId)) return res.render('error', { message: 'Invalid album ID' });
@@ -532,9 +531,23 @@ router.get('/album/:albumId/upload', requireLogin, async (req, res) => {
 })
 
 
-
-
-// POST upload photo
+/**
+ * Handles uploading a new photo into a specific album.
+ * Validates:
+ *  - albumId is numeric,
+ *  - album exists,
+ *  - logged-in user owns the album,
+ *  - a file was uploaded.
+ * 
+ * Saves the file and metadata through the business layer,
+ * then redirects back to the album gallery.
+ *
+ * @route POST /album/:albumId/upload
+ * @async
+ * @param {express.Request} req  - Request containing albumId, form fields, and uploaded file.
+ * @param {express.Response} res - Response used to show errors or redirect after upload.
+ * @returns {Promise<void>}
+  */
 router.post('/album/:albumId/upload', requireLogin, async (req, res) => {
     try {
         const albumId = Number(req.params.albumId);
