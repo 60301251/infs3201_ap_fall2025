@@ -184,40 +184,6 @@ async function loadPhoto(){
  *                             ownerId, albumId, and filePath.
  * @returns {Promise<number>} The newly generated numeric photo ID.
  */
-
-// async function savePhoto(photoData) {
-//     await connectDatabase()
-//     const db = client.db('INFS3201_fall2025')
-//     const photosCollection = db.collection('photos')
-//     const counters = db.collection('counters')
-
-//     // Generate numeric id
-//     const result = await counters.findOneAndUpdate(
-//         { name: "photoId" },
-//         { $inc: { value: 1 } },
-//         { upsert: true, returnDocument: "after" }
-//     )
-//     const nextId = result.value.value
-
-//     // Build document to match your existing format (Option B)
-//     const photoDoc = {
-//         id: Number(nextId),                             // numeric id (used in URLs)
-//         filename: photoData.filename || photoData.filePath || '',
-//         title: photoData.title || '',
-//         description: photoData.description || '',
-//         resolution: photoData.resolution || '',
-//         albums: Array.isArray(photoData.albums) ? photoData.albums : (photoData.albumId ? [Number(photoData.albumId)] : []),
-//         tags: Array.isArray(photoData.tags) ? photoData.tags : [],
-//         visibility: photoData.visibility || 'private',
-//         ownerId: Number(photoData.ownerId || 0),
-//         ownerEmail: photoData.ownerEmail || '',
-//         date: photoData.date || new Date().toISOString()
-//     }
-
-//     await photosCollection.insertOne(photoDoc)
-//     return photoDoc.id
-// }
-
 const photosDir = path.join(__dirname, 'photos');
 
 function savePhoto(file) {
