@@ -315,6 +315,18 @@ router.post('/photo/:id/comment', requireLogin, async (req, res) => {
     res.render('error', { message: 'Failed to add comment.', layout: undefined })
   }
 })
+
+// router.get('/albums', requireLogin, async (req, res) => {
+//     try {
+//         const albums = await persistance.loadAlbum();
+//         res.render('album', { albums, user: req.user, layout: undefined });
+//     } catch (err) {
+//         console.error(err);
+//         res.render('error', { message: 'Failed to load albums', layout: undefined });
+//     }
+// });
+
+
 /**
  * Render a specific album and its photos.
  * 
