@@ -440,61 +440,115 @@ async function searchPhotos(searchTerm) {
 
 //     return photoDoc.id; // Return numeric photo ID
 // }
-async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
+
+
+// async function uploadPhoto(userId, albumId, uploadedFile, photoData) {
+//     if (!uploadedFile) throw new Error("No file uploaded");
+
+//     // Ensure photos folder exists
+//     const photosDir = path.join(__dirname, 'photos');
+//     if (!fs.existsSync(photosDir)) fs.mkdirSync(photosDir, { recursive: true });
+
+//     // Generate unique filename
+//     const ext = path.extname(uploadedFile.name);
+//     const base = path.basename(uploadedFile.name, ext);
+//     const uniqueName = `${base}_${Date.now()}${ext}`;
+//     const savePath = path.join(photosDir, uniqueName);
+
+//     // Move file physically
+//     await uploadedFile.mv(savePath);
+
+//     // Connect to MongoDB
+//     const db = await connectDatabase();
+//     const photosCollection = db.collection('photos');
+//     const countersCollection = db.collection('counters');
+
+//     // Ensure counter exists
+//     const counter = await countersCollection.findOne({ name: "photoId" });
+//     if (!counter) {
+//         await countersCollection.insertOne({ name: "photoId", value: 1000 });
+//     }
+
+//     // Generate numeric photo ID
+//     const result = await countersCollection.findOneAndUpdate(
+//         { name: "photoId" },
+//         { $inc: { value: 1 } },
+//         { returnDocument: "after" }
+//     );
+
+//     if (!result.value) throw new Error("Failed to generate photo ID");
+
+//     const nextId = result.value.value;
+
+//     // Build photo document
+//     const photoDoc = {
+//         id: nextId,
+//         filename: uniqueName,
+//         title: photoData.title || '',
+//         description: photoData.description || '',
+//         albums: [albumId],
+//         tags: [],
+//         visibility: photoData.visibility || 'private',
+//         ownerId: userId,
+//         uploadedAt: new Date(),
+//     };
+
+//     await photosCollection.insertOne(photoDoc);
+
+//     return photoDoc.id;
+// }
+
+async function uploadPhoto(userId, albumId, uploadedFile) {
     if (!uploadedFile) throw new Error("No file uploaded");
 
-    // Ensure photos folder exists
     const photosDir = path.join(__dirname, 'photos');
     if (!fs.existsSync(photosDir)) fs.mkdirSync(photosDir, { recursive: true });
 
-    // Generate unique filename
     const ext = path.extname(uploadedFile.name);
     const base = path.basename(uploadedFile.name, ext);
-    const uniqueName = `${base}_${Date.now()}${ext}`;
-    const savePath = path.join(photosDir, uniqueName);
 
-    // Move file physically
+    // Generate safe filename
+    const unique = Date.now();
+    const filename = `${base}_${unique}${ext}`;
+    const savePath = path.join(photosDir, filename);
+
     await uploadedFile.mv(savePath);
 
-    // Connect to MongoDB
     const db = await connectDatabase();
-    const photosCollection = db.collection('photos');
-    const countersCollection = db.collection('counters');
+    const photosCol = db.collection('photos');
+    const counters = db.collection('counters');
 
     // Ensure counter exists
-    const counter = await countersCollection.findOne({ name: "photoId" });
+    let counter = await counters.findOne({ name: "photoId" });
     if (!counter) {
-        await countersCollection.insertOne({ name: "photoId", value: 1000 });
+        await counters.insertOne({ name: "photoId", value: 1000 });
     }
 
-    // Generate numeric photo ID
-    const result = await countersCollection.findOneAndUpdate(
+    const result = await counters.findOneAndUpdate(
         { name: "photoId" },
         { $inc: { value: 1 } },
         { returnDocument: "after" }
     );
 
-    if (!result.value) throw new Error("Failed to generate photo ID");
-
     const nextId = result.value.value;
 
-    // Build photo document
     const photoDoc = {
         id: nextId,
-        filename: uniqueName,
-        title: photoData.title || '',
-        description: photoData.description || '',
+        filename: filename,
+        title: "",
+        description: "",
         albums: [albumId],
         tags: [],
-        visibility: photoData.visibility || 'private',
+        visibility: "private",     // REQUIRED
         ownerId: userId,
-        uploadedAt: new Date(),
+        uploadedAt: new Date()
     };
 
-    await photosCollection.insertOne(photoDoc);
+    await photosCol.insertOne(photoDoc);
 
     return photoDoc.id;
 }
+
 
 
 
