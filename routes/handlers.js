@@ -311,6 +311,34 @@ router.post('/photo/:id/comment', requireLogin, async (req, res) => {
 })
 
 /**
+ * GET /albums
+ *
+ * Loads all albums from the database and renders the home page.
+ *
+ * Middleware:
+ *   - requireLogin: Ensures the user is authenticated before accessing the route.
+ *
+ * Response:
+ *   - On success: Renders the "index" view with the list of albums and logged-in user data.
+ *   - On failure: Renders the "error" view with an error message.
+ *
+ * @route GET /albums
+ * @param {import('express').Request} req - Express request object (contains user details from requireLogin).
+ * @param {import('express').Response} res - Express response object used to render views.
+ * @param {Function} next - Express next middleware function (not used here).
+ * @returns {Promise<void>}
+ */
+router.get('/albums', requireLogin, async (req, res) => {
+    try {
+        const albums = await persistance.loadAlbum();
+        res.render('index', { albums, user: req.user, layout: undefined })
+    } catch (err) {
+        console.error(err)
+        res.render('error', { message: 'Failed to load albums', layout: undefined })
+    }
+})
+
+/**
  * Render a specific album and its photos.
  * 
  * @route GET /album/:id
