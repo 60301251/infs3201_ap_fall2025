@@ -106,3 +106,5 @@ app.use('/',routes)
  * @returns {void} Logs message when server starts
  */
 app.listen(PORT, () => console.log(`Server running at http://localhost:8000`))
+
+app.listen(PORT, () => console.log(`Server running at http://localhost:8000`))
