@@ -55,6 +55,10 @@ INSTRUCTIONS TO USE:
 * This user is the owner for the photos and can access/edit all the photos in the album
 * The edit visibility and photo should be only accessible only from this account
 * In album beach vacations, sunny beach is private and can be only accessed through this account
+* When uploading a photo the file must be selected and click on upload button after selecting the photo then you will be able to see the uploaded photo in the albums
+* Under each photos all logged in users will be able to post comments
+* The email notification when a user posts a comment will be send to the owner of the photo
+* The search button on the index page will allow you to search for the photos using their name
 
 FURTHER INSTRUCTIONS IF NEEDED:
 * You could use the account "eva@gmail.com" with password "1234"
