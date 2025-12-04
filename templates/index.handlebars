@@ -20,14 +20,10 @@
             </button>
         </form>
 
-        <!-- Right: Login Info + Logout Button -->
-        <div style="display:flex; align-items:center; gap:10px;">
+        <!-- Right: Login Info -->
+        <div>
             <span>Logged in as: {{user.name}}</span>
-            <form action="/logout" method="POST" style="margin:0; padding:0;">
-                <button type="submit" style="padding:6px 12px; border-radius:6px; border:none; background:#f87171; color:#fff; font-weight:600; cursor:pointer;">
-                    Logout
-                </button>
-            </form>
+            <a href="/logout" style="margin-left:10px; colour = #FF0000">Logout</a>
         </div>
     </div>
 
