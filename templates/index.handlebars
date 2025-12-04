@@ -1,15 +1,48 @@
-<h1>Photo Albums</h1>
-
-<p><a href="/search">Search Photos</a></p>
-
 <link rel="stylesheet" href="/styles/gallery.css">
 
-<ul>
-{{#each albums}}
-    <li><a href="/album/{{id}}">{{name}}</a></li>
-{{/each}}
-</ul>
+<div class="page-shell">
 
-<p>
-Logged in as: {{user.name}} | <a href="/logout">Logout</a>
-</p>
+    <!-- Top Bar -->
+    <div class="top-bar" style="display:flex; justify-content:space-between; align-items:center; padding:10px 0;">
+        <!-- Left: Search Form -->
+        <form action="/search" method="GET" style="display:flex; gap:6px; align-items:center;">
+            <input
+                type="text"
+                name="q"
+                placeholder="Search photos..."
+                style="padding:8px 12px; border-radius:6px; border:1px solid #ccc; width:350px; font-size:16px;"
+                required
+            >
+            <button
+                type="submit"
+                style="padding:8px 16px; border-radius:6px; border:none; background:#2563EB; color:#fff; font-weight:600; font-size:16px;">
+                Search
+            </button>
+        </form>
+
+        <!-- Right: Login Info -->
+        <div>
+            <span>Logged in as: {{user.name}}</span>
+            <a href="/logout" style="margin-left:10px; colour = #FF0000">Logout</a>
+        </div>
+    </div>
+
+    <!-- Page Title -->
+    <h1 style="text-align:center; margin-top:30px;">Photo Albums</h1>
+
+    <!-- Albums List -->
+    <ul style="list-style: none; padding: 0; max-width: 600px; margin: 20px auto;">
+        {{#each albums}}
+            <li style="padding: 10px; margin: 6px 0; background: #fff; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
+                <a href="/album/{{id}}" style="font-size: 18px; font-weight: 600; color: #2563EB;">
+                    {{name}}
+                </a>
+            </li>
+        {{/each}}
+    </ul>
+
+    {{#unless albums.length}}
+        <p class="no-photos" style="text-align:center;">No albums found.</p>
+    {{/unless}}
+
+</div>
